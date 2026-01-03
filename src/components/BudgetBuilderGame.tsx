@@ -74,17 +74,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
   const [currentTip, setCurrentTip] = useState('');
   const [monthStarted, setMonthStarted] = useState(true);
 
-  // Save progress when key values change
-  useEffect(() => {
-    if (onSaveProgress) {
-      onSaveProgress({
-        currentMonth,
-        score,
-        savings,
-        categories
-      });
-    }
-  }, [currentMonth, score, savings, categories, onSaveProgress]);
+  // Progress saving handled by parent component if needed
 
   const monthsData: MonthData[] = [
     {
