@@ -6,7 +6,7 @@ import {
 import { cn } from '@/lib/utils';
 import { BudgetBuilderGame } from './BudgetBuilderGame';
 import { NeedsVsWantsChallenge } from './NeedsVsWantsChallenge';
-import { StockMarketSimulator } from './StockMarketSimulator';
+import { BitcoinTradingSimulator } from './BitcoinTradingSimulator';
 import BankingTermsFlashCards from './BankingTermsFlashCards';
 import { RoadToLegacyGame } from './RoadToLegacyGame';
 
@@ -60,12 +60,12 @@ export function GamesScreen() {
       category: 'Spending'
     },
     {
-      id: 'stock-simulator',
-      name: 'Stock Market Simulator',
-      description: 'Experience the excitement of the stock market. Buy, sell, and track virtual stocks in real-time.',
+      id: 'bitcoin-simulator',
+      name: 'Bitcoin Trading Simulator',
+      description: 'Trade Bitcoin with real-time market data! Practice buying and selling with a $10,000 virtual portfolio.',
       icon: TrendingUp,
-      color: 'text-[#4A5FFF]',
-      gradient: 'from-[#4A5FFF] to-[#00BFFF]',
+      color: 'text-[#FFD700]',
+      gradient: 'from-[#FFD700] to-[#FF6B35]',
       duration: '15-20 min',
       difficulty: 'Medium',
       highScore: null,
@@ -117,8 +117,8 @@ export function GamesScreen() {
         return <BudgetBuilderGame onBack={handleGameBack} />;
       case 'needs-vs-wants':
         return <NeedsVsWantsChallenge onBack={handleGameBack} />;
-      case 'stock-simulator':
-        return <StockMarketSimulator onBack={handleGameBack} />;
+      case 'bitcoin-simulator':
+        return <BitcoinTradingSimulator onBack={handleGameBack} />;
       case 'banking-flashcards':
         return <BankingTermsFlashCards onBack={handleGameBack} />;
       case 'road-to-legacy':
@@ -160,13 +160,13 @@ export function GamesScreen() {
       {/* Featured Game - HERO VERSION WITH IMAGE */}
       <div className="hero-card rounded-2xl overflow-hidden">
         {/* Featured Game Image / Placeholder - Full Width on Top */}
-        <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[var(--primary-500)] to-[var(--primary-700)]">
+        <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FF6B35]">
           {/* Placeholder with animated icon */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative">
-              <TrendingUp className="w-24 h-24 text-white/20" />
+              <span className="text-[120px] text-white/20">₿</span>
               <div className="absolute inset-0 flex items-center justify-center">
-                <TrendingUp className="w-16 h-16 text-white float-icon" />
+                <span className="text-[80px] text-white float-icon">₿</span>
               </div>
             </div>
           </div>
@@ -174,15 +174,16 @@ export function GamesScreen() {
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-elevated)] via-transparent to-transparent" />
           {/* Featured badge */}
           <div className="absolute top-4 left-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[var(--secondary-400)] to-[var(--secondary-500)] text-black text-xs font-bold uppercase tracking-wider shadow-lg">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#FFD700] to-[#FF6B35] text-black text-xs font-bold uppercase tracking-wider shadow-lg">
               <Star className="w-3 h-3" />
               Featured
             </span>
           </div>
-          {/* Difficulty badge */}
+          {/* Live Data badge */}
           <div className="absolute top-4 right-4">
-            <span className="px-3 py-1.5 rounded-full bg-[var(--secondary-500)]/90 text-white text-xs font-bold backdrop-blur-sm">
-              Medium
+            <span className="px-3 py-1.5 rounded-full bg-[#50D890]/90 text-white text-xs font-bold backdrop-blur-sm flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              Live Data
             </span>
           </div>
         </div>
@@ -190,7 +191,7 @@ export function GamesScreen() {
         {/* Content */}
         <div className="p-6 relative">
           {/* Decorative glow */}
-          <div className="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-[var(--primary-500)]/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-[#FFD700]/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
@@ -198,9 +199,9 @@ export function GamesScreen() {
               <span className="text-[var(--success)] text-sm font-semibold uppercase tracking-wider">Ready to Play</span>
             </div>
 
-            <h3 className="text-2xl font-black text-white mb-2">Stock Market Simulator</h3>
+            <h3 className="text-2xl font-black text-white mb-2">Bitcoin Trading Simulator</h3>
             <p className="text-[var(--text-secondary)] mb-4">
-              Put your investing knowledge to the test! Trade virtual stocks with real market dynamics.
+              Trade Bitcoin with real-time market data! Practice buying and selling with a $10,000 virtual portfolio.
             </p>
 
             <div className="flex items-center gap-6 mb-5">
@@ -208,18 +209,18 @@ export function GamesScreen() {
                 <Clock className="w-4 h-4" />
                 15-20 min
               </span>
-              <span className="flex items-center gap-2 text-[var(--secondary-500)] font-bold">
+              <span className="flex items-center gap-2 text-[#FFD700] font-bold">
                 <Zap className="w-4 h-4" />
                 +500 XP
               </span>
             </div>
 
             <button
-              onClick={() => setActiveGame('stock-simulator')}
-              className="cta-pulse inline-flex items-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-[var(--primary-500)] to-[var(--primary-600)] text-white font-bold hover:-translate-y-1 hover:shadow-xl hover:shadow-[var(--primary-500)]/40 transition-all duration-200"
+              onClick={() => setActiveGame('bitcoin-simulator')}
+              className="cta-pulse inline-flex items-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-[#FFD700] to-[#FF6B35] text-black font-bold hover:-translate-y-1 hover:shadow-xl hover:shadow-[#FFD700]/40 transition-all duration-200"
             >
               <Play className="w-5 h-5" />
-              Play Now
+              Start Trading
             </button>
           </div>
         </div>
