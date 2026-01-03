@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Calendar, DollarSign, TrendingUp, TrendingDown, PieChart, Plus, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
@@ -233,7 +233,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
                   ${needsTotal.toFixed(2)} / ${budget.needs.toFixed(2)}
                 </span>
               </div>
-              <ProgressBar progress={Math.min(needsProgress, 100)} color={needsProgress >= 100 ? 'red' : 'green'} />
+              <ProgressBar progress={Math.min(needsProgress, 100)} color={needsProgress >= 100 ? 'orange' : 'green'} />
             </div>
 
             {/* Wants */}
@@ -244,7 +244,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
                   ${wantsTotal.toFixed(2)} / ${budget.wants.toFixed(2)}
                 </span>
               </div>
-              <ProgressBar progress={Math.min(wantsProgress, 100)} color={wantsProgress >= 100 ? 'red' : 'blue'} />
+              <ProgressBar progress={Math.min(wantsProgress, 100)} color={wantsProgress >= 100 ? 'orange' : 'blue'} />
             </div>
 
             {/* Savings Goal */}

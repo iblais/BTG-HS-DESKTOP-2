@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
-import { signOut, getCurrentUser, supabase } from '@/lib/auth';
+import { signOut, getCurrentUser } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 
 interface AccountSettingsScreenProps {
   onBack: () => void;
