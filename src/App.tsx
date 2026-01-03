@@ -130,8 +130,9 @@ function App() {
         const parsed = JSON.parse(cachedEnrollment);
         console.log('Using cached enrollment');
         setEnrollment(parsed);
-        const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
-        setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
+        // Skip onboarding - go straight to dashboard
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
         return;
       } catch {
         // Invalid cache
