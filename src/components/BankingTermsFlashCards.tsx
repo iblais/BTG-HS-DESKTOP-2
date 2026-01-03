@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight, Check, X, Trophy, Star, Zap, BookOpen, GraduationCap, Award } from 'lucide-react';
 
 // Types

@@ -5,8 +5,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BudgetBuilderGame } from './BudgetBuilderGame';
-import NeedsVsWantsChallenge from './NeedsVsWantsChallenge';
-import StockMarketSimulator from './StockMarketSimulator';
+import { NeedsVsWantsChallenge } from './NeedsVsWantsChallenge';
+import { StockMarketSimulator } from './StockMarketSimulator';
 import BankingTermsFlashCards from './BankingTermsFlashCards';
 import { RoadToLegacyGame } from './RoadToLegacyGame';
 

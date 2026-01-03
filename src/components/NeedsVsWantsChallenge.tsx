@@ -3,8 +3,8 @@ import { ArrowLeft, Heart, ShoppingBag, Clock, Trophy, Zap, RotateCcw, CheckCirc
 
 interface NeedsVsWantsChallengeProps {
   onBack: () => void;
-  onSaveProgress: (progress: any) => void;
-  savedProgress?: any;
+  onSaveProgress?: (progress: unknown) => void;
+  savedProgress?: unknown;
 }
 
 interface Item {
@@ -56,7 +56,7 @@ const allItems: Item[] = [
   { id: 30, name: 'Childcare', emoji: '👶', category: 'need', explanation: 'If you have children and work, childcare is essential.', difficulty: 'hard' },
 ];
 
-export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ onBack, onSaveProgress, savedProgress }) => {
+export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ onBack }) => {
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'results'>('intro');
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [score, setScore] = useState(0);

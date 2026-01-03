@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Zap, BookOpen, Trophy, Users, Star, Crown, DollarSign } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface RoadToLegacyGameProps {
   onBack: () => void;
   savedProgress?: RoadToLegacyProgress;
-  onSaveProgress: (progress: RoadToLegacyProgress) => void;
+  onSaveProgress?: (progress: RoadToLegacyProgress) => void;
 }
 
 interface RoadToLegacyProgress {

@@ -3,8 +3,8 @@ import { ArrowLeft, TrendingUp, TrendingDown, DollarSign, Clock, BarChart3, Wall
 
 interface StockMarketSimulatorProps {
   onBack: () => void;
-  onSaveProgress: (progress: any) => void;
-  savedProgress?: any;
+  onSaveProgress?: (progress: unknown) => void;
+  savedProgress?: unknown;
 }
 
 interface Stock {
@@ -50,7 +50,7 @@ const newsEvents: NewsEvent[] = [
   { headline: 'Unemployment Rate Drops', impact: { SAFE: 4, TECH: 6, HLTH: 3, ENER: 4, FOOD: 5, GAME: 7 }, type: 'positive' },
 ];
 
-export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBack, onSaveProgress, savedProgress }) => {
+export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBack }) => {
   const [gameState, setGameState] = useState<'intro' | 'playing' | 'results'>('intro');
   const [stocks, setStocks] = useState<Stock[]>(initialStocks);
   const [portfolio, setPortfolio] = useState<Portfolio>({ cash: 10000, holdings: {} });
@@ -61,7 +61,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [tradeAmount, setTradeAmount] = useState(1);
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
-  const [priceHistory, setPriceHistory] = useState<{ [symbol: string]: number[] }>({});
+  const [, setPriceHistory] = useState<{ [symbol: string]: number[] }>({});
 
   useEffect(() => {
     // Initialize price history

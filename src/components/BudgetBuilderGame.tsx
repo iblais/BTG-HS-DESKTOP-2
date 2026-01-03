@@ -1,28 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { GlassCard } from './GlassCard';
-import { Button3D } from './Button3D';
-import { 
-  ArrowLeft, 
-  Home, 
-  Utensils, 
-  Car, 
-  Gamepad2, 
-  PiggyBank, 
+import React, { useState, useEffect } from 'react';
+import { GlassCard } from './ui/GlassCard';
+import { Button3D } from './ui/Button3D';
+import {
+  ArrowLeft,
+  Home,
+  Utensils,
+  Car,
+  Gamepad2,
+  PiggyBank,
   Zap,
-  TrendingUp,
-  TrendingDown,
   AlertTriangle,
-  CheckCircle,
   Lightbulb,
   Target,
   Award,
   RotateCcw,
-  Share,
-  BookOpen,
-  Shuffle,
   Eye,
-  Percent,
-  DollarSign
+  Percent
 } from 'lucide-react';
 
 interface BudgetCategory {
@@ -58,10 +51,17 @@ interface MonthData {
   description: string;
 }
 
+interface GameProgress {
+  currentMonth: number;
+  score: number;
+  savings: number;
+  categories: BudgetCategory[];
+}
+
 interface BudgetBuilderGameProps {
   onBack: () => void;
-  savedProgress?: any;
-  onSaveProgress: (progress: any) => void;
+  savedProgress?: GameProgress;
+  onSaveProgress?: (progress: GameProgress) => void;
 }
 
 export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, savedProgress, onSaveProgress }) => {
@@ -306,26 +306,26 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
           return cat;
       }
     }));
-    setScore(prev => prev - 25); // Small penalty for using auto-balance
+    setScore((prev: number) => prev - 25); // Small penalty for using auto-balance
   };
 
   const completeMonth = () => {
     const monthScore = calculateScore();
-    setScore(prev => prev + monthScore);
+    setScore((prev: number) => prev + monthScore);
     setShowMonthSummary(true);
   };
 
   const nextMonth = () => {
     if (currentMonth < monthsData.length) {
-      setCurrentMonth(prev => prev + 1);
+      setCurrentMonth((prev: number) => prev + 1);
       setShowMonthSummary(false);
       setShowChallenge(false);
       setChallengeCompleted(false);
       setMonthStarted(true);
-      
+
       // Update categories for new month
       const newMonthData = monthsData[currentMonth];
-      setCategories(prev => prev.map(cat => ({
+      setCategories((prev: BudgetCategory[]) => prev.map(cat => ({
         ...cat,
         currentAmount: Math.round(cat.currentAmount * (newMonthData.income / currentMonthData.income))
       })));
@@ -826,7 +826,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
                       updateCategoryAmount(option.effect.category, 
                         (categories.find(cat => cat.id === option.effect.category)?.currentAmount || 0) + option.effect.amount);
                     }
-                    setScore(prev => prev + option.effect.points);
+                    setScore((prev: number) => prev + option.effect.points);
                     setChallengeCompleted(true);
                     setShowChallenge(false);
                   }}
