@@ -5,7 +5,7 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle
+  FileText, HelpCircle, Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/assets';
 import { LessonScreen } from './LessonScreen';
 import { QuizScreen } from './QuizScreen';
+import { FinalExamScreen } from './FinalExamScreen';
 
 // Map week numbers to images
 const weekImages: Record<number, string> = {
@@ -60,7 +61,7 @@ interface Week {
   progress: number;
 }
 
-type ViewMode = 'list' | 'lesson' | 'quiz';
+type ViewMode = 'list' | 'lesson' | 'quiz' | 'final_exam';
 
 export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [loading, setLoading] = useState(true);
@@ -244,6 +245,36 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     );
   }
 
+  // Show FinalExamScreen
+  if (viewMode === 'final_exam') {
+    return (
+      <FinalExamScreen
+        onBack={() => setViewMode('list')}
+        onComplete={async (score, passed) => {
+          if (passed) {
+            try {
+              const user = await getCurrentUser();
+              if (user) {
+                // Save final exam result
+                await supabase
+                  .from('course_progress')
+                  .upsert({
+                    user_id: user.id,
+                    week_number: 999, // Special week number for final exam
+                    score: Math.round((score / 50) * 100),
+                    completed: true
+                  }, { onConflict: 'user_id,week_number' });
+              }
+            } catch (err) {
+              console.error('Failed to save final exam result:', err);
+            }
+          }
+          setViewMode('list');
+        }}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -302,6 +333,35 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
               )}>{milestone}%</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Final Exam Card */}
+      <div
+        onClick={() => setViewMode('final_exam')}
+        className="hero-card rounded-2xl p-6 cursor-pointer hover:scale-[1.02] transition-all duration-300 group"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#9B59B6] to-[#8E44AD] flex items-center justify-center shadow-lg">
+              <Award className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white group-hover:text-[#9B59B6] transition-colors">
+                Final Certification Exam
+              </h3>
+              <p className="text-[var(--text-tertiary)] text-sm mt-1">
+                50 questions covering all course material - 70% to pass
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden md:block">
+              <p className="text-white/60 text-sm">Earn your</p>
+              <p className="text-[#9B59B6] font-bold">Financial Literacy Certificate</p>
+            </div>
+            <ChevronRight className="w-6 h-6 text-white/40 group-hover:text-[#9B59B6] transition-colors" />
+          </div>
         </div>
       </div>
 

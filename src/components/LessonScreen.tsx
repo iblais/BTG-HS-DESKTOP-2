@@ -1820,6 +1820,480 @@ Consider forming an LLC for liability protection and tax flexibility.`,
             "Calculate startup costs and break-even point"
           ]
         }
+      },
+      10: {
+        0: {
+          intermediate: `**Resume Optimization Strategies**
+
+Beyond basic formatting:
+- Use ATS-friendly formats (many companies use automated screening)
+- Include keywords from the job description
+- Quantify achievements whenever possible (increased sales by 25%)
+- Tailor each resume to the specific job
+
+Consider creating a master resume with all experiences, then customize for each application.`,
+          advanced: `**Strategic Job Search**
+
+Advanced job hunting techniques:
+- Target companies, not just job postings (reach out even without openings)
+- Leverage LinkedIn for warm introductions
+- Prepare salary negotiation strategy before the offer
+- Understand the hidden job market (70%+ of jobs aren't posted)
+
+Track your applications systematically: company, position, date applied, contact person, follow-up dates.`,
+          extraPoints: level === 'advanced' ? [
+            "Create an ATS-optimized resume template",
+            "Build a job search tracking spreadsheet",
+            "Research salary ranges before interviewing"
+          ] : [
+            "Learn to quantify your achievements",
+            "Customize your resume for each application"
+          ]
+        },
+        1: {
+          intermediate: `**Cover Letter Mastery**
+
+Make your cover letter stand out:
+- Address the hiring manager by name (research!)
+- Open with something specific about the company
+- Connect your experience to their needs
+- End with a clear call to action
+
+One page maximum - quality over quantity.`,
+          advanced: `**Building Your Career Capital**
+
+Think beyond the immediate job:
+- What skills will this role develop?
+- What network will you build?
+- How does it position you for future opportunities?
+- What's the growth trajectory?
+
+Sometimes the best job isn't the highest paying - it's the one that builds the most valuable experience.`,
+          extraPoints: level === 'advanced' ? [
+            "Map your career trajectory 5-10 years out",
+            "Identify skill gaps and how to fill them",
+            "Build relationships before you need them"
+          ] : [
+            "Research hiring managers before applying",
+            "Create a cover letter template to customize"
+          ]
+        }
+      },
+      12: {
+        0: {
+          intermediate: `**Strategic Networking**
+
+Quality over quantity:
+- Focus on building genuine relationships, not collecting business cards
+- Follow up within 24 hours of meeting someone
+- Offer value before asking for anything
+- Maintain relationships even when you don't need anything
+
+Your network is an asset that compounds over time.`,
+          advanced: `**Network as a System**
+
+Build a networking system:
+- Use a CRM or spreadsheet to track contacts
+- Set reminders for regular touchpoints (birthdays, work anniversaries)
+- Create content that attracts your target network
+- Host events or facilitate introductions between others
+
+The best networkers are connectors - they help others, and it comes back around.`,
+          extraPoints: level === 'advanced' ? [
+            "Set up a personal CRM for contact management",
+            "Create a monthly networking goal",
+            "Become a connector - introduce people to each other"
+          ] : [
+            "Follow up within 24 hours of meeting someone",
+            "Offer value before asking for favors"
+          ]
+        },
+        1: {
+          intermediate: `**Informational Interviews**
+
+The underutilized power move:
+- Ask for 15-20 minutes of someone's time
+- Prepare thoughtful questions about their career path
+- Never directly ask for a job (but opportunities often arise)
+- Send a thank you note within 24 hours
+
+Most people love talking about their work - use this to build relationships.`,
+          advanced: `**Building Your Advisory Board**
+
+Create your personal board of advisors:
+- Mentor: Someone 10+ years ahead in your field
+- Peer mentor: Someone at your level for mutual support
+- Sponsor: Someone who advocates for you in rooms you're not in
+- Technical advisor: Expert in skills you're developing
+
+Nurture these relationships intentionally - they're career accelerators.`,
+          extraPoints: level === 'advanced' ? [
+            "Identify and reach out to potential mentors",
+            "Create a 'personal board' of advisors",
+            "Seek sponsors, not just mentors"
+          ] : [
+            "Request 3 informational interviews this month",
+            "Prepare a list of thoughtful questions"
+          ]
+        }
+      },
+      13: {
+        0: {
+          intermediate: `**Entrepreneurship Mindset**
+
+Key traits of successful entrepreneurs:
+- Bias toward action (start before you feel ready)
+- Comfort with uncertainty and ambiguity
+- Ability to learn from failure quickly
+- Customer obsession (solve real problems)
+
+You don't need a revolutionary idea - execution matters more than ideas.`,
+          advanced: `**Building for Scale**
+
+Think about scalability from day one:
+- Can this grow without proportional time investment?
+- What's the unit economics at scale?
+- How do you acquire customers profitably?
+- What systems need to be in place?
+
+The best businesses create value while you sleep.`,
+          extraPoints: level === 'advanced' ? [
+            "Analyze unit economics of your idea",
+            "Identify what doesn't scale (and what does)",
+            "Build systems early, even when small"
+          ] : [
+            "Start small and validate before scaling",
+            "Talk to customers every week"
+          ]
+        },
+        1: {
+          intermediate: `**Side Hustle to Business**
+
+Transitioning from side project to business:
+- Know your break-even point (when can you quit your day job?)
+- Build savings runway (6-12 months of expenses)
+- Test market demand before going full-time
+- Start building systems while it's still a side hustle
+
+Don't quit your job too early - let the business prove itself first.`,
+          advanced: `**Business Model Innovation**
+
+Different ways to structure your business:
+- Product vs. service vs. hybrid
+- One-time purchase vs. subscription/recurring
+- B2C (consumer) vs. B2B (business) vs. B2B2C
+- Marketplace vs. direct sale
+
+The business model often matters more than the product. Choose wisely.`,
+          extraPoints: level === 'advanced' ? [
+            "Map out different business model options",
+            "Calculate runway needed for full-time transition",
+            "Study business models of companies you admire"
+          ] : [
+            "Know your break-even point",
+            "Build 6-12 months of savings before quitting"
+          ]
+        }
+      },
+      14: {
+        0: {
+          intermediate: `**MVP Development**
+
+Build the minimum viable product:
+- What's the smallest version that proves your concept?
+- How can you test with minimal investment?
+- What's the one thing that must work perfectly?
+- How quickly can you get to customer feedback?
+
+Speed matters - the faster you learn, the faster you succeed.`,
+          advanced: `**Financial Modeling for Startups**
+
+Create a simple financial model:
+- Revenue projections (conservative, moderate, aggressive)
+- Cost structure (fixed vs. variable costs)
+- Cash flow timeline (when does money come in vs. go out?)
+- Key assumptions and what could break them
+
+Your model won't be perfect - it's a thinking tool, not a crystal ball.`,
+          extraPoints: level === 'advanced' ? [
+            "Build a 12-month financial projection",
+            "Identify your key assumptions and test them",
+            "Understand your burn rate and runway"
+          ] : [
+            "Define your MVP scope clearly",
+            "Set a deadline for launch (and stick to it)"
+          ]
+        },
+        1: {
+          intermediate: `**Pricing Strategy**
+
+How to price your product or service:
+- Cost-plus: Your costs + profit margin
+- Value-based: What's it worth to the customer?
+- Competitive: What do alternatives cost?
+- Test different price points - you might be underpricing
+
+Most first-time entrepreneurs underprice. Don't leave money on the table.`,
+          advanced: `**Funding Options**
+
+Ways to finance your venture:
+- Bootstrapping (personal savings, revenue)
+- Friends & family (be careful with relationships)
+- Grants and competitions (free money, no equity given up)
+- Angel investors (early stage, high risk tolerant)
+- Venture capital (for hyper-growth businesses)
+
+Understand the tradeoffs: bootstrapping = control but slower. Funding = faster but dilution.`,
+          extraPoints: level === 'advanced' ? [
+            "Research funding options for your stage",
+            "Understand dilution and what you're giving up",
+            "Prepare a pitch deck even if bootstrapping"
+          ] : [
+            "Test multiple price points",
+            "Research what competitors charge"
+          ]
+        }
+      },
+      15: {
+        0: {
+          intermediate: `**Presentation Skills**
+
+Deliver compelling presentations:
+- Start with a hook - grab attention in the first 10 seconds
+- Tell stories, not just facts
+- Use visuals, not walls of text
+- Practice out loud, not just in your head
+- Time yourself and stay within limits
+
+The audience remembers how you made them feel, not what you said.`,
+          advanced: `**Pitching to Investors**
+
+What investors look for:
+- Team: Can you execute? Do you have relevant experience?
+- Market: Is it big enough? Is it growing?
+- Traction: What proof do you have? (customers, revenue, growth)
+- Ask: How much do you need? What will you do with it?
+
+Know your numbers cold. Practice tough questions. Be confident but honest.`,
+          extraPoints: level === 'advanced' ? [
+            "Create a 3-minute and 10-minute version of your pitch",
+            "Practice answering tough investor questions",
+            "Know your financials and key metrics"
+          ] : [
+            "Practice your presentation out loud 10 times",
+            "Get feedback from people outside your field"
+          ]
+        },
+        1: {
+          intermediate: `**Handling Q&A**
+
+Managing questions and objections:
+- Listen fully before responding
+- Repeat the question to confirm understanding
+- It's OK to say 'I don't know, but I'll find out'
+- Bridge back to your key messages
+- Stay calm even with hostile questions
+
+The Q&A often matters more than the presentation itself.`,
+          advanced: `**Building in Public**
+
+Share your journey:
+- Document your progress on social media
+- Be transparent about challenges (people connect with authenticity)
+- Build an audience before you need them
+- Turn customers into advocates
+
+Building in public creates accountability and attracts opportunities.`,
+          extraPoints: level === 'advanced' ? [
+            "Start documenting your journey publicly",
+            "Build an email list or social following",
+            "Turn early customers into case studies"
+          ] : [
+            "Prepare for common objections",
+            "Practice saying 'I don't know' gracefully"
+          ]
+        }
+      },
+      16: {
+        0: {
+          intermediate: `**The FIRE Movement**
+
+Financial Independence, Retire Early:
+- FI Number = Annual Expenses × 25
+- Safe Withdrawal Rate = 4% per year
+- It's about options, not necessarily retirement
+- Even partial FI gives you leverage
+
+Start calculating your FI number and working backward to monthly savings needed.`,
+          advanced: `**Tax Optimization Strategies**
+
+Legal ways to reduce your tax burden:
+- Max out tax-advantaged accounts (401k, Roth IRA, HSA)
+- Tax-loss harvesting in taxable accounts
+- Understand capital gains (short-term vs. long-term)
+- Consider tax-efficient fund placement
+- Business owners: explore SEP-IRA, Solo 401k
+
+A dollar saved in taxes is a dollar invested for your future.`,
+          extraPoints: level === 'advanced' ? [
+            "Calculate your personal FI number",
+            "Optimize your tax-advantaged account strategy",
+            "Understand tax implications of different investments"
+          ] : [
+            "Learn about the 4% safe withdrawal rate",
+            "Calculate how much you need to save monthly"
+          ]
+        },
+        1: {
+          intermediate: `**Building Generational Wealth**
+
+Think beyond your own lifetime:
+- Teach financial literacy to family members
+- Understand estate planning basics
+- Consider life insurance if others depend on you
+- Create family traditions around money conversations
+
+Wealth isn't just about accumulation - it's about preservation and transfer.`,
+          advanced: `**Advanced Estate Planning**
+
+Protecting and transferring wealth:
+- Wills vs. trusts (and when you need each)
+- Beneficiary designations (these override your will!)
+- 529 plans for education savings
+- Donor-advised funds for charitable giving
+- Life insurance as a wealth transfer tool
+
+Start simple: create a will, set beneficiaries, document your wishes.`,
+          extraPoints: level === 'advanced' ? [
+            "Create or update your will",
+            "Review all beneficiary designations",
+            "Understand trust options and when they make sense"
+          ] : [
+            "Have money conversations with family",
+            "Start documenting your financial wishes"
+          ]
+        }
+      },
+      17: {
+        0: {
+          intermediate: `**Work-Life Integration**
+
+Balance is a myth - integration is the goal:
+- Define what 'success' means to YOU (not society)
+- Set boundaries that protect your priorities
+- Build sustainable habits, not burnout cycles
+- Your career is a marathon, not a sprint
+
+Financial success means nothing if you sacrifice health and relationships.`,
+          advanced: `**Designing Your Ideal Life**
+
+Work backward from your ideal day:
+- What does your perfect Tuesday look like?
+- Who are you spending time with?
+- What work are you doing (or not doing)?
+- Where are you living?
+
+Then figure out what financial resources you need to support that life.`,
+          extraPoints: level === 'advanced' ? [
+            "Write out your ideal day in detail",
+            "Calculate the cost of your ideal lifestyle",
+            "Identify what's blocking you from that life"
+          ] : [
+            "Define what success means to you personally",
+            "Set one boundary to protect this week"
+          ]
+        },
+        1: {
+          intermediate: `**Continuous Learning**
+
+Stay relevant and valuable:
+- Allocate time weekly for skill development
+- Follow industry trends and leaders
+- Seek feedback regularly
+- Be willing to unlearn and relearn
+
+The most valuable skill is learning how to learn.`,
+          advanced: `**Building Your Legacy**
+
+Think about impact beyond wealth:
+- What do you want to be remembered for?
+- How can you use your resources to help others?
+- What causes or communities matter to you?
+- How can you mentor the next generation?
+
+Financial independence enables you to focus on impact and meaning.`,
+          extraPoints: level === 'advanced' ? [
+            "Define your personal legacy goals",
+            "Identify ways to give back now (not just later)",
+            "Find someone to mentor"
+          ] : [
+            "Block weekly time for learning",
+            "Identify one skill to develop this quarter"
+          ]
+        }
+      },
+      18: {
+        0: {
+          intermediate: `**Putting It All Together**
+
+Your financial foundation checklist:
+- Emergency fund (3-6 months expenses)
+- Budget you actually follow
+- Automated savings and investing
+- Good credit score (670+)
+- Basic insurance coverage
+- Career growth plan
+
+Review this checklist quarterly and keep improving.`,
+          advanced: `**Your 10-Year Financial Plan**
+
+Create a comprehensive roadmap:
+- Year 1-2: Foundation (emergency fund, credit, budget mastery)
+- Year 3-4: Acceleration (increase income, max retirement accounts)
+- Year 5-6: Optimization (multiple income streams, tax strategies)
+- Year 7-8: Wealth building (real estate, business investments)
+- Year 9-10: FI milestone (passive income covering expenses)
+
+Adjust timelines based on your situation - the key is having a plan.`,
+          extraPoints: level === 'advanced' ? [
+            "Create your personal 10-year financial plan",
+            "Set annual milestones and track progress",
+            "Build accountability systems for long-term goals"
+          ] : [
+            "Complete the financial foundation checklist",
+            "Set specific goals for the next 12 months"
+          ]
+        },
+        1: {
+          intermediate: `**Your Action Plan**
+
+What to do in the next 30 days:
+- Set up automatic savings (even $50/month)
+- Check your credit score
+- Update your budget
+- Open an investment account
+- Share what you learned with someone
+
+Action beats perfection. Start now, improve later.`,
+          advanced: `**Becoming a Financial Leader**
+
+Pay it forward:
+- Teach others what you've learned
+- Be open about your financial journey
+- Advocate for financial education
+- Build wealth with intention and purpose
+- Remember: money is a tool, not the goal
+
+You've completed this program - now go build the life you want.`,
+          extraPoints: level === 'advanced' ? [
+            "Commit to teaching financial literacy to others",
+            "Create a personal financial dashboard",
+            "Schedule quarterly financial review dates"
+          ] : [
+            "Take one action in the next 24 hours",
+            "Share your biggest takeaway with someone"
+          ]
+        }
       }
     };
 

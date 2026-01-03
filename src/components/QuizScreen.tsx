@@ -750,19 +750,584 @@ export function QuizScreen({
         correctAnswer: 2,
         explanation: ".docx works best with those robot systems (ATS). PDFs can sometimes mess things up."
       }
+    ],
+    11: [
+      {
+        id: 1,
+        question: "What's the most important skill employers look for beyond technical abilities?",
+        options: ["Communication skills", "Physical appearance", "Social media following", "Expensive wardrobe"],
+        correctAnswer: 0,
+        explanation: "Communication skills consistently rank as the #1 soft skill employers want. Technical skills can be taught, but communication is foundational."
+      },
+      {
+        id: 2,
+        question: "When should you arrive for a professional meeting or interview?",
+        options: ["Exactly on time", "5-10 minutes early", "30 minutes early", "Whenever you can"],
+        correctAnswer: 1,
+        explanation: "5-10 minutes early is ideal. It shows respect without being awkwardly early. Exactly on time often means you're actually late."
+      },
+      {
+        id: 3,
+        question: "What's the best approach when you make a mistake at work?",
+        options: ["Hide it and hope no one notices", "Blame someone else", "Own it, fix it, learn from it", "Quit immediately"],
+        correctAnswer: 2,
+        explanation: "Taking responsibility and learning from mistakes builds trust and shows maturity. Everyone makes mistakes - how you handle them defines you."
+      },
+      {
+        id: 4,
+        question: "Which statement best describes leadership?",
+        options: ["Being the boss and giving orders", "Having the biggest title", "Influencing and helping others succeed", "Working alone to prove yourself"],
+        correctAnswer: 2,
+        explanation: "Leadership is about influence, not authority. You can lead from any position by helping others succeed and taking initiative."
+      },
+      {
+        id: 5,
+        question: "When problem-solving at work, you should:",
+        options: ["Wait for someone to tell you what to do", "Bring problems AND potential solutions", "Only point out problems", "Ignore problems you notice"],
+        correctAnswer: 1,
+        explanation: "Don't just bring problems - bring solutions too. This shows initiative and critical thinking. Even if your solution isn't chosen, the effort is valued."
+      },
+      {
+        id: 6,
+        question: "What's the 'transferable skill' advantage of student experience?",
+        options: ["Free tickets to games", "Nothing useful", "Time management, discipline, teamwork", "Automatic job offers"],
+        correctAnswer: 2,
+        explanation: "Your student experiences build valuable transferable skills: discipline, time management, teamwork, performing under pressure, and goal-setting."
+      },
+      {
+        id: 7,
+        question: "How should you handle a difficult conversation at work?",
+        options: ["Avoid it completely", "Send an angry email", "Have it privately and professionally", "Complain to everyone else first"],
+        correctAnswer: 2,
+        explanation: "Address issues directly and professionally. Private conversations prevent embarrassment and allow for honest dialogue."
+      },
+      {
+        id: 8,
+        question: "What does 'emotional intelligence' mean in the workplace?",
+        options: ["Being really smart", "Understanding and managing emotions", "Never showing any emotion", "Crying at work"],
+        correctAnswer: 1,
+        explanation: "EQ is understanding your own emotions, managing them, and empathizing with others. It's crucial for leadership and teamwork."
+      },
+      {
+        id: 9,
+        question: "Which is TRUE about professional growth?",
+        options: ["It stops after graduation", "It only happens through formal training", "It's a lifelong continuous process", "Only managers need to grow"],
+        correctAnswer: 2,
+        explanation: "Professional growth never stops. The most successful people are continuous learners who adapt and develop throughout their careers."
+      },
+      {
+        id: 10,
+        question: "What's the best way to handle feedback you disagree with?",
+        options: ["Argue immediately", "Listen, consider it, then respond thoughtfully", "Ignore it completely", "Complain to others about it"],
+        correctAnswer: 1,
+        explanation: "Listen first, consider the feedback honestly, and respond thoughtfully. Even feedback you disagree with often contains useful insights."
+      }
+    ],
+    12: [
+      {
+        id: 1,
+        question: "What percentage of jobs are filled through networking rather than job postings?",
+        options: ["10-20%", "30-40%", "50-60%", "70-80%"],
+        correctAnswer: 3,
+        explanation: "70-80% of jobs are filled through networking! Most opportunities never get posted publicly. This is called the 'hidden job market.'"
+      },
+      {
+        id: 2,
+        question: "When following up after meeting someone professionally, you should:",
+        options: ["Wait a month to not seem eager", "Follow up within 24-48 hours", "Never follow up", "Call them every day"],
+        correctAnswer: 1,
+        explanation: "Follow up within 24-48 hours while you're still fresh in their memory. A quick thank-you email or LinkedIn connection works great."
+      },
+      {
+        id: 3,
+        question: "What's an 'informational interview'?",
+        options: ["A formal job interview", "A casual meeting to learn about someone's career", "A salary negotiation", "A performance review"],
+        correctAnswer: 1,
+        explanation: "It's a conversation (not a job interview) where you learn about someone's career path, industry, and advice. Great for networking!"
+      },
+      {
+        id: 4,
+        question: "What's the best networking approach?",
+        options: ["Only reach out when you need something", "Build relationships before you need them", "Just collect business cards", "Send mass messages to everyone"],
+        correctAnswer: 1,
+        explanation: "Network before you need it. Building genuine relationships over time means help is available when you actually need it."
+      },
+      {
+        id: 5,
+        question: "LinkedIn is most valuable for:",
+        options: ["Sharing vacation photos", "Professional networking and job searching", "Playing games", "Dating"],
+        correctAnswer: 1,
+        explanation: "LinkedIn is THE platform for professional networking, job searching, and building your career brand. Treat it professionally."
+      },
+      {
+        id: 6,
+        question: "When networking, the most effective approach is:",
+        options: ["Talking only about yourself", "Asking how you can help THEM", "Immediately asking for a job", "Avoiding eye contact"],
+        correctAnswer: 1,
+        explanation: "The best networkers focus on giving, not getting. Ask how you can help others. The help comes back around naturally."
+      },
+      {
+        id: 7,
+        question: "What should you include in a LinkedIn connection request?",
+        options: ["Nothing, just click connect", "A generic message to everyone", "A personalized message explaining why you're connecting", "Your entire resume"],
+        correctAnswer: 2,
+        explanation: "Personalize every connection request. Explain how you know them or why you want to connect. Generic requests often get ignored."
+      },
+      {
+        id: 8,
+        question: "How often should you engage with your professional network?",
+        options: ["Only when job hunting", "Once a year", "Regularly, even when you don't need anything", "Never"],
+        correctAnswer: 2,
+        explanation: "Stay in touch regularly - share articles, congratulate achievements, check in periodically. Don't be a 'ghost who only appears when job hunting.'"
+      },
+      {
+        id: 9,
+        question: "What's a 'warm introduction'?",
+        options: ["Introducing yourself in hot weather", "Being introduced by a mutual connection", "Sending a heated email", "Cold calling someone"],
+        correctAnswer: 1,
+        explanation: "A warm introduction is when someone who knows both you and your target contact makes the introduction. Much more effective than cold outreach."
+      },
+      {
+        id: 10,
+        question: "At networking events, you should:",
+        options: ["Stay in the corner on your phone", "Have a 30-second intro ready and ask questions", "Talk only about yourself", "Leave immediately after arriving"],
+        correctAnswer: 1,
+        explanation: "Be prepared with a brief intro, but spend most of the time asking questions and showing genuine interest in others."
+      }
+    ],
+    13: [
+      {
+        id: 1,
+        question: "What's the difference between an entrepreneur and an employee?",
+        options: ["Entrepreneurs are smarter", "Entrepreneurs own risk and reward, employees trade time for money", "There is no difference", "Employees work harder"],
+        correctAnswer: 1,
+        explanation: "Entrepreneurs take on risk in exchange for potentially unlimited reward. Employees trade their time for a guaranteed paycheck. Neither is 'better.'"
+      },
+      {
+        id: 2,
+        question: "What's the first step before starting a business?",
+        options: ["Quit your job immediately", "Validate that people will pay for your solution", "Borrow as much money as possible", "Print business cards"],
+        correctAnswer: 1,
+        explanation: "Validate your idea FIRST. Talk to potential customers, make sure there's real demand before investing time and money."
+      },
+      {
+        id: 3,
+        question: "An MVP (Minimum Viable Product) is:",
+        options: ["A video game award", "The simplest version that tests your core idea", "The final polished product", "A type of business loan"],
+        correctAnswer: 1,
+        explanation: "MVP is the simplest version of your product that lets you test your core idea with real customers. Build fast, learn fast."
+      },
+      {
+        id: 4,
+        question: "What's 'bootstrapping' a business?",
+        options: ["Starting with no shoes", "Self-funding without external investors", "A type of dance", "Buying cheap equipment"],
+        correctAnswer: 1,
+        explanation: "Bootstrapping means growing your business using your own money and revenue, without taking outside investment. You keep full control."
+      },
+      {
+        id: 5,
+        question: "Which is a common reason startups fail?",
+        options: ["Building something nobody wants", "Having too much customer feedback", "Growing too slowly", "Saving too much money"],
+        correctAnswer: 0,
+        explanation: "The #1 reason startups fail is building something nobody wants. That's why customer validation is so critical before you build."
+      },
+      {
+        id: 6,
+        question: "What's the difference between a side hustle and a business?",
+        options: ["Side hustles are illegal", "Businesses are always bigger", "Side hustles have more flexible time commitment", "There is no difference"],
+        correctAnswer: 2,
+        explanation: "Side hustles typically have flexible, part-time commitment alongside another job. Businesses often require full-time focus and more structure."
+      },
+      {
+        id: 7,
+        question: "When pricing your product or service, you should:",
+        options: ["Always be the cheapest", "Consider value to customer, costs, and competition", "Copy exact competitor prices", "Make it free"],
+        correctAnswer: 1,
+        explanation: "Price based on value, not just cost. Consider what it's worth to customers, your costs, and competitive pricing. Most new entrepreneurs underprice."
+      },
+      {
+        id: 8,
+        question: "What's a 'value proposition'?",
+        options: ["A business loan offer", "The unique value your product provides to customers", "A marriage proposal", "A legal document"],
+        correctAnswer: 1,
+        explanation: "Your value proposition explains what unique value you provide, to whom, and why they should choose you over alternatives."
+      },
+      {
+        id: 9,
+        question: "How many potential customers should you talk to before building a product?",
+        options: ["0 - just build it", "1-2", "10-20+", "1000+"],
+        correctAnswer: 2,
+        explanation: "Talk to at least 10-20 potential customers. You need enough data points to spot patterns and validate (or invalidate) your assumptions."
+      },
+      {
+        id: 10,
+        question: "What mindset is most important for entrepreneurs?",
+        options: ["Fear of failure", "Resilience and learning from setbacks", "Perfectionism", "Avoiding all risks"],
+        correctAnswer: 1,
+        explanation: "Resilience is key. Failure is inevitable in entrepreneurship - it's feedback, not defeat. Successful entrepreneurs learn and keep going."
+      }
+    ],
+    14: [
+      {
+        id: 1,
+        question: "What's the purpose of a business plan?",
+        options: ["To impress your friends", "To organize your thinking and communicate your strategy", "It's only needed for loans", "To predict the future exactly"],
+        correctAnswer: 1,
+        explanation: "A business plan helps you think through your strategy and communicate it to others. It's a thinking tool, not a crystal ball."
+      },
+      {
+        id: 2,
+        question: "What's 'break-even' in business?",
+        options: ["When you tie in a game", "When revenue equals costs (no profit or loss)", "When your business fails", "When you get investors"],
+        correctAnswer: 1,
+        explanation: "Break-even is when your total revenue equals your total costs. Below break-even you're losing money, above it you're profitable."
+      },
+      {
+        id: 3,
+        question: "Fixed costs in a business are:",
+        options: ["Costs that stay the same regardless of sales", "Costs that are broken", "Costs that change with sales", "Free costs"],
+        correctAnswer: 0,
+        explanation: "Fixed costs (like rent, salaries) stay the same whether you sell 1 item or 1000. Variable costs (like materials) change with volume."
+      },
+      {
+        id: 4,
+        question: "What's 'customer acquisition cost' (CAC)?",
+        options: ["How much you pay customers", "How much it costs to get a new customer", "The cost of your product", "A type of tax"],
+        correctAnswer: 1,
+        explanation: "CAC is the total cost to acquire a new customer (marketing, sales, etc.). It needs to be less than what customers are worth to you."
+      },
+      {
+        id: 5,
+        question: "What's 'lifetime value' (LTV) of a customer?",
+        options: ["How long they live", "Total revenue from a customer over time", "Their insurance policy", "First purchase only"],
+        correctAnswer: 1,
+        explanation: "LTV is the total revenue you expect from a customer over your entire relationship. LTV should be higher than CAC for a sustainable business."
+      },
+      {
+        id: 6,
+        question: "What's a 'pitch deck'?",
+        options: ["A wooden deck for pitching", "A presentation summarizing your business for investors", "A sales technique", "A boat part"],
+        correctAnswer: 1,
+        explanation: "A pitch deck is a short presentation (usually 10-15 slides) that summarizes your business, market, team, and ask for potential investors."
+      },
+      {
+        id: 7,
+        question: "When should you start building business credit?",
+        options: ["Only when you need a loan", "When your business is 10 years old", "From the beginning", "Never"],
+        correctAnswer: 2,
+        explanation: "Start building business credit early. Separate business and personal finances, get a business bank account and card, pay on time."
+      },
+      {
+        id: 8,
+        question: "What's the difference between revenue and profit?",
+        options: ["They're the same thing", "Revenue is total income, profit is what's left after expenses", "Profit is before expenses", "Revenue is taxable, profit isn't"],
+        correctAnswer: 1,
+        explanation: "Revenue is total money coming in. Profit is what remains after subtracting all expenses. A business can have high revenue but low/no profit."
+      },
+      {
+        id: 9,
+        question: "Why might someone choose to form an LLC?",
+        options: ["It sounds cool", "For liability protection and tax flexibility", "It's required by law", "To avoid all taxes"],
+        correctAnswer: 1,
+        explanation: "LLCs separate personal and business liability (protecting personal assets) and offer tax flexibility. Consult a professional for your situation."
+      },
+      {
+        id: 10,
+        question: "What's 'cash flow' in business?",
+        options: ["Money flowing to charity", "The timing of money in vs money out", "Only income", "Only expenses"],
+        correctAnswer: 1,
+        explanation: "Cash flow is about TIMING - when money comes in vs when it goes out. Profitable businesses can still fail if cash flow is poorly managed."
+      }
+    ],
+    15: [
+      {
+        id: 1,
+        question: "What's the most important part of a presentation?",
+        options: ["Fancy slides", "Knowing your audience and what they care about", "Speaking fast", "Using lots of jargon"],
+        correctAnswer: 1,
+        explanation: "Understanding your audience is everything. Tailor your message to what THEY care about, not just what you want to say."
+      },
+      {
+        id: 2,
+        question: "How long should you speak before checking if the audience is engaged?",
+        options: ["Never check", "Every 5-10 minutes", "Only at the end", "Every 30 seconds"],
+        correctAnswer: 1,
+        explanation: "Engage your audience every 5-10 minutes with questions, interactions, or key takeaways. Keep them active, not passive listeners."
+      },
+      {
+        id: 3,
+        question: "When receiving feedback on your presentation, you should:",
+        options: ["Argue with every point", "Listen openly and thank the person", "Ignore it completely", "Get defensive immediately"],
+        correctAnswer: 1,
+        explanation: "Listen openly to feedback without getting defensive. Thank the person. Then decide what's actionable. Not all feedback needs to be implemented."
+      },
+      {
+        id: 4,
+        question: "The 'hook' of a presentation is:",
+        options: ["A fishing term", "Something that grabs attention in the first 10-30 seconds", "The conclusion", "A technical problem"],
+        correctAnswer: 1,
+        explanation: "Your hook grabs attention immediately. Start with a surprising fact, compelling question, or powerful story to pull people in."
+      },
+      {
+        id: 5,
+        question: "How many times should you practice a presentation before delivering it?",
+        options: ["0 - just wing it", "1-2 times", "Until you're confident", "100 times"],
+        correctAnswer: 2,
+        explanation: "Practice until you're confident, not just prepared. For most people, that's 5-10 run-throughs. Practice out loud, not just in your head."
+      },
+      {
+        id: 6,
+        question: "During Q&A, if you don't know the answer, you should:",
+        options: ["Make something up", "Say 'I don't know, but I'll find out' honestly", "Ignore the question", "Get angry"],
+        correctAnswer: 1,
+        explanation: "It's okay to not know everything. 'I don't know, but I'll find out' is honest and professional. Then actually follow up."
+      },
+      {
+        id: 7,
+        question: "Stories in presentations are effective because:",
+        options: ["They take up time", "People remember stories better than facts", "They're easier to prepare", "They avoid hard topics"],
+        correctAnswer: 1,
+        explanation: "Stories are memorable. Facts tell, but stories sell. Use real examples and narratives to make your points stick."
+      },
+      {
+        id: 8,
+        question: "How should slides support your presentation?",
+        options: ["They should be walls of text", "They should be visual aids, not a script", "You should read directly from them", "They should replace you entirely"],
+        correctAnswer: 1,
+        explanation: "Slides are visual aids to support YOUR presentation. Use images, key points, and minimal text. Don't read from slides."
+      },
+      {
+        id: 9,
+        question: "What's the 'rule of three' in presentations?",
+        options: ["Use three fonts", "Present in groups of three", "People remember things better in threes", "Speak for three hours"],
+        correctAnswer: 2,
+        explanation: "Three main points, three examples, three takeaways. Our brains find threes memorable and satisfying. Use this to your advantage."
+      },
+      {
+        id: 10,
+        question: "After a presentation, you should:",
+        options: ["Disappear immediately", "Follow up with key contacts and share materials", "Ignore everyone", "Take a long vacation"],
+        correctAnswer: 1,
+        explanation: "Follow up! Share your slides, connect with people who showed interest, and capitalize on the momentum from your presentation."
+      }
+    ],
+    16: [
+      {
+        id: 1,
+        question: "What's the 'Rule of 72' used for?",
+        options: ["Retirement age", "Estimating how long to double your money", "Credit scores", "Tax calculations"],
+        correctAnswer: 1,
+        explanation: "Divide 72 by your interest rate to estimate years to double your money. At 8% return, your money doubles in about 9 years (72÷8=9)."
+      },
+      {
+        id: 2,
+        question: "What's 'compound interest'?",
+        options: ["Interest on your principal only", "Interest on your interest AND principal", "A type of fee", "Interest you owe"],
+        correctAnswer: 1,
+        explanation: "Compound interest earns interest on interest. $100 at 10% becomes $110, then next year you earn 10% on $110, not just $100. Growth accelerates."
+      },
+      {
+        id: 3,
+        question: "What's diversification in investing?",
+        options: ["Putting all money in one stock", "Spreading investments across different assets", "Avoiding the stock market", "Only investing in bonds"],
+        correctAnswer: 1,
+        explanation: "Diversification means spreading investments across different assets, sectors, and geographies to reduce risk. Don't put all eggs in one basket."
+      },
+      {
+        id: 4,
+        question: "What's a Roth IRA advantage?",
+        options: ["Tax deduction now", "Tax-free growth and withdrawals in retirement", "Unlimited contributions", "Employer matching"],
+        correctAnswer: 1,
+        explanation: "Roth IRA: pay taxes now, your money grows tax-free, and withdrawals in retirement are tax-free. Great for young people expecting higher future income."
+      },
+      {
+        id: 5,
+        question: "What's an index fund?",
+        options: ["A book index", "A fund that tracks a market index like S&P 500", "An individual stock", "A savings account"],
+        correctAnswer: 1,
+        explanation: "Index funds track a market index (like S&P 500), giving you broad diversification at low cost. Simple and effective for most investors."
+      },
+      {
+        id: 6,
+        question: "What's 'dollar cost averaging'?",
+        options: ["Exchanging dollars for coins", "Investing a fixed amount regularly regardless of price", "Timing the market", "Only buying when cheap"],
+        correctAnswer: 1,
+        explanation: "Invest the same amount regularly (weekly, monthly). You buy more shares when prices are low, fewer when high. No need to time the market."
+      },
+      {
+        id: 7,
+        question: "At what age should you start investing for retirement?",
+        options: ["30s", "40s", "50s", "As soon as possible"],
+        correctAnswer: 3,
+        explanation: "Start as soon as possible! Time is your biggest advantage. Someone who starts at 22 beats someone who starts at 32 with more money, because of compound growth."
+      },
+      {
+        id: 8,
+        question: "What's the advantage of a 401(k) employer match?",
+        options: ["It's optional", "It's literally free money", "It reduces your salary", "It has no advantage"],
+        correctAnswer: 1,
+        explanation: "Employer 401(k) match is FREE MONEY. If your employer matches 3%, that's an instant 3% return. Always contribute at least enough to get the full match."
+      },
+      {
+        id: 9,
+        question: "What's 'asset allocation'?",
+        options: ["Donating assets", "How you divide investments between stocks, bonds, etc.", "Selling everything", "Only investing in real estate"],
+        correctAnswer: 1,
+        explanation: "Asset allocation is how you divide your portfolio between different asset classes (stocks, bonds, real estate). It determines most of your risk and return."
+      },
+      {
+        id: 10,
+        question: "Why is long-term investing usually better than short-term trading?",
+        options: ["It's more exciting", "Lower costs, lower taxes, and time smooths volatility", "Markets always go up", "It requires no thought"],
+        correctAnswer: 1,
+        explanation: "Long-term investing means lower transaction costs, more favorable tax treatment, and time to ride out market ups and downs. Most traders underperform."
+      }
+    ],
+    17: [
+      {
+        id: 1,
+        question: "What's 'financial independence'?",
+        options: ["Being rich", "Having enough passive income to cover expenses", "Never working again", "Inheriting money"],
+        correctAnswer: 1,
+        explanation: "Financial independence means your passive income (investments, rental income, etc.) covers your living expenses. You work by choice, not necessity."
+      },
+      {
+        id: 2,
+        question: "What's the '4% rule' in retirement planning?",
+        options: ["Only save 4% of income", "Withdraw 4% yearly from investments in retirement", "Retire at age 4", "Pay 4% in fees"],
+        correctAnswer: 1,
+        explanation: "The 4% rule suggests you can withdraw 4% of your portfolio yearly in retirement without running out. $1M portfolio = $40K/year sustainable withdrawal."
+      },
+      {
+        id: 3,
+        question: "What's your 'FI number'?",
+        options: ["Your age", "Annual expenses x 25", "Your credit score", "Your salary"],
+        correctAnswer: 1,
+        explanation: "FI number = Annual Expenses × 25. If you need $40K/year to live, your FI number is $1M. That's roughly how much you need invested to be financially independent."
+      },
+      {
+        id: 4,
+        question: "Which is most important for building wealth over time?",
+        options: ["High income only", "Consistent saving and investing over decades", "Getting lucky once", "Spending less than $10/day"],
+        correctAnswer: 1,
+        explanation: "Consistent saving and investing over time beats everything else. Time in the market and compound interest do the heavy lifting."
+      },
+      {
+        id: 5,
+        question: "What's 'lifestyle creep'?",
+        options: ["Scary movies", "Spending more as income increases", "Moving to a new house", "A fitness trend"],
+        correctAnswer: 1,
+        explanation: "Lifestyle creep is when your spending automatically rises with your income. Combat it by banking raises instead of spending them."
+      },
+      {
+        id: 6,
+        question: "Estate planning is important because:",
+        options: ["It's only for rich people", "It ensures your wishes are carried out after death", "It's legally required", "It reduces income taxes"],
+        correctAnswer: 1,
+        explanation: "Estate planning (wills, beneficiaries, trusts) ensures your assets go where you want and your wishes are followed. Everyone needs basic estate planning."
+      },
+      {
+        id: 7,
+        question: "What's the benefit of having multiple income streams?",
+        options: ["More complex taxes", "If one fails, others continue; more total income", "Less work overall", "Required by law"],
+        correctAnswer: 1,
+        explanation: "Multiple income streams provide security (if one fails, others continue) and increase total income potential. Diversify your income like your investments."
+      },
+      {
+        id: 8,
+        question: "What's 'passive income'?",
+        options: ["Income from being lazy", "Income that comes with minimal ongoing effort", "Government payments", "Income you hide"],
+        correctAnswer: 1,
+        explanation: "Passive income requires upfront work but then generates ongoing income with minimal effort: investments, rental properties, royalties, digital products."
+      },
+      {
+        id: 9,
+        question: "Which statement about money and happiness is TRUE?",
+        options: ["More money always equals more happiness", "Money has no impact on happiness", "Money removes stress up to a point, then impact decreases", "Happiness makes you rich"],
+        correctAnswer: 2,
+        explanation: "Research shows money increases happiness by removing financial stress, but the effect diminishes once basic needs and security are covered."
+      },
+      {
+        id: 10,
+        question: "What's the most important next step after finishing this course?",
+        options: ["Do nothing", "Take action on what you learned", "Start another course immediately", "Forget everything"],
+        correctAnswer: 1,
+        explanation: "Knowledge without action is worthless. Take one action in the next 24 hours. Start small, be consistent, and keep learning."
+      }
+    ],
+    18: [
+      {
+        id: 1,
+        question: "What's the most important financial habit to maintain?",
+        options: ["Checking investments daily", "Spending less than you earn and investing the difference", "Avoiding all debt", "Never spending money on fun"],
+        correctAnswer: 1,
+        explanation: "The core habit: spend less than you earn, invest the difference consistently. This simple formula, applied over time, builds wealth."
+      },
+      {
+        id: 2,
+        question: "How often should you review your financial plan?",
+        options: ["Never", "Every 10 years", "At least quarterly, with annual deep reviews", "Only when something bad happens"],
+        correctAnswer: 2,
+        explanation: "Review quarterly to stay on track. Do a deeper annual review to assess progress, adjust goals, and optimize your strategy."
+      },
+      {
+        id: 3,
+        question: "What's the benefit of automating your finances?",
+        options: ["It's complicated", "You make better decisions and can't forget", "Banks don't allow it", "It costs extra"],
+        correctAnswer: 1,
+        explanation: "Automation ensures you save/invest consistently without relying on willpower. Set up automatic transfers and let the system work for you."
+      },
+      {
+        id: 4,
+        question: "Why should you teach others about financial literacy?",
+        options: ["To show off", "Teaching reinforces your own knowledge", "It's legally required", "To make money from them"],
+        correctAnswer: 1,
+        explanation: "Teaching others reinforces your own understanding and creates accountability. Plus, you're helping break the cycle of financial illiteracy."
+      },
+      {
+        id: 5,
+        question: "Which is TRUE about financial success?",
+        options: ["It requires a high income", "It requires luck", "It's about behavior more than income", "Only some people can achieve it"],
+        correctAnswer: 2,
+        explanation: "Financial success is more about behavior (saving, investing, avoiding debt) than income level. Many high earners are broke; many modest earners are wealthy."
+      },
+      {
+        id: 6,
+        question: "What should be in place before you start investing?",
+        options: ["Nothing", "Emergency fund and high-interest debt paid off", "A financial advisor", "A huge income"],
+        correctAnswer: 1,
+        explanation: "Before investing, have an emergency fund (3-6 months expenses) and pay off high-interest debt. Don't invest while credit cards drain you."
+      },
+      {
+        id: 7,
+        question: "What's the difference between being frugal and being cheap?",
+        options: ["They're the same", "Frugal is strategic, cheap sacrifices quality/value", "Cheap is better", "Frugal means never spending"],
+        correctAnswer: 1,
+        explanation: "Frugal is strategic - spending on what matters and cutting what doesn't. Cheap sacrifices quality and value just to save money."
+      },
+      {
+        id: 8,
+        question: "At this point in the course, you should have:",
+        options: ["A million dollars", "A budget, emergency fund progress, and clear goals", "Quit your job", "Stopped all spending"],
+        correctAnswer: 1,
+        explanation: "By now you should have a working budget, be building an emergency fund, understand credit, and have clear short and long-term financial goals."
+      },
+      {
+        id: 9,
+        question: "What's the most valuable thing you've gained from this program?",
+        options: ["Free coffee", "Knowledge and skills for lifelong financial success", "A certificate only", "Nothing"],
+        correctAnswer: 1,
+        explanation: "The knowledge and skills you've developed will serve you for life. This is just the beginning of your financial journey."
+      },
+      {
+        id: 10,
+        question: "What's your first action after completing this course?",
+        options: ["Nothing", "Pick ONE thing from the course and do it today", "Start over from the beginning", "Celebrate by overspending"],
+        correctAnswer: 1,
+        explanation: "Action beats perfection. Pick one thing - set up automatic savings, check your credit, update your budget - and do it TODAY."
+      }
     ]
   };
-
-  // Add more weeks (11-18) with placeholder
-  for (let i = 11; i <= 18; i++) {
-    if (!quizData[i]) {
-      quizData[i] = quizData[1].map((q, idx) => ({
-        ...q,
-        id: idx + 1,
-        question: `Week ${i} Question ${idx + 1}: ${q.question}`,
-      }));
-    }
-  }
 
   const questions = quizData[weekNumber] || [];
   const totalQuestions = questions.length;
