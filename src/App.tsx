@@ -96,12 +96,12 @@ function App() {
     };
   }, []);
 
-  // Failsafe: Force exit from 'checking' state after 10 seconds
+  // Failsafe: Force exit from 'checking' state after 5 seconds
   useEffect(() => {
     if (enrollmentState !== 'checking') return;
 
     const failsafe = setTimeout(() => {
-      console.warn('FAILSAFE: Force exiting enrollment check after 10 seconds');
+      console.warn('FAILSAFE: Force exiting enrollment check after 5 seconds');
       // Check localStorage for cached enrollment
       const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
       if (cachedEnrollment) {
@@ -116,25 +116,39 @@ function App() {
         }
       }
       setEnrollmentState('needs_program');
-    }, 10000);
+    }, 5000);
 
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
-  // Check enrollment status with timeout
+  // Check enrollment status - LOCAL FIRST for fast loading
   const checkEnrollment = async (userId: string) => {
+    // FAST PATH: Check localStorage FIRST before any network calls
+    const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+    if (cachedEnrollment) {
+      try {
+        const parsed = JSON.parse(cachedEnrollment);
+        console.log('Using cached enrollment for fast load');
+        setEnrollment(parsed);
+        const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
+        setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
+        return; // Done! Skip network calls
+      } catch {
+        // Invalid cache, continue to network check
+      }
+    }
+
+    // No cache - need to check network
     setEnrollmentState('checking');
 
-    // Create a timeout promise that resolves after 8 seconds
+    // Very short timeout - 3 seconds max
     const timeoutPromise = new Promise<'timeout'>((resolve) => {
-      setTimeout(() => resolve('timeout'), 8000);
+      setTimeout(() => resolve('timeout'), 3000);
     });
 
-    // Create the actual enrollment check promise
     const enrollmentCheckPromise = (async () => {
       try {
         const hasEnrolled = await hasEnrollment(userId);
-
         if (hasEnrolled) {
           const activeEnrollment = await getActiveEnrollment();
           if (activeEnrollment) {
@@ -148,29 +162,14 @@ function App() {
       }
     })();
 
-    // Race between enrollment check and timeout
     const result = await Promise.race([enrollmentCheckPromise, timeoutPromise]);
 
     if (result === 'timeout') {
-      console.warn('Enrollment check timed out, proceeding without enrollment');
-      // Check localStorage for any cached enrollment
-      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-      if (cachedEnrollment) {
-        try {
-          const parsed = JSON.parse(cachedEnrollment);
-          setEnrollment(parsed);
-          const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
-          setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
-          return;
-        } catch {
-          // Ignore parse errors
-        }
-      }
+      console.warn('Enrollment check timed out');
       setEnrollmentState('needs_program');
       return;
     }
 
-    // Normal completion
     if (result.enrollment) {
       setEnrollment(result.enrollment);
       const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
