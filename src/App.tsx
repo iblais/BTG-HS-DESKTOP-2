@@ -306,7 +306,11 @@ function App() {
   return (
     <>
       <DebugOverlay />
-      <div className="min-h-screen bg-background flex pt-20">
+      {/* TEST: Bright visible content to verify rendering */}
+      <div className="fixed top-24 left-0 right-0 bg-green-500 text-black p-4 z-[9998] text-center font-bold">
+        MAIN APP RENDERING - Tab: {activeTab}
+      </div>
+      <div className="min-h-screen bg-background flex pt-40">
         <div className="particle-bg" />
 
       {/* Desktop Sidebar - Hidden on mobile */}
@@ -476,7 +480,7 @@ function App() {
       </main>
 
       {/* Mobile Bottom Navigation - Show only on mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-yellow-500 border-t border-sidebar-border z-[9997]" style={{ height: '80px' }}>
         <div className="grid grid-cols-4 h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
