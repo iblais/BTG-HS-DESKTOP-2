@@ -718,3 +718,86 @@ body {
   box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
   animation: livePulse 2s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FORCE MOBILE/DESKTOP LAYOUT - AGGRESSIVE OVERRIDES
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* FORCE MOBILE LAYOUT on screens < 768px */
+@media screen and (max-width: 767px) {
+  /* Force hide ALL sidebar/aside elements */
+  aside,
+  [class*="sidebar"],
+  .sidebar-transition {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Force bottom nav visible - target any nav at bottom */
+  nav[class*="bottom-0"],
+  nav[class*="md:hidden"] {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Force main content full width - NO margin */
+  main {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 100% !important;
+  }
+
+  /* Fix any container that might have sidebar offset */
+  main > div,
+  main > section {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  /* Ensure content doesn't overflow */
+  .w-full,
+  [class*="w-full"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Prevent horizontal scroll */
+  body,
+  html,
+  #root {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+}
+
+/* FORCE DESKTOP LAYOUT on screens >= 768px */
+@media screen and (min-width: 768px) {
+  /* Force show sidebar */
+  aside,
+  .sidebar-transition {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Force hide bottom nav on desktop */
+  nav[class*="bottom-0"],
+  nav[class*="md:hidden"] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
