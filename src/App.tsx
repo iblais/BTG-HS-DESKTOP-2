@@ -31,8 +31,21 @@ function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Debug state
+  const [errors, setErrors] = useState<string[]>([]);
+
   // Online status
   const { isOnline, isSyncing, syncNow } = useOnlineStatus();
+
+  // Capture console errors on screen
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args) => {
+      setErrors(prev => [...prev.slice(-5), args.map(a => String(a)).join(' ')]);
+      originalError(...args);
+    };
+    return () => { console.error = originalError; };
+  }, []);
 
   // Check auth state on mount
   useEffect(() => {
@@ -173,16 +186,37 @@ function App() {
     { id: 'profile' as const, label: 'Profile', icon: User },
   ];
 
+  // Debug overlay component
+  const DebugOverlay = () => (
+    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white p-2 text-[10px] z-[99999] font-mono" style={{ minHeight: '80px' }}>
+      <div>User: {user ? '✓ ' + user.email : '✗ NULL'}</div>
+      <div>LoggedIn: {isLoggedIn ? 'TRUE' : 'FALSE'}</div>
+      <div>AuthLoading: {authLoading ? 'TRUE' : 'FALSE'}</div>
+      <div>EnrollState: {enrollmentState}</div>
+      <div>Enrollment: {enrollment ? '✓ ' + enrollment.program_id : '✗ NULL'}</div>
+      <div>Window: {typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A'}</div>
+      {errors.length > 0 && (
+        <div className="mt-1 bg-black/50 p-1">
+          <div className="text-yellow-300">ERRORS:</div>
+          {errors.map((e, i) => <div key={i} className="truncate">{e}</div>)}
+        </div>
+      )}
+    </div>
+  );
+
   // Loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="particle-bg" />
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <p className="text-muted-foreground">Loading...</p>
+      <>
+        <DebugOverlay />
+        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
+          <div className="particle-bg" />
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -195,62 +229,85 @@ function App() {
 
   // Login screen
   if (!isLoggedIn) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <>
+        <DebugOverlay />
+        <div className="pt-20"><LoginScreen onLoginSuccess={handleLoginSuccess} /></div>
+      </>
+    );
   }
 
   // Program selection
   if (enrollmentState === 'needs_program') {
     return (
-      <ProgramSelectScreen
-        onEnrollmentCreated={handleEnrollmentCreated}
-        userEmail={user?.email}
-      />
+      <>
+        <DebugOverlay />
+        <div className="pt-20">
+          <ProgramSelectScreen
+            onEnrollmentCreated={handleEnrollmentCreated}
+            userEmail={user?.email}
+          />
+        </div>
+      </>
     );
   }
 
   // Onboarding
   if (enrollmentState === 'needs_onboarding') {
-    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+    return (
+      <>
+        <DebugOverlay />
+        <div className="pt-20"><OnboardingScreen onComplete={handleOnboardingComplete} /></div>
+      </>
+    );
   }
 
   // Checking enrollment state
   if (enrollmentState === 'checking') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="particle-bg" />
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <p className="text-muted-foreground">Checking enrollment...</p>
+      <>
+        <DebugOverlay />
+        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
+          <div className="particle-bg" />
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <p className="text-muted-foreground">Checking enrollment...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   // Error state
   if (enrollmentState === 'error') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="particle-bg" />
-        <div className="glass-card p-8 rounded-xl text-center">
-          <h2 className="text-xl font-bold text-destructive mb-2">Error</h2>
-          <p className="text-muted-foreground mb-4">
-            Failed to load your enrollment. Please try again.
-          </p>
-          <button
-            onClick={() => user && checkEnrollment(user.id)}
-            className="btn-3d gradient-blue px-6 py-2 rounded-lg text-white"
-          >
-            Retry
-          </button>
+      <>
+        <DebugOverlay />
+        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
+          <div className="particle-bg" />
+          <div className="glass-card p-8 rounded-xl text-center">
+            <h2 className="text-xl font-bold text-destructive mb-2">Error</h2>
+            <p className="text-muted-foreground mb-4">
+              Failed to load your enrollment. Please try again.
+            </p>
+            <button
+              onClick={() => user && checkEnrollment(user.id)}
+              className="btn-3d gradient-blue px-6 py-2 rounded-lg text-white"
+            >
+              Retry
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   // Main app with sidebar
   return (
-    <div className="min-h-screen bg-background flex">
-      <div className="particle-bg" />
+    <>
+      <DebugOverlay />
+      <div className="min-h-screen bg-background flex pt-20">
+        <div className="particle-bg" />
 
       {/* Desktop Sidebar - Hidden on mobile */}
       <aside
@@ -443,7 +500,8 @@ function App() {
           })}
         </div>
       </nav>
-    </div>
+      </div>
+    </>
   );
 }
 
