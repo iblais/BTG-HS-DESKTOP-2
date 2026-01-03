@@ -1205,7 +1205,9 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
       completedScenarios,
       gameScreen
     };
-    onSaveProgress(progressData);
+    if (onSaveProgress) {
+      onSaveProgress(progressData);
+    }
   };
 
   // Save progress whenever key state changes
@@ -1242,7 +1244,9 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
       completedScenarios: [],
       gameScreen: 'onboarding'
     };
-    onSaveProgress(emptyProgress);
+    if (onSaveProgress) {
+      onSaveProgress(emptyProgress);
+    }
   };
 
   const handleChoiceSelect = (choice: Choice, direction?: 'left' | 'right' | 'up') => {

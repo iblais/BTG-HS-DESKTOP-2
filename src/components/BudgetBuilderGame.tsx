@@ -76,11 +76,15 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
 
   // Save progress when key values change
   useEffect(() => {
-    onSaveProgress({
-      currentMonth,
-      score
-    });
-  }, [currentMonth, score, onSaveProgress]);
+    if (onSaveProgress) {
+      onSaveProgress({
+        currentMonth,
+        score,
+        savings,
+        categories
+      });
+    }
+  }, [currentMonth, score, savings, categories, onSaveProgress]);
 
   const monthsData: MonthData[] = [
     {
