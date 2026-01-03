@@ -288,10 +288,10 @@ function App() {
     <div className="min-h-screen bg-background flex">
       <div className="particle-bg" />
 
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Hidden on mobile */}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-50 flex flex-col sidebar-transition",
+          "hidden md:flex fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-50 flex-col sidebar-transition",
           sidebarCollapsed ? "w-[var(--sidebar-width-collapsed)]" : "w-[var(--sidebar-width)]"
         )}
       >
@@ -392,36 +392,36 @@ function App() {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content - Full width on mobile, offset on desktop */}
       <main
-        className="min-h-screen transition-all duration-300"
-        style={{
-          marginLeft: sidebarCollapsed ? 'var(--sidebar-width-collapsed)' : 'var(--sidebar-width)',
-          width: sidebarCollapsed ? 'calc(100vw - var(--sidebar-width-collapsed))' : 'calc(100vw - var(--sidebar-width))'
-        }}
+        className={cn(
+          "min-h-screen w-full transition-all duration-300",
+          "md:ml-[var(--sidebar-width)] md:w-[calc(100vw-var(--sidebar-width))]",
+          sidebarCollapsed && "md:ml-[var(--sidebar-width-collapsed)] md:w-[calc(100vw-var(--sidebar-width-collapsed))]"
+        )}
       >
         {/* Offline Banner */}
         {!isOnline && (
           <div className="bg-destructive/20 border-b border-destructive/30 px-4 py-2 flex items-center justify-center gap-2">
             <WifiOff className="h-4 w-4 text-destructive" />
-            <span className="text-sm text-destructive">
+            <span className="text-xs md:text-sm text-destructive">
               You're offline. Changes will sync when you reconnect.
             </span>
             <button
               onClick={syncNow}
-              className="text-sm underline text-destructive hover:no-underline ml-2"
+              className="text-xs md:text-sm underline text-destructive hover:no-underline ml-2"
             >
-              Try to reconnect
+              Reconnect
             </button>
           </div>
         )}
 
-        {/* Content */}
-        <div className="w-full p-6 lg:p-8">
+        {/* Content - Add bottom padding for mobile nav */}
+        <div className="w-full p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
           {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-white capitalize">{activeTab}</h1>
-            <p className="text-[#B8BCC8]">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">{activeTab}</h1>
+            <p className="text-sm md:text-base text-[#B8BCC8]">
               {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
               {activeTab === 'courses' && 'Continue your financial literacy journey.'}
               {activeTab === 'games' && 'Learn through interactive games.'}
@@ -453,6 +453,32 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation - Show only on mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar border-t border-sidebar-border z-50 safe-area-bottom">
+        <div className="grid grid-cols-4 h-16">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 transition-colors",
+                  isActive
+                    ? "text-[var(--primary-500)]"
+                    : "text-[var(--text-tertiary)]"
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
