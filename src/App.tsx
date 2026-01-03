@@ -96,28 +96,87 @@ function App() {
     };
   }, []);
 
-  // Check enrollment status
-  const checkEnrollment = async (userId: string) => {
-    setEnrollmentState('checking');
-    try {
-      const hasEnrolled = await hasEnrollment(userId);
+  // Failsafe: Force exit from 'checking' state after 10 seconds
+  useEffect(() => {
+    if (enrollmentState !== 'checking') return;
 
-      if (hasEnrolled) {
-        const activeEnrollment = await getActiveEnrollment();
-        if (activeEnrollment) {
-          setEnrollment(activeEnrollment);
-          // Check if onboarding is complete
+    const failsafe = setTimeout(() => {
+      console.warn('FAILSAFE: Force exiting enrollment check after 10 seconds');
+      // Check localStorage for cached enrollment
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          setEnrollment(parsed);
           const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
           setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
-        } else {
-          setEnrollmentState('needs_program');
+          return;
+        } catch {
+          // Ignore parse errors
         }
-      } else {
-        setEnrollmentState('needs_program');
       }
-    } catch (error) {
-      console.error('Enrollment check failed:', error);
-      setEnrollmentState('error');
+      setEnrollmentState('needs_program');
+    }, 10000);
+
+    return () => clearTimeout(failsafe);
+  }, [enrollmentState]);
+
+  // Check enrollment status with timeout
+  const checkEnrollment = async (userId: string) => {
+    setEnrollmentState('checking');
+
+    // Create a timeout promise that resolves after 8 seconds
+    const timeoutPromise = new Promise<'timeout'>((resolve) => {
+      setTimeout(() => resolve('timeout'), 8000);
+    });
+
+    // Create the actual enrollment check promise
+    const enrollmentCheckPromise = (async () => {
+      try {
+        const hasEnrolled = await hasEnrollment(userId);
+
+        if (hasEnrolled) {
+          const activeEnrollment = await getActiveEnrollment();
+          if (activeEnrollment) {
+            return { status: 'ready' as const, enrollment: activeEnrollment };
+          }
+        }
+        return { status: 'needs_program' as const, enrollment: null };
+      } catch (error) {
+        console.error('Enrollment check failed:', error);
+        return { status: 'needs_program' as const, enrollment: null };
+      }
+    })();
+
+    // Race between enrollment check and timeout
+    const result = await Promise.race([enrollmentCheckPromise, timeoutPromise]);
+
+    if (result === 'timeout') {
+      console.warn('Enrollment check timed out, proceeding without enrollment');
+      // Check localStorage for any cached enrollment
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          setEnrollment(parsed);
+          const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
+          setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
+          return;
+        } catch {
+          // Ignore parse errors
+        }
+      }
+      setEnrollmentState('needs_program');
+      return;
+    }
+
+    // Normal completion
+    if (result.enrollment) {
+      setEnrollment(result.enrollment);
+      const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
+      setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
+    } else {
+      setEnrollmentState(result.status);
     }
   };
 
