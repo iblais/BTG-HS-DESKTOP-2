@@ -378,6 +378,146 @@ export interface Database {
           updated_at?: string
         }
       }
+      bitcoin_simulator: {
+        Row: {
+          id: string
+          user_id: string
+          balance: number
+          btc_holdings: number
+          starting_balance: number
+          total_profit: number
+          total_loss: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          balance?: number
+          btc_holdings?: number
+          starting_balance?: number
+          total_profit?: number
+          total_loss?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          balance?: number
+          btc_holdings?: number
+          starting_balance?: number
+          total_profit?: number
+          total_loss?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      bitcoin_trades: {
+        Row: {
+          id: string
+          user_id: string
+          simulator_id: string | null
+          trade_type: 'buy' | 'sell'
+          btc_amount: number
+          price_per_btc: number
+          total_usd: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          simulator_id?: string | null
+          trade_type: 'buy' | 'sell'
+          btc_amount: number
+          price_per_btc: number
+          total_usd: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          simulator_id?: string | null
+          trade_type?: 'buy' | 'sell'
+          btc_amount?: number
+          price_per_btc?: number
+          total_usd?: number
+          created_at?: string
+        }
+      }
+      quiz_progress: {
+        Row: {
+          id: string
+          user_id: string
+          enrollment_id: string | null
+          week_number: number
+          current_question_index: number
+          answers: Record<number, number>
+          started_at: string
+          time_spent_seconds: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          enrollment_id?: string | null
+          week_number: number
+          current_question_index?: number
+          answers?: Record<number, number>
+          started_at?: string
+          time_spent_seconds?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          enrollment_id?: string | null
+          week_number?: number
+          current_question_index?: number
+          answers?: Record<number, number>
+          started_at?: string
+          time_spent_seconds?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      game_progress: {
+        Row: {
+          id: string
+          user_id: string
+          game_id: string
+          game_data: unknown
+          started_at: string
+          last_played_at: string
+          completed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          game_id: string
+          game_data?: unknown
+          started_at?: string
+          last_played_at?: string
+          completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          game_id?: string
+          game_data?: unknown
+          started_at?: string
+          last_played_at?: string
+          completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

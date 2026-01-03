@@ -11,6 +11,7 @@ import {
   type OfflineCourseProgress,
   type OfflineQuizAttempt,
 } from './offlineStorage';
+import { syncUtils } from './storage';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
@@ -205,6 +206,17 @@ export async function syncAll(onProgress?: (status: string) => void): Promise<Sy
       } else {
         result.failedCount++;
       }
+    }
+
+    // 4. Sync cloud storage data (Bitcoin simulator, games, etc.)
+    onProgress?.('Syncing cloud storage...');
+    try {
+      await syncUtils.syncAllToCloud();
+      result.syncedCount++;
+    } catch (error) {
+      console.error('Cloud storage sync failed:', error);
+      result.failedCount++;
+      result.errors.push('Cloud storage sync failed');
     }
 
     result.success = result.failedCount === 0;

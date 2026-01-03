@@ -1,27 +1,28 @@
 import { useState, useEffect } from 'react';
 import { BitcoinChart } from './BitcoinChart';
-import { storage } from '@/lib/storage';
+import { bitcoinStorage } from '@/lib/storage';
 import type { BitcoinSimulatorState } from '@/lib/storage';
-import { ArrowLeft, Wallet, DollarSign, TrendingUp, TrendingDown, RotateCcw, ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
+import { ArrowLeft, Wallet, DollarSign, TrendingUp, TrendingDown, RotateCcw, ArrowUpRight, ArrowDownRight, History, Loader2, Cloud, CloudOff } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 
 interface BitcoinTradingSimulatorProps {
   onBack: () => void;
 }
 
+const DEFAULT_STATE: BitcoinSimulatorState = {
+  balance: 10000,
+  btcHoldings: 0,
+  trades: [],
+  startingBalance: 10000,
+  totalProfit: 0,
+  totalLoss: 0,
+};
+
 export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps) {
-  // Initialize from storage
-  const [state, setState] = useState<BitcoinSimulatorState>(() => {
-    const saved = storage.getBitcoinState();
-    return saved || {
-      balance: 10000,
-      btcHoldings: 0,
-      trades: [],
-      startingBalance: 10000,
-      totalProfit: 0,
-      totalLoss: 0,
-    };
-  });
+  // Initialize with default state, will load from cloud
+  const [state, setState] = useState<BitcoinSimulatorState>(DEFAULT_STATE);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [currentPrice, setCurrentPrice] = useState(0);
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | '3M' | '1Y'>('1W');
@@ -29,17 +30,31 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
   const [tradeType, setTradeType] = useState<'usd' | 'btc'>('usd');
   const [error, setError] = useState<string | null>(null);
 
-  // Persist state changes
+  // Load state from cloud on mount
   useEffect(() => {
-    storage.setBitcoinState(state);
-  }, [state]);
+    const loadState = async () => {
+      setIsLoading(true);
+      try {
+        const cloudState = await bitcoinStorage.getState();
+        if (cloudState) {
+          setState(cloudState);
+        }
+      } catch (error) {
+        console.error('Failed to load bitcoin state:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadState();
+  }, []);
+
 
   // Calculate current portfolio value
   const portfolioValue = state.balance + (state.btcHoldings * currentPrice);
   const totalReturn = portfolioValue - state.startingBalance;
   const returnPercentage = state.startingBalance > 0 ? (totalReturn / state.startingBalance) * 100 : 0;
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
     setError(null);
     const amount = parseFloat(tradeAmount);
     if (!amount || amount <= 0 || !currentPrice) {
@@ -68,21 +83,26 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
       }
     }
 
-    // Execute trade
-    storage.addBitcoinTrade({
-      type: 'buy',
-      amount: btcAmount,
-      price: currentPrice,
-      total: usdTotal,
-    });
-
-    // Update state
-    const updated = storage.getBitcoinState()!;
-    setState(updated);
-    setTradeAmount('');
+    // Execute trade via cloud storage
+    setIsSyncing(true);
+    try {
+      const updatedState = await bitcoinStorage.addTrade({
+        type: 'buy',
+        amount: btcAmount,
+        price: currentPrice,
+        total: usdTotal,
+      });
+      setState(updatedState);
+      setTradeAmount('');
+    } catch (error) {
+      console.error('Failed to execute buy:', error);
+      setError('Failed to execute trade');
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  const handleSell = () => {
+  const handleSell = async () => {
     setError(null);
     const amount = parseFloat(tradeAmount);
     if (!amount || amount <= 0 || !currentPrice) {
@@ -112,31 +132,36 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
       }
     }
 
-    // Execute trade
-    storage.addBitcoinTrade({
-      type: 'sell',
-      amount: btcAmount,
-      price: currentPrice,
-      total: usdTotal,
-    });
-
-    // Update state
-    const updated = storage.getBitcoinState()!;
-    setState(updated);
-    setTradeAmount('');
+    // Execute trade via cloud storage
+    setIsSyncing(true);
+    try {
+      const updatedState = await bitcoinStorage.addTrade({
+        type: 'sell',
+        amount: btcAmount,
+        price: currentPrice,
+        total: usdTotal,
+      });
+      setState(updatedState);
+      setTradeAmount('');
+    } catch (error) {
+      console.error('Failed to execute sell:', error);
+      setError('Failed to execute trade');
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirm('Reset your trading simulator? This will erase all trades and progress.')) {
-      storage.clearBitcoinState();
-      setState({
-        balance: 10000,
-        btcHoldings: 0,
-        trades: [],
-        startingBalance: 10000,
-        totalProfit: 0,
-        totalLoss: 0,
-      });
+      setIsSyncing(true);
+      try {
+        await bitcoinStorage.clear();
+        setState(DEFAULT_STATE);
+      } catch (error) {
+        console.error('Failed to reset simulator:', error);
+      } finally {
+        setIsSyncing(false);
+      }
     }
   };
 
@@ -145,6 +170,18 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
     setTradeAmount(amount.toString());
     setError(null);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="w-full flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-[#4A5FFF] animate-spin" />
+          <p className="text-white/60">Loading your trading data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-6">
@@ -163,6 +200,23 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
               <span className="px-3 py-1 bg-[#FFD700]/20 border border-[#FFD700]/30 rounded-full text-xs font-bold text-[#FFD700] uppercase tracking-wider">
                 Live Data
               </span>
+              {/* Cloud sync indicator */}
+              {isSyncing ? (
+                <span className="px-2 py-1 bg-[#4A5FFF]/20 border border-[#4A5FFF]/30 rounded-full flex items-center gap-1.5">
+                  <Loader2 className="w-3 h-3 text-[#4A5FFF] animate-spin" />
+                  <span className="text-[10px] font-medium text-[#4A5FFF]">Syncing</span>
+                </span>
+              ) : navigator.onLine ? (
+                <span className="px-2 py-1 bg-[#50D890]/20 border border-[#50D890]/30 rounded-full flex items-center gap-1.5">
+                  <Cloud className="w-3 h-3 text-[#50D890]" />
+                  <span className="text-[10px] font-medium text-[#50D890]">Synced</span>
+                </span>
+              ) : (
+                <span className="px-2 py-1 bg-orange-500/20 border border-orange-500/30 rounded-full flex items-center gap-1.5">
+                  <CloudOff className="w-3 h-3 text-orange-500" />
+                  <span className="text-[10px] font-medium text-orange-500">Offline</span>
+                </span>
+              )}
             </div>
             <p className="text-white/60 text-sm">
               Practice trading Bitcoin with real market data. Starting balance: $10,000
@@ -171,7 +225,8 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
         </div>
         <button
           onClick={handleReset}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-red-400 border border-white/20 hover:border-red-500/50 rounded-xl transition-all"
+          disabled={isSyncing}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-red-400 border border-white/20 hover:border-red-500/50 rounded-xl transition-all disabled:opacity-50"
         >
           <RotateCcw className="w-4 h-4" />
           Reset
@@ -336,18 +391,18 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleBuy}
-              disabled={!tradeAmount || parseFloat(tradeAmount) <= 0 || !currentPrice}
+              disabled={!tradeAmount || parseFloat(tradeAmount) <= 0 || !currentPrice || isSyncing}
               className="py-4 bg-gradient-to-r from-[#50D890] to-[#4ECDC4] text-white font-bold rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
-              <ArrowUpRight className="w-5 h-5" />
+              {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUpRight className="w-5 h-5" />}
               Buy BTC
             </button>
             <button
               onClick={handleSell}
-              disabled={!tradeAmount || parseFloat(tradeAmount) <= 0 || state.btcHoldings === 0 || !currentPrice}
+              disabled={!tradeAmount || parseFloat(tradeAmount) <= 0 || state.btcHoldings === 0 || !currentPrice || isSyncing}
               className="py-4 bg-gradient-to-r from-[#FF6B35] to-[#FF8E53] text-white font-bold rounded-xl hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
-              <ArrowDownRight className="w-5 h-5" />
+              {isSyncing ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowDownRight className="w-5 h-5" />}
               Sell BTC
             </button>
           </div>
