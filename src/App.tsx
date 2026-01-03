@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { type AuthUser, getCurrentUser } from '@/lib/auth';
-import { hasEnrollment, getActiveEnrollment, type Enrollment } from '@/lib/enrollment';
+import { type Enrollment } from '@/lib/enrollment';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { LoginScreen } from '@/components/LoginScreen';
 import { ProgramSelectScreen } from '@/components/ProgramSelectScreen';
@@ -121,62 +121,26 @@ function App() {
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
-  // Check enrollment status - LOCAL FIRST for fast loading
-  const checkEnrollment = async (userId: string) => {
-    // FAST PATH: Check localStorage FIRST before any network calls
+  // Check enrollment status - LOCAL ONLY for instant loading
+  const checkEnrollment = async (_userId: string) => {
+    // INSTANT: Check localStorage only - no network calls on initial load
     const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
     if (cachedEnrollment) {
       try {
         const parsed = JSON.parse(cachedEnrollment);
-        console.log('Using cached enrollment for fast load');
+        console.log('Using cached enrollment');
         setEnrollment(parsed);
         const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
         setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
-        return; // Done! Skip network calls
+        return;
       } catch {
-        // Invalid cache, continue to network check
+        // Invalid cache
       }
     }
 
-    // No cache - need to check network
-    setEnrollmentState('checking');
-
-    // Very short timeout - 3 seconds max
-    const timeoutPromise = new Promise<'timeout'>((resolve) => {
-      setTimeout(() => resolve('timeout'), 3000);
-    });
-
-    const enrollmentCheckPromise = (async () => {
-      try {
-        const hasEnrolled = await hasEnrollment(userId);
-        if (hasEnrolled) {
-          const activeEnrollment = await getActiveEnrollment();
-          if (activeEnrollment) {
-            return { status: 'ready' as const, enrollment: activeEnrollment };
-          }
-        }
-        return { status: 'needs_program' as const, enrollment: null };
-      } catch (error) {
-        console.error('Enrollment check failed:', error);
-        return { status: 'needs_program' as const, enrollment: null };
-      }
-    })();
-
-    const result = await Promise.race([enrollmentCheckPromise, timeoutPromise]);
-
-    if (result === 'timeout') {
-      console.warn('Enrollment check timed out');
-      setEnrollmentState('needs_program');
-      return;
-    }
-
-    if (result.enrollment) {
-      setEnrollment(result.enrollment);
-      const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
-      setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
-    } else {
-      setEnrollmentState(result.status);
-    }
+    // No cache = need to select program (network check happens during enrollment)
+    console.log('No cached enrollment, showing program select');
+    setEnrollmentState('needs_program');
   };
 
   // Handle enrollment created
