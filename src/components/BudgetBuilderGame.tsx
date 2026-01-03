@@ -64,7 +64,7 @@ interface BudgetBuilderGameProps {
   onSaveProgress?: (progress: GameProgress) => void;
 }
 
-export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, savedProgress, onSaveProgress }) => {
+export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, savedProgress, onSaveProgress: _onSaveProgress }) => {
   const [currentMonth, setCurrentMonth] = useState(savedProgress?.currentMonth || 1);
   const [score, setScore] = useState(savedProgress?.score || 0);
   const [showChallenge, setShowChallenge] = useState(false);
