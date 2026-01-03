@@ -4,6 +4,11 @@ import {
   Trophy, Star, Play, Lock, Clock, Zap, Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BudgetBuilderGame } from './BudgetBuilderGame';
+import NeedsVsWantsChallenge from './NeedsVsWantsChallenge';
+import StockMarketSimulator from './StockMarketSimulator';
+import BankingTermsFlashCards from './BankingTermsFlashCards';
+import { RoadToLegacyGame } from './RoadToLegacyGame';
 
 interface Game {
   id: string;
@@ -23,6 +28,7 @@ interface Game {
 
 export function GamesScreen() {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
+  const [activeGame, setActiveGame] = useState<string | null>(null);
 
   const games: Game[] = [
     {
@@ -92,12 +98,35 @@ export function GamesScreen() {
       difficulty: 'Hard',
       highScore: null,
       plays: 0,
-      locked: true,
+      locked: false,
       category: 'Strategy'
     },
   ];
 
   const categories = [...new Set(games.map(g => g.category))];
+
+  // Handle back from game
+  const handleGameBack = () => {
+    setActiveGame(null);
+  };
+
+  // Render active game
+  if (activeGame) {
+    switch (activeGame) {
+      case 'budget-builder':
+        return <BudgetBuilderGame onBack={handleGameBack} />;
+      case 'needs-vs-wants':
+        return <NeedsVsWantsChallenge onBack={handleGameBack} />;
+      case 'stock-simulator':
+        return <StockMarketSimulator onBack={handleGameBack} />;
+      case 'banking-flashcards':
+        return <BankingTermsFlashCards onBack={handleGameBack} />;
+      case 'road-to-legacy':
+        return <RoadToLegacyGame onBack={handleGameBack} />;
+      default:
+        setActiveGame(null);
+    }
+  }
 
   return (
     <div className="w-full space-y-8">
@@ -186,7 +215,7 @@ export function GamesScreen() {
             </div>
 
             <button
-              onClick={() => setSelectedGame('stock-simulator')}
+              onClick={() => setActiveGame('stock-simulator')}
               className="cta-pulse inline-flex items-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-[var(--primary-500)] to-[var(--primary-600)] text-white font-bold hover:-translate-y-1 hover:shadow-xl hover:shadow-[var(--primary-500)]/40 transition-all duration-200"
             >
               <Play className="w-5 h-5" />
@@ -381,7 +410,12 @@ export function GamesScreen() {
                     >
                       Cancel
                     </button>
-                    <button className={cn(
+                    <button
+                      onClick={() => {
+                        setActiveGame(selectedGame);
+                        setSelectedGame(null);
+                      }}
+                      className={cn(
                       "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity bg-gradient-to-r",
                       game.gradient
                     )}>

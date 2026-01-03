@@ -28,7 +28,7 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', o
             duration: "5 min",
             content: `Alright, so what even is income? It's basically all the money that comes INTO your pocket from wherever. Pretty simple, right?
 
-As a student athlete, you might be getting money from a bunch of different places:
+As a student, you might be getting money from a bunch of different places:
 
 • **Part-time jobs** - Like working at Chipotle, the campus bookstore, or wherever
 • **Scholarships** - Yup, athletic scholarships and academic ones both count
@@ -73,7 +73,7 @@ Why does this matter? Because fixed expenses are locked in - you can't really ch
             title: "The Power of Saving",
             type: "video",
             duration: "6 min",
-            content: `Real talk - saving money is just like training. You don't become a great athlete overnight, and you don't build wealth overnight either. It takes discipline and doing it consistently, even when you don't feel like it.
+            content: `Real talk - saving money is just like building any skill. You don't become great overnight, and you don't build wealth overnight either. It takes discipline and doing it consistently, even when you don't feel like it.
 
 Even if you're only saving like $5 or $10 a week, that stuff ADDS UP. Seriously. That's the magic of compound interest (basically your money making more money over time).
 
@@ -126,31 +126,31 @@ This is the secret sauce: pay yourself FIRST. Before you buy anything fun, move 
         title: "Increasing Your Income & Reach Your Goal",
         sections: [
           {
-            title: "Side Hustle Opportunities for Athletes",
+            title: "Side Hustle Opportunities for Students",
             type: "reading",
             duration: "7 min",
-            content: `Look, you're an athlete. You've got skills that regular students don't have. Why not use them to make some cash? Here are some legit ways to earn:
+            content: `Look, you're a student. You've got skills and time that you can turn into cash. Why not use them to make some money? Here are some legit ways to earn:
 
-**Use your athletic skills:**
-• Personal training - help people get in shape
-• Sports camps - teach kids your sport over the summer
-• Coaching younger athletes - share what you know
-• Social media - post training videos, workout tips, etc.
-• Sell old gear or equipment you don't use anymore
+**Use your unique skills:**
+• Tutoring - help other students in subjects you're good at
+• Content creation - YouTube, TikTok, Instagram about your interests
+• Freelance work - graphic design, writing, video editing
+• Social media management - help local businesses with their accounts
+• Sell stuff you make or don't use anymore
 
-**More flexible stuff that works around practice:**
-• Delivery driving - DoorDash, Uber Eats (just check NCAA rules first!)
-• Write articles about sports - blogs, local newspapers
-• Photography - take photos at games or events
+**Flexible gigs that work around your schedule:**
+• Delivery driving - DoorDash, Uber Eats, Instacart
+• Campus jobs - library, rec center, bookstore
+• Photography - take photos at events
 • Pet sitting or dog walking - people always need this
-• Tutor in subjects you're good at - math, science, whatever
+• Reselling - buy low, sell high on eBay or Poshmark
 
-IMPORTANT: Before you start ANY of this, check with your coach or athletic department. NCAA has rules about what you can and can't do. Don't mess up your eligibility!`,
+IMPORTANT: Before you start, make sure it doesn't interfere with your studies or any scholarships/financial aid you're receiving. Check the rules first!`,
             keyPoints: [
-              "You've got skills others don't - use them",
-              "Check NCAA rules BEFORE you start anything",
+              "You've got skills others will pay for - use them",
+              "Check any scholarship or financial aid rules first",
               "Start small, see what works, then do more",
-              "Pick stuff that fits around your practice schedule"
+              "Pick stuff that fits around your class schedule"
             ]
           },
           {
@@ -181,7 +181,7 @@ See? Specific, measurable, achievable, relevant, and has a deadline. That's how 
             title: "Building Multiple Income Streams",
             type: "reading",
             duration: "5 min",
-            content: `Think about pro athletes - they don't just make money from playing their sport. They've got endorsements, investments, businesses, all kinds of stuff. You should think the same way about YOUR money, even if it's on a smaller scale.
+            content: `Think about successful people - they don't just have one source of income. They've got investments, businesses, side projects, all kinds of stuff. You should think the same way about YOUR money, even if it's on a smaller scale.
 
 **Your main income:**
 This is your primary thing - your scholarship, your main job, whatever.
@@ -697,16 +697,16 @@ Life changes. Your plan should too.`,
 • Networking is easier when people know what you're about
 • A strong brand opens doors
 
-**As an athlete:**
-• You already have a built-in platform
+**As a student:**
+• You're building your reputation now
 • Your discipline and work ethic are valuable
-• Use your athletic identity as part of your brand
-• But don't let it be your ONLY identity`,
+• Use your unique experiences as part of your brand
+• Don't limit yourself to just one identity`,
             keyPoints: [
               "Your brand is what people say about you when you're not there",
               "Google yourself - see what comes up",
               "Be consistent across all platforms",
-              "Your athletic background is a strength - use it"
+              "Your unique experiences are strengths - use them"
             ]
           },
           {
@@ -717,7 +717,7 @@ Life changes. Your plan should too.`,
 
 **LinkedIn (essential for careers):**
 • Professional photo (no party pics)
-• Clear headline: "Student Athlete | Finance Major | Future Business Leader"
+• Clear headline: "Finance Major | Aspiring Business Leader | Problem Solver"
 • Summary that tells your story
 • List your achievements and experiences
 
@@ -834,21 +834,21 @@ Life changes. Your plan should too.`,
 • Lifts others up instead of putting them down
 • Stays calm under pressure
 
-**Leadership as an athlete:**
-• You already lead by example in training
-• You know how to be part of a team
+**Leadership as a student:**
+• You already lead by example in group projects
+• You know how to work as part of a team
 • You understand discipline and commitment
 • Use these experiences in job interviews
 
 **Ways to develop leadership:**
 • Take on projects others don't want
-• Mentor younger students or teammates
+• Mentor younger students
 • Volunteer for leadership roles in clubs
 • Practice public speaking
 • Learn to give and receive feedback`,
             keyPoints: [
               "Leadership is a skill you can develop",
-              "Your athletic experience IS leadership experience",
+              "Your student experiences ARE leadership experiences",
               "Look for opportunities to lead in any role",
               "Great leaders are also great listeners"
             ]
@@ -911,9 +911,9 @@ Life changes. Your plan should too.`,
 • Find opportunities you didn't know existed
 • Build relationships that last your whole career
 
-**Networking as an athlete:**
-• You already network with coaches, teammates, alumni
-• Athletic events are great for meeting people
+**Networking as a student:**
+• You already network with professors, classmates, alumni
+• Campus events are great for meeting people
 • Your dedication is impressive to professionals
 • Use your existing connections!`,
             keyPoints: [
@@ -989,15 +989,15 @@ Life changes. Your plan should too.`,
 • Use your existing skills and network
 • Learn from failure - it's part of the process
 
-**Athlete advantages:**
+**Student advantages:**
 • Discipline and work ethic
 • Ability to handle pressure
-• Experience being coached and learning
-• Built-in audience and platform`,
+• Experience learning and adapting
+• Access to resources and networks`,
             keyPoints: [
               "You don't need a revolutionary idea to start",
               "Start small and validate your idea first",
-              "Your athletic mindset is an entrepreneurial asset",
+              "Your student mindset is an entrepreneurial asset",
               "Failure is feedback - learn and keep going"
             ]
           },
@@ -1567,7 +1567,7 @@ Also consider opportunity cost. Every dollar spent is a dollar not invested. At 
         2: {
           intermediate: `**Building Your Emergency Fund**
 
-The standard advice is 3-6 months of expenses. But as an athlete, consider this: injuries happen. Aim for at least 6 months, and keep it in a high-yield savings account earning 4-5% APY.
+The standard advice is 3-6 months of expenses. But as a student, consider this: unexpected things happen - car trouble, medical bills, job loss. Aim for at least 6 months, and keep it in a high-yield savings account earning 4-5% APY.
 
 Start with a mini emergency fund of $1,000, then build from there.`,
           advanced: `**Investment Basics for Savers**
@@ -1585,6 +1585,239 @@ The power of compound interest means starting early matters more than starting b
           ] : [
             "Start with a $1,000 mini emergency fund",
             "Use high-yield savings accounts for better returns"
+          ]
+        }
+      },
+      2: {
+        0: {
+          intermediate: `**Income Diversification Strategies**
+
+Don't rely on just one income source. Successful people build multiple streams:
+- Active income (your job/hustle)
+- Passive income (investments, royalties)
+- Portfolio income (dividends, interest)
+
+Start by adding one additional income stream to your primary source.`,
+          advanced: `**Building Scalable Income**
+
+The difference between trading time for money and scalable income is crucial. Scalable income grows without proportional time investment:
+- Digital products (courses, templates, apps)
+- Affiliate marketing and referral programs
+- Rental income or peer-to-peer lending
+
+Consider what skills you have that could be packaged and sold repeatedly.`,
+          extraPoints: level === 'advanced' ? [
+            "Identify at least 3 potential income streams",
+            "Focus on one scalable income opportunity",
+            "Calculate your hourly rate for different activities"
+          ] : [
+            "Map out your current income sources",
+            "Research one new potential income stream"
+          ]
+        },
+        1: {
+          intermediate: `**SMART Goals Deep Dive**
+
+Make your goals truly actionable:
+- Break big goals into weekly milestones
+- Set up automatic transfers toward savings goals
+- Create accountability systems (apps, partners)
+
+Example: Instead of "save $1,000", try "transfer $50 every Friday for 20 weeks."`,
+          advanced: `**Goal Stacking and Systems**
+
+Advanced goal-setters create systems, not just goals:
+- Automate everything possible (savings, bill pay, investments)
+- Use goal stacking: attach new habits to existing routines
+- Track leading indicators, not just outcomes
+
+Build systems that make success the default path.`,
+          extraPoints: level === 'advanced' ? [
+            "Automate at least 3 financial actions",
+            "Create a habit stack for financial review",
+            "Set up weekly and monthly financial checkpoints"
+          ] : [
+            "Break one big goal into weekly milestones",
+            "Set up automatic transfers for savings"
+          ]
+        }
+      },
+      3: {
+        0: {
+          intermediate: `**Credit Score Deep Dive**
+
+Your credit score is calculated from 5 factors:
+- Payment history (35%) - Pay on time, every time
+- Credit utilization (30%) - Keep below 30% of your limit
+- Length of history (15%) - Don't close old accounts
+- Credit mix (10%) - Different types help
+- New credit (10%) - Don't apply too frequently
+
+Focus on the top two factors for the biggest impact.`,
+          advanced: `**Strategic Credit Building**
+
+Advanced credit strategies for 750+ scores:
+- Request credit limit increases (without hard pulls)
+- Become an authorized user on a parent's old account
+- Use credit for recurring bills, pay immediately
+- Time your applications (only when needed)
+- Dispute any errors on your credit report
+
+Consider using a credit monitoring service to track all three bureaus.`,
+          extraPoints: level === 'advanced' ? [
+            "Check credit reports from all 3 bureaus annually",
+            "Calculate your credit utilization ratio",
+            "Create a credit-building action plan"
+          ] : [
+            "Sign up for free credit monitoring",
+            "Understand the 5 factors affecting your score"
+          ]
+        }
+      },
+      4: {
+        0: {
+          intermediate: `**Debt Prioritization Methods**
+
+Two popular approaches:
+- Avalanche: Pay highest interest first (saves most money)
+- Snowball: Pay smallest balance first (builds momentum)
+
+Both work! Choose based on your personality. The avalanche is mathematically optimal, but the snowball provides faster wins.`,
+          advanced: `**Advanced Debt Strategies**
+
+Beyond basic repayment:
+- Balance transfer cards (0% APR periods)
+- Personal loan consolidation (lower rates)
+- Negotiating with creditors (especially medical debt)
+- Understanding the statute of limitations on debt
+
+Calculate the true cost of debt including opportunity cost of those payments not being invested.`,
+          extraPoints: level === 'advanced' ? [
+            "Calculate total interest saved with different strategies",
+            "Research balance transfer opportunities",
+            "Create a debt payoff timeline with specific dates"
+          ] : [
+            "List all debts with interest rates",
+            "Choose avalanche or snowball method"
+          ]
+        }
+      },
+      5: {
+        0: {
+          intermediate: `**Choosing the Right Bank Account**
+
+Beyond just checking and savings:
+- High-yield savings accounts (online banks offer 4-5% APY)
+- Money market accounts (higher rates, limited transactions)
+- CD laddering (stagger maturity dates for flexibility)
+
+Compare fees, minimums, and interest rates across multiple banks.`,
+          advanced: `**Banking Optimization**
+
+Advanced banking strategies:
+- Multi-bank approach: checking at one bank, savings at a high-yield bank
+- Cash back checking accounts and signup bonuses
+- Using brokerage sweep accounts for excess cash
+- International considerations (fee-free foreign transactions)
+
+Your banking setup should work as a system, not just individual accounts.`,
+          extraPoints: level === 'advanced' ? [
+            "Compare rates across 5 different savings accounts",
+            "Set up a multi-bank system",
+            "Optimize for both yield and convenience"
+          ] : [
+            "Research high-yield savings accounts",
+            "Understand the difference between account types"
+          ]
+        }
+      },
+      6: {
+        0: {
+          intermediate: `**Investment Fundamentals**
+
+Key concepts for beginners:
+- Index funds: Own a piece of the entire market
+- Dollar-cost averaging: Invest regularly regardless of price
+- Time in market beats timing the market
+- Diversification reduces risk without sacrificing returns
+
+Start with a simple target-date fund or total market index fund.`,
+          advanced: `**Portfolio Construction**
+
+Building an optimized portfolio:
+- Asset allocation (stocks vs bonds vs alternatives)
+- Rebalancing strategies (calendar vs threshold-based)
+- Tax-loss harvesting in taxable accounts
+- Understanding factor investing (value, momentum, quality)
+
+Consider the total picture: tax-advantaged accounts for growth, taxable for more stable investments.`,
+          extraPoints: level === 'advanced' ? [
+            "Determine your asset allocation based on time horizon",
+            "Research low-cost index fund options",
+            "Understand the tax implications of different account types"
+          ] : [
+            "Open an investment account (brokerage or Roth IRA)",
+            "Research target-date funds for your retirement year"
+          ]
+        }
+      },
+      9: {
+        0: {
+          intermediate: `**Building a Professional Network**
+
+Beyond just connecting:
+- Follow up within 24 hours of meeting someone
+- Offer value before asking for anything
+- Maintain relationships with regular touchpoints
+- Use LinkedIn strategically (not just job searching)
+
+Quality connections matter more than quantity.`,
+          advanced: `**Personal Brand as an Asset**
+
+Your brand has real financial value:
+- Thought leadership opens premium opportunities
+- Content creation builds audience and influence
+- Speaking engagements and consulting income
+- Brand equity can be leveraged for ventures
+
+Think of your personal brand as a long-term investment that compounds over time.`,
+          extraPoints: level === 'advanced' ? [
+            "Create a content strategy for your expertise",
+            "Identify speaking or writing opportunities",
+            "Build systems for maintaining your network"
+          ] : [
+            "Optimize your LinkedIn profile",
+            "Reach out to 3 new connections this week"
+          ]
+        }
+      },
+      11: {
+        0: {
+          intermediate: `**Validating Business Ideas**
+
+Before investing time and money:
+- Talk to potential customers (at least 20)
+- Build a minimum viable product (MVP)
+- Test pricing with real purchase intent
+- Calculate your break-even point
+
+Most businesses fail because they build something nobody wants. Validate first.`,
+          advanced: `**Financial Planning for Entrepreneurs**
+
+Critical financial skills for business owners:
+- Separating personal and business finances
+- Understanding unit economics (customer acquisition cost, lifetime value)
+- Managing cash flow vs. profit
+- Building business credit separately from personal
+
+Consider forming an LLC for liability protection and tax flexibility.`,
+          extraPoints: level === 'advanced' ? [
+            "Create a business financial model",
+            "Research business entity types (LLC, S-Corp)",
+            "Understand business tax deductions"
+          ] : [
+            "Interview potential customers before building",
+            "Calculate startup costs and break-even point"
           ]
         }
       }

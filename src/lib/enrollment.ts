@@ -1,6 +1,9 @@
 import { supabase, type ProgramId, type TrackLevel, type Language } from './supabase';
 import { getCurrentUser } from './auth';
 
+// Local storage key for offline enrollments
+const LOCAL_ENROLLMENT_KEY = 'btg_local_enrollment';
+
 export interface Program {
   id: ProgramId;
   title: string;
@@ -19,37 +22,102 @@ export interface Enrollment {
   completed_at: string | null;
 }
 
+// Fallback programs when database is not available
+const FALLBACK_PROGRAMS: Program[] = [
+  {
+    id: 'HS' as ProgramId,
+    title: 'High School Program',
+    description: 'A comprehensive 12-week financial literacy course designed for high school students. Learn budgeting, saving, credit basics, and smart money habits.',
+    weeks_total: 12,
+    target_audience: 'High School Students'
+  },
+  {
+    id: 'COLLEGE' as ProgramId,
+    title: 'College Program',
+    description: 'Advanced financial education for college students covering investing, debt management, career preparation, and building long-term wealth.',
+    weeks_total: 12,
+    target_audience: 'College Students'
+  }
+];
+
+/**
+ * Get local enrollment from localStorage
+ */
+export function getLocalEnrollment(): Enrollment | null {
+  try {
+    const stored = localStorage.getItem(LOCAL_ENROLLMENT_KEY);
+    if (stored) {
+      return JSON.parse(stored) as Enrollment;
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null;
+}
+
+/**
+ * Create a local-only enrollment when database is unavailable
+ */
+function createLocalEnrollment(
+  userId: string,
+  programId: ProgramId,
+  trackLevel: TrackLevel,
+  language: Language
+): Enrollment {
+  const enrollment: Enrollment = {
+    id: `local_${Date.now()}`,
+    user_id: userId,
+    program_id: programId,
+    track_level: trackLevel,
+    language: language,
+    enrolled_at: new Date().toISOString(),
+    completed_at: null
+  };
+
+  localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+  return enrollment;
+}
+
 /**
  * Get all available programs
+ * Falls back to hardcoded programs if database is unavailable
  */
 export async function getPrograms(): Promise<Program[]> {
-  const { data, error } = await supabase
-    .from('programs')
-    .select('*')
-    .order('id');
+  try {
+    const { data, error } = await supabase
+      .from('programs')
+      .select('*')
+      .order('id');
 
-  if (error) {
-    // Check for RLS policy errors
-    if (error.code === '42501' || error.message?.includes('policy')) {
-      throw new Error('Database permissions not configured. Please run migrations 001 and 003 in Supabase.');
+    if (error) {
+      console.warn('Failed to fetch programs from database, using fallback:', error.message);
+      return FALLBACK_PROGRAMS;
     }
-    // Check for missing table
-    if (error.code === '42P01' || error.message?.includes('does not exist')) {
-      throw new Error('Programs table does not exist. Please run migration 003 in Supabase to create and seed it.');
+
+    // If no programs in database, use fallback
+    if (!data || data.length === 0) {
+      console.warn('No programs in database, using fallback');
+      return FALLBACK_PROGRAMS;
     }
-    throw new Error(`Failed to fetch programs: ${error.message}`);
+
+    return data as Program[];
+  } catch (err) {
+    console.warn('Error fetching programs, using fallback:', err);
+    return FALLBACK_PROGRAMS;
   }
-
-  return data as Program[];
 }
 
 /**
  * Get user's active enrollment
  * Returns the most recent enrollment for the user
+ * Falls back to local storage if database is unavailable
  */
 export async function getActiveEnrollment(): Promise<Enrollment | null> {
   const user = await getCurrentUser();
-  if (!user) return null;
+  if (!user) {
+    // Check for local enrollment even without user (shouldn't happen, but fallback)
+    return getLocalEnrollment();
+  }
 
   // Wrap Supabase query in a real Promise (query builder is not a true Promise)
   const queryPromise = new Promise<{ data: unknown; error: unknown }>((resolve) => {
@@ -75,25 +143,25 @@ export async function getActiveEnrollment(): Promise<Enrollment | null> {
     };
 
     if (error) {
-      // Check for RLS policy errors
-      if (error.code === '42501' || error.message?.includes('policy')) {
-        throw new Error('Database permissions not configured. Please run migrations 001 and 004 in Supabase.');
-      }
-      // Check for missing column/table errors
-      if (error.code === '42703' || error.code === '42P01' || error.message?.includes('does not exist')) {
-        throw new Error(`Database schema issue: ${error.message}`);
-      }
-      throw new Error(`Failed to fetch enrollment: ${error.message}`);
+      console.warn('Error fetching enrollment from database, checking local:', error.message);
+      // Fall back to local storage
+      return getLocalEnrollment();
     }
 
-    if (!data) return null;
+    if (!data) {
+      // No enrollment in database, check local storage
+      return getLocalEnrollment();
+    }
 
-    return {
-      ...data,
-      completed_at: null
-    } as Enrollment;
+    // Save to local storage as backup
+    const enrollment = { ...data, completed_at: null } as Enrollment;
+    localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+
+    return enrollment;
   } catch (err) {
-    throw err;
+    console.warn('Error fetching enrollment, checking local:', err);
+    // Fall back to local storage
+    return getLocalEnrollment();
   }
 }
 
@@ -101,6 +169,7 @@ export async function getActiveEnrollment(): Promise<Enrollment | null> {
  * Create a new enrollment for the user
  * If user already has an enrollment for this program, return it.
  * Otherwise, create a new enrollment.
+ * Falls back to local storage if database is unavailable.
  */
 export async function createEnrollment(
   programId: ProgramId,
@@ -112,61 +181,64 @@ export async function createEnrollment(
     throw new Error('User not authenticated');
   }
 
-  // First, check if an enrollment already exists for this user/program
-  const { data: existingEnrollment, error: fetchError } = await supabase
-    .from('enrollments')
-    .select('id, user_id, program_id, track_level, language, enrolled_at')
-    .eq('user_id', user.id)
-    .eq('program_id', programId)
-    .order('enrolled_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  try {
+    // First, check if an enrollment already exists for this user/program
+    const { data: existingEnrollment, error: fetchError } = await supabase
+      .from('enrollments')
+      .select('id, user_id, program_id, track_level, language, enrolled_at')
+      .eq('user_id', user.id)
+      .eq('program_id', programId)
+      .order('enrolled_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  if (fetchError) {
-    throw fetchError;
-  }
-
-  // If an enrollment exists, return it
-  if (existingEnrollment) {
-    return { ...existingEnrollment, completed_at: null } as Enrollment;
-  }
-
-  // Create new enrollment
-  const { data, error } = await supabase
-    .from('enrollments')
-    .insert({
-      user_id: user.id,
-      program_id: programId,
-      track_level: trackLevel,
-      language: language
-    })
-    .select('id, user_id, program_id, track_level, language, enrolled_at')
-    .single();
-
-  if (error) {
-    // Check for RLS policy errors
-    if (error.code === '42501' || error.message?.includes('policy')) {
-      throw new Error('Database permissions not configured. Please run migration 004 in Supabase to enable RLS policies.');
+    if (!fetchError && existingEnrollment) {
+      // Save to local storage as backup
+      const enrollment = { ...existingEnrollment, completed_at: null } as Enrollment;
+      localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+      return enrollment;
     }
-    // Check for foreign key errors (program doesn't exist)
-    if (error.code === '23503') {
-      throw new Error('Selected program does not exist. Please run migration 003 to seed programs table.');
-    }
-    // Check for unique constraint violations
-    if (error.code === '23505') {
-      throw new Error('You already have an enrollment for this program.');
-    }
-    throw error;
-  }
 
-  return { ...data, completed_at: null } as Enrollment;
+    // Create new enrollment
+    const { data, error } = await supabase
+      .from('enrollments')
+      .insert({
+        user_id: user.id,
+        program_id: programId,
+        track_level: trackLevel,
+        language: language
+      })
+      .select('id, user_id, program_id, track_level, language, enrolled_at')
+      .single();
+
+    if (!error && data) {
+      const enrollment = { ...data, completed_at: null } as Enrollment;
+      // Save to local storage as backup
+      localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+      return enrollment;
+    }
+
+    // If database fails, create local enrollment
+    console.warn('Database enrollment failed, creating local enrollment:', error?.message);
+    return createLocalEnrollment(user.id, programId, trackLevel, language);
+  } catch (err) {
+    console.warn('Error creating enrollment, using local storage:', err);
+    return createLocalEnrollment(user.id, programId, trackLevel, language);
+  }
 }
 
 /**
  * Check if user has any enrollment
  * Pass userId directly to avoid extra auth calls
+ * Also checks local storage as fallback
  */
 export async function hasEnrollment(userId?: string): Promise<boolean> {
+  // First check local storage
+  const localEnrollment = getLocalEnrollment();
+  if (localEnrollment) {
+    return true;
+  }
+
   // Get user ID if not provided
   let uid = userId;
   if (!uid) {
@@ -196,18 +268,14 @@ export async function hasEnrollment(userId?: string): Promise<boolean> {
     };
 
     if (error) {
-      // If table doesn't exist or RLS blocks, treat as no enrollment
-      if (error.code === '42P01' || error.code === '42501') {
-        return false;
-      }
-      // On other errors, let user proceed to program selection
-      return false;
+      // If table doesn't exist or RLS blocks, check local storage
+      return localEnrollment !== null;
     }
 
     return (count ?? 0) > 0;
   } catch {
-    // On any error, return false to allow user to proceed
-    return false;
+    // On any error, check local storage
+    return localEnrollment !== null;
   }
 }
 

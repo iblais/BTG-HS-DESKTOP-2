@@ -266,9 +266,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-white">Your Training Program</h3>
+                <h3 className="text-xl font-black text-white">Your Learning Program</h3>
                 <p className="text-[var(--text-tertiary)] text-sm">
-                  {enrollment?.program_id === 'HS' ? 'High School Athlete' : 'College Athlete'} Track
+                  {enrollment?.program_id === 'HS' ? 'High School' : 'College'} Track
                 </p>
               </div>
             </div>
