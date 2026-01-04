@@ -5,7 +5,13 @@ import { type Enrollment } from '@/lib/enrollment';
 import { LoginScreen } from '@/components/LoginScreen';
 import { ProgramSelectScreen } from '@/components/ProgramSelectScreen';
 import { OnboardingScreen } from '@/components/OnboardingScreen';
-import { Loader2, Home, GraduationCap, Gamepad2, User } from 'lucide-react';
+import { DashboardScreen } from '@/components/DashboardScreen';
+import { CoursesScreen } from '@/components/CoursesScreen';
+import { GamesScreen } from '@/components/GamesScreen';
+import { ProfileScreen } from '@/components/ProfileScreen';
+import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { logo } from '@/assets';
 
 type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
 type ActiveTab = 'dashboard' | 'courses' | 'games' | 'profile';
@@ -22,18 +28,16 @@ function App() {
 
   // Navigation state
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Debug state
-  const [errors, setErrors] = useState<string[]>([]);
+  // Check if mobile
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Capture console errors on screen
   useEffect(() => {
-    const originalError = console.error;
-    console.error = (...args) => {
-      setErrors(prev => [...prev.slice(-5), args.map(a => String(a)).join(' ')]);
-      originalError(...args);
-    };
-    return () => { console.error = originalError; };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Check auth state on mount
@@ -43,9 +47,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const currentUser = await getCurrentUser();
-
         if (!isSubscribed) return;
-
         if (currentUser) {
           setUser(currentUser);
           setIsLoggedIn(true);
@@ -54,13 +56,10 @@ function App() {
       } catch (error) {
         console.error('Auth check failed:', error);
       } finally {
-        if (isSubscribed) {
-          setAuthLoading(false);
-        }
+        if (isSubscribed) setAuthLoading(false);
       }
     };
 
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         const authUser: AuthUser = {
@@ -82,11 +81,8 @@ function App() {
       }
     });
 
-    // Timeout for loading
     const timeout = setTimeout(() => {
-      if (isSubscribed) {
-        setAuthLoading(false);
-      }
+      if (isSubscribed) setAuthLoading(false);
     }, 10000);
 
     checkAuth();
@@ -98,20 +94,18 @@ function App() {
     };
   }, []);
 
-  // Failsafe: Force exit from 'checking' state after 5 seconds
+  // Failsafe for enrollment check
   useEffect(() => {
     if (enrollmentState !== 'checking') return;
 
     const failsafe = setTimeout(() => {
-      console.warn('FAILSAFE: Force exiting enrollment check after 5 seconds');
-      // Check localStorage for cached enrollment
       const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
       if (cachedEnrollment) {
         try {
           const parsed = JSON.parse(cachedEnrollment);
           setEnrollment(parsed);
-          const onboardingComplete = localStorage.getItem('btg-onboarding-complete') === 'true';
-          setEnrollmentState(onboardingComplete ? 'ready' : 'needs_onboarding');
+          localStorage.setItem('btg-onboarding-complete', 'true');
+          setEnrollmentState('ready');
           return;
         } catch {
           // Ignore parse errors
@@ -123,16 +117,13 @@ function App() {
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
-  // Check enrollment status - LOCAL ONLY for instant loading
+  // Check enrollment - LOCAL ONLY for instant loading
   const checkEnrollment = async (_userId: string) => {
-    // INSTANT: Check localStorage only - no network calls on initial load
     const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
     if (cachedEnrollment) {
       try {
         const parsed = JSON.parse(cachedEnrollment);
-        console.log('Using cached enrollment');
         setEnrollment(parsed);
-        // Skip onboarding - go straight to dashboard
         localStorage.setItem('btg-onboarding-complete', 'true');
         setEnrollmentState('ready');
         return;
@@ -140,26 +131,19 @@ function App() {
         // Invalid cache
       }
     }
-
-    // No cache = need to select program (network check happens during enrollment)
-    console.log('No cached enrollment, showing program select');
     setEnrollmentState('needs_program');
   };
 
-  // Handle enrollment created
   const handleEnrollmentCreated = async () => {
-    if (user) {
-      await checkEnrollment(user.id);
-    }
+    if (user) await checkEnrollment(user.id);
   };
 
-  // Handle onboarding complete
-  const handleOnboardingComplete = () => {
-    setEnrollmentState('ready');
-  };
+  const handleOnboardingComplete = () => setEnrollmentState('ready');
 
-  // Handle sign out
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('btg_local_enrollment');
+    localStorage.removeItem('btg-onboarding-complete');
     setUser(null);
     setIsLoggedIn(false);
     setEnrollment(null);
@@ -167,7 +151,6 @@ function App() {
     setActiveTab('dashboard');
   };
 
-  // Sidebar navigation items
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'courses' as const, label: 'Courses', icon: GraduationCap },
@@ -175,37 +158,15 @@ function App() {
     { id: 'profile' as const, label: 'Profile', icon: User },
   ];
 
-  // Debug overlay component
-  const DebugOverlay = () => (
-    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white p-2 text-[10px] z-[99999] font-mono" style={{ minHeight: '80px' }}>
-      <div>User: {user ? '✓ ' + user.email : '✗ NULL'}</div>
-      <div>LoggedIn: {isLoggedIn ? 'TRUE' : 'FALSE'}</div>
-      <div>AuthLoading: {authLoading ? 'TRUE' : 'FALSE'}</div>
-      <div>EnrollState: {enrollmentState}</div>
-      <div>Enrollment: {enrollment ? '✓ ' + enrollment.program_id : '✗ NULL'}</div>
-      <div>Window: {typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A'}</div>
-      {errors.length > 0 && (
-        <div className="mt-1 bg-black/50 p-1">
-          <div className="text-yellow-300">ERRORS:</div>
-          {errors.map((e, i) => <div key={i} className="truncate">{e}</div>)}
-        </div>
-      )}
-    </div>
-  );
-
   // Loading state
   if (authLoading) {
     return (
-      <>
-        <DebugOverlay />
-        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
-          <div className="particle-bg" />
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-12 w-12 text-primary animate-spin" />
-            <p className="text-muted-foreground">Loading...</p>
-          </div>
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <p className="text-[#9CA3AF]">Loading...</p>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -218,354 +179,207 @@ function App() {
 
   // Login screen
   if (!isLoggedIn) {
-    return (
-      <>
-        <DebugOverlay />
-        <div className="pt-20"><LoginScreen onLoginSuccess={handleLoginSuccess} /></div>
-      </>
-    );
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
   // Program selection
   if (enrollmentState === 'needs_program') {
     return (
-      <>
-        <DebugOverlay />
-        <div className="pt-20">
-          <ProgramSelectScreen
-            onEnrollmentCreated={handleEnrollmentCreated}
-            userEmail={user?.email}
-          />
-        </div>
-      </>
+      <ProgramSelectScreen
+        onEnrollmentCreated={handleEnrollmentCreated}
+        userEmail={user?.email}
+      />
     );
   }
 
   // Onboarding
   if (enrollmentState === 'needs_onboarding') {
-    return (
-      <>
-        <DebugOverlay />
-        <div className="pt-20"><OnboardingScreen onComplete={handleOnboardingComplete} /></div>
-      </>
-    );
+    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
   // Checking enrollment state
   if (enrollmentState === 'checking') {
     return (
-      <>
-        <DebugOverlay />
-        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
-          <div className="particle-bg" />
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-12 w-12 text-primary animate-spin" />
-            <p className="text-muted-foreground">Checking enrollment...</p>
-          </div>
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <p className="text-[#9CA3AF]">Checking enrollment...</p>
         </div>
-      </>
+      </div>
     );
   }
 
   // Error state
   if (enrollmentState === 'error') {
     return (
-      <>
-        <DebugOverlay />
-        <div className="min-h-screen bg-background flex items-center justify-center pt-20">
-          <div className="particle-bg" />
-          <div className="glass-card p-8 rounded-xl text-center">
-            <h2 className="text-xl font-bold text-destructive mb-2">Error</h2>
-            <p className="text-muted-foreground mb-4">
-              Failed to load your enrollment. Please try again.
-            </p>
-            <button
-              onClick={() => user && checkEnrollment(user.id)}
-              className="btn-3d gradient-blue px-6 py-2 rounded-lg text-white"
-            >
-              Retry
-            </button>
-          </div>
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
+        <div className="bg-[#12162F] border border-white/10 p-8 rounded-xl text-center max-w-md">
+          <h2 className="text-xl font-bold text-red-500 mb-2">Error</h2>
+          <p className="text-[#9CA3AF] mb-4">Failed to load your enrollment. Please try again.</p>
+          <button
+            onClick={() => user && checkEnrollment(user.id)}
+            className="px-6 py-2 bg-[#6366F1] text-white rounded-lg hover:bg-[#5558E3] transition-colors"
+          >
+            Retry
+          </button>
         </div>
-      </>
+      </div>
     );
   }
 
-  // Main app - FIXED LAYOUT FOR MOBILE
+  // Calculate sidebar width
+  const sidebarWidth = sidebarCollapsed ? 72 : 240;
+
+  // Main app layout
   return (
-    <>
-      {/* Debug overlay - RED - 48px height */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '48px',
-        backgroundColor: '#DC2626',
-        color: 'white',
-        padding: '4px 8px',
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        zIndex: 99999,
-        lineHeight: 1.3,
-        overflow: 'hidden',
-      }}>
-        <div>User: {user ? '✓ ' + user.email : '✗ NULL'}</div>
-        <div>Enrollment: {enrollment ? '✓ ' + enrollment.program_id : '✗ NULL'}</div>
-        <div>Tab: {activeTab} | {typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A'}</div>
-      </div>
+    <div className="min-h-screen bg-[#0A0E27]">
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <aside
+        className={cn(
+          "hidden md:flex fixed top-0 left-0 h-full bg-[#12162F] border-r border-white/10 z-50 flex-col transition-all duration-300",
+        )}
+        style={{ width: `${sidebarWidth}px` }}
+      >
+        {/* Logo */}
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center justify-center">
+            <img
+              src={logo}
+              alt="Beyond The Game"
+              className={cn("object-contain transition-all", sidebarCollapsed ? "h-10 w-10" : "h-14")}
+            />
+          </div>
+        </div>
 
-      {/* Main content area - FIXED positioning between header and nav */}
-      <div style={{
-        position: 'fixed',
-        top: '48px',
-        left: 0,
-        right: 0,
-        bottom: '64px',
-        backgroundColor: '#0A0E27',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-      }}>
-        {/* Content wrapper with padding */}
-        <div style={{ padding: '16px', paddingBottom: '32px' }}>
-          {/* Page Header */}
-          <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', textTransform: 'capitalize' }}>
-            {activeTab}
-          </h1>
-          <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '20px' }}>
-            {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
-            {activeTab === 'courses' && 'Continue your financial literacy journey.'}
-            {activeTab === 'games' && 'Learn through interactive games.'}
-            {activeTab === 'profile' && 'Manage your account and settings.'}
-          </p>
-
-          {/* Dashboard Tab */}
-          {activeTab === 'dashboard' && (
-            <div>
-              {/* Welcome card */}
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px',
-              }}>
-                <p style={{ color: '#E5E7EB', fontSize: '14px' }}>
-                  Welcome back, {user?.email}!
-                </p>
-                <p style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '8px' }}>
-                  Program: {enrollment?.program_id === 'HS' ? 'High School' : 'College'}
-                </p>
-              </div>
-
-              {/* Stats grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '12px',
-                marginBottom: '16px',
-              }}>
-                <div style={{
-                  backgroundColor: '#12162F',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}>
-                  <div style={{ color: '#6366F1', fontSize: '24px', fontWeight: 'bold' }}>0</div>
-                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Total XP</div>
-                </div>
-                <div style={{
-                  backgroundColor: '#12162F',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}>
-                  <div style={{ color: '#F59E0B', fontSize: '24px', fontWeight: 'bold' }}>1</div>
-                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Level</div>
-                </div>
-                <div style={{
-                  backgroundColor: '#12162F',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}>
-                  <div style={{ color: '#10B981', fontSize: '24px', fontWeight: 'bold' }}>0</div>
-                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Day Streak</div>
-                </div>
-                <div style={{
-                  backgroundColor: '#12162F',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}>
-                  <div style={{ color: '#EC4899', fontSize: '24px', fontWeight: 'bold' }}>0/12</div>
-                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Weeks Done</div>
-                </div>
-              </div>
-
-              {/* Success message */}
-              <div style={{
-                backgroundColor: '#065F46',
-                border: '1px solid #10B981',
-                borderRadius: '12px',
-                padding: '16px',
-              }}>
-                <p style={{ color: '#A7F3D0', fontSize: '14px', fontWeight: '500' }}>
-                  Content is rendering correctly!
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Courses Tab */}
-          {activeTab === 'courses' && (
-            <div>
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '12px',
-              }}>
-                <div style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Week 1</div>
-                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Introduction to Financial Literacy</div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>0% Complete</div>
-              </div>
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '12px',
-                opacity: 0.6,
-              }}>
-                <div style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Week 2</div>
-                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Budgeting Basics</div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Locked</div>
-              </div>
-            </div>
-          )}
-
-          {/* Games Tab */}
-          {activeTab === 'games' && (
-            <div>
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '12px',
-              }}>
-                <div style={{ color: '#F59E0B', fontSize: '24px', marginBottom: '8px' }}>🎮</div>
-                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Budget Builder</div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Practice budgeting skills</div>
-              </div>
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '12px',
-              }}>
-                <div style={{ color: '#10B981', fontSize: '24px', marginBottom: '8px' }}>📈</div>
-                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Stock Simulator</div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Learn investing basics</div>
-              </div>
-            </div>
-          )}
-
-          {/* Profile Tab */}
-          {activeTab === 'profile' && (
-            <div>
-              <div style={{
-                backgroundColor: '#12162F',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px',
-              }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #F59E0B, #D97706)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  marginBottom: '12px',
-                }}>
-                  {user?.email?.charAt(0).toUpperCase()}
-                </div>
-                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>{user?.email}</div>
-                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>
-                  {enrollment?.program_id === 'HS' ? 'High School Program' : 'College Program'}
-                </div>
-              </div>
+        {/* Navigation */}
+        <nav className="flex-1 p-3 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
               <button
-                onClick={handleSignOut}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: '#DC2626',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                }}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150",
+                  isActive
+                    ? "bg-[#6366F1]/10 text-[#6366F1] border-l-[3px] border-[#6366F1] pl-[13px]"
+                    : "text-[#9CA3AF] hover:bg-white/5 hover:text-white"
+                )}
               >
-                Sign Out
+                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[#6366F1]")} />
+                {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
               </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom section */}
+        <div className="p-3 border-t border-white/10 space-y-2">
+          {/* User info */}
+          <div className="flex items-center gap-3 px-3 py-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white text-sm font-bold">
+              {user?.email?.charAt(0).toUpperCase()}
             </div>
+            {!sidebarCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{user?.email}</p>
+                <p className="text-xs text-[#9CA3AF]">
+                  {enrollment?.program_id === 'HS' ? 'High School' : 'College'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Collapse button */}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[#9CA3AF] hover:bg-white/5 transition-colors"
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5" />
+                <span className="text-sm">Collapse</span>
+              </>
+            )}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main
+        className="min-h-screen transition-all duration-300"
+        style={{
+          marginLeft: isMobile ? 0 : sidebarWidth,
+          paddingBottom: isMobile ? '80px' : '0',
+        }}
+      >
+        {/* Content wrapper */}
+        <div className="p-4 md:p-6 lg:p-8">
+          {/* Page Header */}
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">{activeTab}</h1>
+            <p className="text-sm md:text-base text-[#9CA3AF]">
+              {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
+              {activeTab === 'courses' && 'Continue your financial literacy journey.'}
+              {activeTab === 'games' && 'Learn through interactive games.'}
+              {activeTab === 'profile' && 'Manage your account and settings.'}
+            </p>
+          </div>
+
+          {/* Screen Components */}
+          {activeTab === 'dashboard' && (
+            <DashboardScreen
+              enrollment={enrollment}
+              onNavigateToTab={(tab) => setActiveTab(tab as ActiveTab)}
+            />
+          )}
+
+          {activeTab === 'courses' && (
+            <CoursesScreen enrollment={enrollment} />
+          )}
+
+          {activeTab === 'games' && (
+            <GamesScreen />
+          )}
+
+          {activeTab === 'profile' && (
+            <ProfileScreen
+              enrollment={enrollment}
+              onSignOut={handleSignOut}
+            />
           )}
         </div>
-      </div>
+      </main>
 
-      {/* Bottom nav - 64px height */}
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '64px',
-        backgroundColor: '#12162F',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr 1fr',
-        zIndex: 99998,
-      }}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                color: isActive ? '#6366F1' : '#6B7280',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                fontSize: '10px',
-                fontWeight: '500',
-              }}
-            >
-              <Icon style={{ width: '20px', height: '20px' }} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+      {/* Mobile Bottom Navigation */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-[#12162F] border-t border-white/10 z-50"
+        style={{ height: '64px' }}
+      >
+        <div className="grid grid-cols-4 h-full">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 transition-colors",
+                  isActive ? "text-[#6366F1]" : "text-[#6B7280]"
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
-    </>
+    </div>
   );
 }
 
