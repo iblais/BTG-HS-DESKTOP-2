@@ -2,17 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { type AuthUser, getCurrentUser } from '@/lib/auth';
 import { type Enrollment } from '@/lib/enrollment';
-import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { LoginScreen } from '@/components/LoginScreen';
 import { ProgramSelectScreen } from '@/components/ProgramSelectScreen';
 import { OnboardingScreen } from '@/components/OnboardingScreen';
-import { DashboardScreen } from '@/components/DashboardScreen';
-import { CoursesScreen } from '@/components/CoursesScreen';
-import { GamesScreen } from '@/components/GamesScreen';
-import { ProfileScreen } from '@/components/ProfileScreen';
-import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight, Wifi, WifiOff, RefreshCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { logo } from '@/assets';
+import { Loader2, Home, GraduationCap, Gamepad2, User } from 'lucide-react';
 
 type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
 type ActiveTab = 'dashboard' | 'courses' | 'games' | 'profile';
@@ -29,13 +22,9 @@ function App() {
 
   // Navigation state
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Debug state
   const [errors, setErrors] = useState<string[]>([]);
-
-  // Online status
-  const { isOnline, isSyncing, syncNow } = useOnlineStatus();
 
   // Capture console errors on screen
   useEffect(() => {
@@ -302,244 +291,280 @@ function App() {
     );
   }
 
-  // Main app with sidebar
+  // Main app - FIXED LAYOUT FOR MOBILE
   return (
     <>
-      <DebugOverlay />
-      {/* TEST: Bright visible content to verify rendering */}
-      <div className="fixed top-24 left-0 right-0 bg-green-500 text-black p-4 z-[9998] text-center font-bold">
-        MAIN APP RENDERING - Tab: {activeTab}
+      {/* Debug overlay - RED - 48px height */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '48px',
+        backgroundColor: '#DC2626',
+        color: 'white',
+        padding: '4px 8px',
+        fontSize: '10px',
+        fontFamily: 'monospace',
+        zIndex: 99999,
+        lineHeight: 1.3,
+        overflow: 'hidden',
+      }}>
+        <div>User: {user ? '✓ ' + user.email : '✗ NULL'}</div>
+        <div>Enrollment: {enrollment ? '✓ ' + enrollment.program_id : '✗ NULL'}</div>
+        <div>Tab: {activeTab} | {typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A'}</div>
       </div>
-      <div className="min-h-screen bg-background flex pt-40">
-        <div className="particle-bg" />
 
-      {/* Desktop Sidebar - Hidden on mobile */}
-      <aside
-        className={cn(
-          "hidden md:flex fixed top-0 left-0 h-full bg-sidebar border-r border-sidebar-border z-50 flex-col sidebar-transition",
-          sidebarCollapsed ? "w-[var(--sidebar-width-collapsed)]" : "w-[var(--sidebar-width)]"
-        )}
-      >
-        {/* Logo */}
-        <div className="p-4 border-b border-[#2A2F4F]">
-          <div className="flex items-center justify-center">
-            <img
-              src={logo}
-              alt="Beyond The Game"
-              className={cn(
-                "object-contain transition-all",
-                sidebarCollapsed ? "h-10 w-10" : "h-14"
-              )}
-            />
-          </div>
-        </div>
+      {/* Main content area - FIXED positioning between header and nav */}
+      <div style={{
+        position: 'fixed',
+        top: '48px',
+        left: 0,
+        right: 0,
+        bottom: '64px',
+        backgroundColor: '#0A0E27',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}>
+        {/* Content wrapper with padding */}
+        <div style={{ padding: '16px', paddingBottom: '32px' }}>
+          {/* Page Header */}
+          <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', marginBottom: '8px', textTransform: 'capitalize' }}>
+            {activeTab}
+          </h1>
+          <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '20px' }}>
+            {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
+            {activeTab === 'courses' && 'Continue your financial literacy journey.'}
+            {activeTab === 'games' && 'Learn through interactive games.'}
+            {activeTab === 'profile' && 'Manage your account and settings.'}
+          </p>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150",
-                  isActive
-                    ? "bg-[var(--primary-500)]/10 text-[var(--primary-500)] border-l-[3px] border-[var(--primary-500)] pl-[13px]"
-                    : "text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-primary)]"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[var(--primary-500)]")} />
-                {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Bottom section */}
-        <div className="p-3 border-t border-sidebar-border space-y-2">
-          {/* Online status */}
-          <div className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg",
-            isOnline ? "bg-success-green/10" : "bg-destructive/10"
-          )}>
-            {isOnline ? (
-              <Wifi className="h-4 w-4 text-success-green" />
-            ) : (
-              <WifiOff className="h-4 w-4 text-destructive" />
-            )}
-            {!sidebarCollapsed && (
-              <span className={cn(
-                "text-sm",
-                isOnline ? "text-success-green" : "text-destructive"
-              )}>
-                {isOnline ? 'Online' : 'Offline'}
-              </span>
-            )}
-            {isSyncing && (
-              <RefreshCw className="h-4 w-4 text-primary animate-spin ml-auto" />
-            )}
-          </div>
-
-          {/* User info */}
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full gradient-orange flex items-center justify-center text-white text-sm font-bold">
-              {user?.email?.charAt(0).toUpperCase()}
-            </div>
-            {!sidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user?.email}
+          {/* Dashboard Tab */}
+          {activeTab === 'dashboard' && (
+            <div>
+              {/* Welcome card */}
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <p style={{ color: '#E5E7EB', fontSize: '14px' }}>
+                  Welcome back, {user?.email}!
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {enrollment?.program_id === 'HS' ? 'High School' : 'College'}
+                <p style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '8px' }}>
+                  Program: {enrollment?.program_id === 'HS' ? 'High School' : 'College'}
                 </p>
               </div>
-            )}
-          </div>
 
-          {/* Collapse button */}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-muted-foreground hover:bg-sidebar-accent transition-colors"
-          >
-            {sidebarCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <>
-                <ChevronLeft className="h-5 w-5" />
-                <span className="text-sm">Collapse</span>
-              </>
-            )}
-          </button>
-        </div>
-      </aside>
+              {/* Stats grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '12px',
+                marginBottom: '16px',
+              }}>
+                <div style={{
+                  backgroundColor: '#12162F',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <div style={{ color: '#6366F1', fontSize: '24px', fontWeight: 'bold' }}>0</div>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Total XP</div>
+                </div>
+                <div style={{
+                  backgroundColor: '#12162F',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <div style={{ color: '#F59E0B', fontSize: '24px', fontWeight: 'bold' }}>1</div>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Level</div>
+                </div>
+                <div style={{
+                  backgroundColor: '#12162F',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <div style={{ color: '#10B981', fontSize: '24px', fontWeight: 'bold' }}>0</div>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Day Streak</div>
+                </div>
+                <div style={{
+                  backgroundColor: '#12162F',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <div style={{ color: '#EC4899', fontSize: '24px', fontWeight: 'bold' }}>0/12</div>
+                  <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Weeks Done</div>
+                </div>
+              </div>
 
-      {/* Main Content - Full width on mobile, offset on desktop */}
-      <main
-        className={cn(
-          "min-h-screen w-full transition-all duration-300",
-          "md:ml-[var(--sidebar-width)] md:w-[calc(100vw-var(--sidebar-width))]",
-          sidebarCollapsed && "md:ml-[var(--sidebar-width-collapsed)] md:w-[calc(100vw-var(--sidebar-width-collapsed))]"
-        )}
-      >
-        {/* Offline Banner */}
-        {!isOnline && (
-          <div className="bg-destructive/20 border-b border-destructive/30 px-4 py-2 flex items-center justify-center gap-2">
-            <WifiOff className="h-4 w-4 text-destructive" />
-            <span className="text-xs md:text-sm text-destructive">
-              You're offline. Changes will sync when you reconnect.
-            </span>
-            <button
-              onClick={syncNow}
-              className="text-xs md:text-sm underline text-destructive hover:no-underline ml-2"
-            >
-              Reconnect
-            </button>
-          </div>
-        )}
-
-        {/* Content - Add bottom padding for mobile nav */}
-        <div className="w-full p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
-          {/* Page Header */}
-          <div className="mb-6 md:mb-8">
-            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">{activeTab}</h1>
-            <p className="text-sm md:text-base text-[#B8BCC8]">
-              {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
-              {activeTab === 'courses' && 'Continue your financial literacy journey.'}
-              {activeTab === 'games' && 'Learn through interactive games.'}
-              {activeTab === 'profile' && 'Manage your account and settings.'}
-            </p>
-          </div>
-
-          {/* Screen Components */}
-          {activeTab === 'dashboard' && (
-            <DashboardScreen
-              enrollment={enrollment}
-              onNavigateToTab={(tab) => setActiveTab(tab as ActiveTab)}
-            />
+              {/* Success message */}
+              <div style={{
+                backgroundColor: '#065F46',
+                border: '1px solid #10B981',
+                borderRadius: '12px',
+                padding: '16px',
+              }}>
+                <p style={{ color: '#A7F3D0', fontSize: '14px', fontWeight: '500' }}>
+                  Content is rendering correctly!
+                </p>
+              </div>
+            </div>
           )}
 
+          {/* Courses Tab */}
           {activeTab === 'courses' && (
-            <CoursesScreen enrollment={enrollment} />
+            <div>
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '12px',
+              }}>
+                <div style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Week 1</div>
+                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Introduction to Financial Literacy</div>
+                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>0% Complete</div>
+              </div>
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '12px',
+                opacity: 0.6,
+              }}>
+                <div style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>Week 2</div>
+                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Budgeting Basics</div>
+                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Locked</div>
+              </div>
+            </div>
           )}
 
+          {/* Games Tab */}
           {activeTab === 'games' && (
-            <GamesScreen />
+            <div>
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '12px',
+              }}>
+                <div style={{ color: '#F59E0B', fontSize: '24px', marginBottom: '8px' }}>🎮</div>
+                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Budget Builder</div>
+                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Practice budgeting skills</div>
+              </div>
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '12px',
+              }}>
+                <div style={{ color: '#10B981', fontSize: '24px', marginBottom: '8px' }}>📈</div>
+                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>Stock Simulator</div>
+                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>Learn investing basics</div>
+              </div>
+            </div>
           )}
 
+          {/* Profile Tab */}
           {activeTab === 'profile' && (
-            <ProfileScreen
-              enrollment={enrollment}
-              onSignOut={handleSignOut}
-            />
+            <div>
+              <div style={{
+                backgroundColor: '#12162F',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  marginBottom: '12px',
+                }}>
+                  {user?.email?.charAt(0).toUpperCase()}
+                </div>
+                <div style={{ color: '#E5E7EB', fontSize: '16px', fontWeight: '500' }}>{user?.email}</div>
+                <div style={{ color: '#9CA3AF', fontSize: '12px', marginTop: '4px' }}>
+                  {enrollment?.program_id === 'HS' ? 'High School Program' : 'College Program'}
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: '#DC2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
           )}
         </div>
-      </main>
+      </div>
 
-      {/* Mobile Bottom Navigation - Show only on mobile */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 bg-yellow-500 border-t border-sidebar-border"
-        style={{
-          display: 'grid',
-          visibility: 'visible',
-          opacity: 1,
-          zIndex: 99999,
-          height: '80px',
-          width: '100%',
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-        }}
-      >
-        <div className="grid grid-cols-4 h-16">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1 transition-colors",
-                  isActive
-                    ? "text-[var(--primary-500)]"
-                    : "text-[var(--text-tertiary)]"
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Bottom nav - 64px height */}
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '64px',
+        backgroundColor: '#12162F',
+        borderTop: '1px solid rgba(255,255,255,0.1)',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr 1fr',
+        zIndex: 99998,
+      }}>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                color: isActive ? '#6366F1' : '#6B7280',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '10px',
+                fontWeight: '500',
+              }}
+            >
+              <Icon style={{ width: '20px', height: '20px' }} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
-      </div>
-
-      {/* MOBILE NAV - Outside all containers for guaranteed visibility */}
-      <div
-        id="mobile-nav-test"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '70px',
-          backgroundColor: '#ff00ff',
-          zIndex: 999999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <span style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>
-          MAGENTA NAV TEST - TAB: {activeTab}
-        </span>
-      </div>
     </>
   );
 }
