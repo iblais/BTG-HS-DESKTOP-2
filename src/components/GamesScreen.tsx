@@ -129,7 +129,7 @@ export function GamesScreen() {
   }
 
   return (
-    <div className="w-full space-y-4 md:space-y-8">
+    <div className="w-full space-y-4 md:space-y-8 pb-6 md:pb-0">
       {/* Header Stats - EXCITING VERSION */}
       <div className="grid grid-cols-3 gap-2 md:gap-5">
         <div className="stat-glow bg-[var(--bg-elevated)] border border-[var(--primary-500)]/20 rounded-xl p-3 md:p-6 cursor-pointer">

@@ -13,6 +13,7 @@ interface QuizQuestion {
 interface QuizScreenProps {
   weekNumber: number;
   weekTitle: string;
+  programId?: string;
   onBack: () => void;
   onComplete: (score: number, passed: boolean) => void;
 }
@@ -20,6 +21,7 @@ interface QuizScreenProps {
 export function QuizScreen({
   weekNumber,
   weekTitle,
+  programId = 'HS',
   onBack,
   onComplete
 }: QuizScreenProps) {
@@ -1329,7 +1331,1163 @@ export function QuizScreen({
     ]
   };
 
-  const questions = quizData[weekNumber] || [];
+  // College-specific quiz questions (16 weeks)
+  const collegeQuizData: { [key: number]: QuizQuestion[] } = {
+    1: [
+      {
+        id: 1,
+        question: "What's the main difference between federal and private student loans?",
+        options: ["Federal loans have higher interest rates", "Federal loans offer income-driven repayment and forgiveness options", "Private loans are from the government", "There is no difference"],
+        correctAnswer: 1,
+        explanation: "Federal loans offer benefits like income-driven repayment plans, deferment options, and potential forgiveness programs that private loans typically don't have."
+      },
+      {
+        id: 2,
+        question: "What does 'subsidized' mean for a federal student loan?",
+        options: ["You pay interest while in school", "The government pays interest while you're in school", "The interest rate is higher", "The loan has no interest"],
+        correctAnswer: 1,
+        explanation: "With subsidized loans, the government pays the interest while you're enrolled at least half-time, during grace periods, and during deferment."
+      },
+      {
+        id: 3,
+        question: "You borrowed $30,000 at 5% interest. If you make minimum payments over 10 years, roughly how much total will you pay?",
+        options: ["$30,000", "$35,000", "$38,000", "$45,000"],
+        correctAnswer: 2,
+        explanation: "Over 10 years at 5%, you'll pay about $8,000 in interest, bringing your total to roughly $38,000. This is why paying extra when you can saves money!"
+      },
+      {
+        id: 4,
+        question: "What's the standard repayment period for federal student loans?",
+        options: ["5 years", "10 years", "20 years", "30 years"],
+        correctAnswer: 1,
+        explanation: "The standard federal student loan repayment plan is 10 years, though income-driven plans can extend to 20-25 years."
+      },
+      {
+        id: 5,
+        question: "Which income-driven repayment plan caps payments at 10% of discretionary income?",
+        options: ["Standard Plan", "PAYE (Pay As You Earn)", "Extended Plan", "Graduated Plan"],
+        correctAnswer: 1,
+        explanation: "PAYE caps your monthly payments at 10% of discretionary income and offers forgiveness after 20 years."
+      },
+      {
+        id: 6,
+        question: "What happens if you don't pay your student loans?",
+        options: ["Nothing, they're forgiven", "Only your credit score drops", "Wages can be garnished and tax refunds seized", "You just pay more interest"],
+        correctAnswer: 2,
+        explanation: "Defaulting on federal loans can result in wage garnishment, tax refund seizure, damaged credit, and losing eligibility for future aid."
+      },
+      {
+        id: 7,
+        question: "What is Public Service Loan Forgiveness (PSLF)?",
+        options: ["Automatic forgiveness after 10 years", "Forgiveness after 120 payments while working for qualifying employers", "Only for doctors", "Private loan forgiveness"],
+        correctAnswer: 1,
+        explanation: "PSLF forgives remaining federal loan balances after 120 qualifying monthly payments while working full-time for qualifying public service employers."
+      },
+      {
+        id: 8,
+        question: "You have extra money this month. What's the BEST loan strategy?",
+        options: ["Save it all", "Pay extra on the highest-interest loan", "Pay minimum on all loans", "Pay extra on the smallest loan only"],
+        correctAnswer: 1,
+        explanation: "The avalanche method (paying extra on highest-interest debt) saves you the most money over time."
+      },
+      {
+        id: 9,
+        question: "What does loan 'capitalization' mean?",
+        options: ["Your loan is paid off", "Unpaid interest is added to your principal", "Your interest rate increases", "You qualify for forgiveness"],
+        correctAnswer: 1,
+        explanation: "Capitalization adds unpaid interest to your loan principal, which means you start paying interest on a larger amount."
+      },
+      {
+        id: 10,
+        question: "What should you do FIRST before accepting any student loan?",
+        options: ["Sign immediately", "Max out federal loans before considering private", "Take private loans first", "Skip the financial aid office"],
+        correctAnswer: 1,
+        explanation: "Always exhaust federal loan options first - they have lower interest rates, flexible repayment options, and forgiveness programs that private loans don't offer."
+      }
+    ],
+    2: [
+      {
+        id: 1,
+        question: "What makes up the LARGEST portion of your credit score?",
+        options: ["Credit utilization (30%)", "Payment history (35%)", "Length of credit history (15%)", "Types of credit (10%)"],
+        correctAnswer: 1,
+        explanation: "Payment history is 35% of your FICO score - paying on time is the single most important factor!"
+      },
+      {
+        id: 2,
+        question: "What's the ideal credit utilization ratio?",
+        options: ["0%", "Under 30%", "50%", "100%"],
+        correctAnswer: 1,
+        explanation: "Keep your credit utilization under 30% of your available credit. Under 10% is even better for your score."
+      },
+      {
+        id: 3,
+        question: "You're 18 with no credit history. What's the BEST first step?",
+        options: ["Open 5 credit cards at once", "Become an authorized user on a parent's card", "Take out a car loan", "Avoid credit entirely"],
+        correctAnswer: 1,
+        explanation: "Becoming an authorized user on a trusted family member's card is a safe way to start building credit history without the risk of managing your own account."
+      },
+      {
+        id: 4,
+        question: "What is a secured credit card?",
+        options: ["A card with extra security features", "A card backed by a cash deposit you provide", "A card only for emergencies", "A card with high limits"],
+        correctAnswer: 1,
+        explanation: "Secured cards require a cash deposit that becomes your credit limit. They're great for building credit when you can't qualify for regular cards."
+      },
+      {
+        id: 5,
+        question: "How often can you check your own credit score without hurting it?",
+        options: ["Never", "Once a year", "As often as you want", "Only when applying for loans"],
+        correctAnswer: 2,
+        explanation: "Checking your own credit is a 'soft inquiry' and doesn't hurt your score. Check often to catch errors or fraud!"
+      },
+      {
+        id: 6,
+        question: "Your credit card bill is $500 but you can only pay $300. What should you do?",
+        options: ["Pay nothing and wait", "Pay the $300 and the rest next month", "Pay minimum due and more when you can", "Close the account"],
+        correctAnswer: 2,
+        explanation: "Always pay at least the minimum to protect your payment history. Paying more reduces interest charges on the remaining balance."
+      },
+      {
+        id: 7,
+        question: "How long do late payments stay on your credit report?",
+        options: ["6 months", "2 years", "7 years", "Forever"],
+        correctAnswer: 2,
+        explanation: "Late payments stay on your credit report for 7 years, though their impact decreases over time."
+      },
+      {
+        id: 8,
+        question: "What's a hard inquiry on your credit?",
+        options: ["Checking your own score", "When a lender checks your credit for an application", "Paying off a loan", "Adding an authorized user"],
+        correctAnswer: 1,
+        explanation: "Hard inquiries happen when you apply for credit. They can temporarily lower your score and stay on your report for 2 years."
+      },
+      {
+        id: 9,
+        question: "Which action will HURT your credit score the most?",
+        options: ["Having a mix of credit types", "Keeping old accounts open", "Missing a payment by 30+ days", "Paying your balance in full"],
+        correctAnswer: 2,
+        explanation: "Missing a payment by 30+ days gets reported to credit bureaus and significantly damages your payment history, the biggest factor in your score."
+      },
+      {
+        id: 10,
+        question: "You got your first credit card. What's the smartest way to use it?",
+        options: ["Max it out and pay minimum", "Use it for everything to build points fast", "Small purchases, pay in full each month", "Never use it"],
+        correctAnswer: 2,
+        explanation: "Use your card for small, regular purchases and pay the full balance each month. This builds payment history without paying interest."
+      }
+    ],
+    3: [
+      {
+        id: 1,
+        question: "You make $1,500/month from your campus job. How much should you budget for rent using the 30% rule?",
+        options: ["$300", "$450", "$600", "$750"],
+        correctAnswer: 1,
+        explanation: "The 30% rule suggests spending no more than 30% of income on housing. $1,500 × 0.30 = $450 max for rent."
+      },
+      {
+        id: 2,
+        question: "What's the FIRST thing to do when creating a college budget?",
+        options: ["List all your wants", "Track your income sources", "Open more credit cards", "Cut all entertainment spending"],
+        correctAnswer: 1,
+        explanation: "Start by knowing exactly how much money comes in - from jobs, financial aid refunds, family support, etc. You can't budget what you don't track."
+      },
+      {
+        id: 3,
+        question: "Which is typically the BIGGEST expense for college students?",
+        options: ["Food", "Entertainment", "Housing", "Textbooks"],
+        correctAnswer: 2,
+        explanation: "Housing (dorm or rent) is usually the largest expense for college students, often 30-50% of the budget."
+      },
+      {
+        id: 4,
+        question: "You got a $3,000 financial aid refund. What's the smartest approach?",
+        options: ["Spend it celebrating", "Budget it for the semester's expenses", "Put it all in savings", "Loan it to friends"],
+        correctAnswer: 1,
+        explanation: "Divide your refund by the number of months in the semester to create a monthly budget. This prevents running out mid-semester."
+      },
+      {
+        id: 5,
+        question: "What's the biggest meal-related budget mistake college students make?",
+        options: ["Using the meal plan", "Eating out frequently instead of cooking", "Buying groceries", "Eating at the dining hall"],
+        correctAnswer: 1,
+        explanation: "Eating out regularly can cost $300-500+/month vs. $150-200 for groceries. Cooking saves serious money."
+      },
+      {
+        id: 6,
+        question: "Your fixed expenses are $1,000/month and you make $1,400. How much is truly 'flexible' spending?",
+        options: ["$1,400", "$1,000", "$400", "$200"],
+        correctAnswer: 2,
+        explanation: "$1,400 income - $1,000 fixed expenses = $400 for flexible spending, savings, and fun money."
+      },
+      {
+        id: 7,
+        question: "What's the 'envelope method' of budgeting?",
+        options: ["Mailing cash to yourself", "Putting budgeted cash in labeled envelopes for each category", "Only using credit cards", "Saving receipts in envelopes"],
+        correctAnswer: 1,
+        explanation: "The envelope method uses physical cash in labeled envelopes for each spending category. When an envelope is empty, you're done spending in that category."
+      },
+      {
+        id: 8,
+        question: "Which budgeting app feature is MOST important for college students?",
+        options: ["Investment tracking", "Expense categorization and tracking", "Cryptocurrency support", "Business accounting"],
+        correctAnswer: 1,
+        explanation: "Expense tracking and categorization helps you see exactly where your money goes - essential for identifying spending patterns and opportunities to save."
+      },
+      {
+        id: 9,
+        question: "Your roommate wants to split Netflix, Hulu, and Spotify. What's the BEST approach?",
+        options: ["Pay for all three yourself", "Share accounts and split costs", "Don't subscribe to anything", "Each person pays for all their own"],
+        correctAnswer: 1,
+        explanation: "Sharing streaming services with roommates is a smart way to get entertainment for a fraction of the cost while staying legal with family/household plans."
+      },
+      {
+        id: 10,
+        question: "What's a 'sinking fund' and why use one in college?",
+        options: ["Money you lose", "Saving monthly for predictable irregular expenses", "An emergency fund", "A bad investment"],
+        correctAnswer: 1,
+        explanation: "Sinking funds are for predictable but irregular expenses (textbooks, car insurance, holidays). Save monthly so you're ready when bills come due."
+      }
+    ],
+    4: [
+      {
+        id: 1,
+        question: "What's the main advantage of a checking account over cash?",
+        options: ["Higher interest rates", "Safer storage, tracking, and convenient payments", "No fees ever", "Automatic budgeting"],
+        correctAnswer: 1,
+        explanation: "Checking accounts offer security (FDIC insurance), transaction tracking, and convenient payment methods like debit cards and transfers."
+      },
+      {
+        id: 2,
+        question: "How much is FDIC insurance coverage per account?",
+        options: ["$100,000", "$250,000", "$500,000", "Unlimited"],
+        correctAnswer: 1,
+        explanation: "FDIC insures deposits up to $250,000 per depositor, per bank, per ownership category. Your money is protected if the bank fails."
+      },
+      {
+        id: 3,
+        question: "You're choosing a bank as a college student. What matters MOST?",
+        options: ["Fancy mobile app", "No minimum balance requirements and low fees", "Most ATMs worldwide", "Best interest rates on checking"],
+        correctAnswer: 1,
+        explanation: "With limited income, avoiding monthly fees and minimum balance requirements is crucial. Many student accounts offer fee-free banking."
+      },
+      {
+        id: 4,
+        question: "What's the difference between a debit card and credit card?",
+        options: ["Debit cards have higher limits", "Debit pulls directly from your account; credit borrows money", "Credit cards are safer", "There is no difference"],
+        correctAnswer: 1,
+        explanation: "Debit cards withdraw directly from your checking account immediately. Credit cards are a loan you must repay, usually with interest if not paid in full."
+      },
+      {
+        id: 5,
+        question: "You're about to overdraft your account. What's the BEST option?",
+        options: ["Let it overdraft and pay the $35 fee", "Transfer money from savings to cover it", "Ignore it", "Close the account"],
+        correctAnswer: 1,
+        explanation: "Transferring from savings (often $5-10 fee or free) is much cheaper than overdraft fees ($30-35 per transaction)."
+      },
+      {
+        id: 6,
+        question: "What should you do FIRST when setting up a new bank account?",
+        options: ["Order checks", "Set up direct deposit", "Get a fancy debit card design", "Apply for overdraft protection"],
+        correctAnswer: 1,
+        explanation: "Direct deposit ensures your income goes straight to your account safely. Many banks waive fees if you have direct deposit set up."
+      },
+      {
+        id: 7,
+        question: "What's a high-yield savings account?",
+        options: ["A risky investment account", "A savings account with better interest rates (often online banks)", "A checking account with high limits", "A certificate of deposit"],
+        correctAnswer: 1,
+        explanation: "High-yield savings accounts (often from online banks) offer significantly higher interest rates than traditional savings, helping your money grow faster."
+      },
+      {
+        id: 8,
+        question: "How often should you check your bank account?",
+        options: ["Never", "Once a month", "Weekly or more often", "Only when you get a statement"],
+        correctAnswer: 2,
+        explanation: "Check your accounts weekly or more to catch fraudulent charges early, track spending, and ensure bills are paid correctly."
+      },
+      {
+        id: 9,
+        question: "What's Zelle, Venmo, or Cash App useful for?",
+        options: ["Building credit", "Quickly sending money to friends and splitting bills", "Earning high interest", "Taking out loans"],
+        correctAnswer: 1,
+        explanation: "Payment apps make splitting rent, bills, and group expenses with roommates fast and easy without handling cash."
+      },
+      {
+        id: 10,
+        question: "Your card was stolen. What's your FIRST step?",
+        options: ["Wait to see if charges appear", "Immediately freeze or cancel the card", "File a police report first", "Post about it on social media"],
+        correctAnswer: 1,
+        explanation: "Immediately freeze or cancel your card through your banking app or by calling the bank. Speed limits your liability for fraudulent charges."
+      }
+    ],
+    5: [
+      {
+        id: 1,
+        question: "What form do you fill out to apply for federal financial aid?",
+        options: ["W-2", "FAFSA", "1040", "W-4"],
+        correctAnswer: 1,
+        explanation: "The FAFSA (Free Application for Federal Student Aid) is required for federal grants, loans, and work-study programs."
+      },
+      {
+        id: 2,
+        question: "When should you file the FAFSA for the best chance at aid?",
+        options: ["Right before classes start", "As soon as it opens (October 1st)", "After your tax return is done", "During winter break"],
+        correctAnswer: 1,
+        explanation: "File FAFSA as early as possible when it opens October 1st. Many types of aid are first-come, first-served!"
+      },
+      {
+        id: 3,
+        question: "What is the American Opportunity Tax Credit?",
+        options: ["A scholarship", "A tax credit up to $2,500/year for college expenses", "A federal grant", "A student loan"],
+        correctAnswer: 1,
+        explanation: "AOTC provides up to $2,500/year in tax credits for qualified education expenses during the first 4 years of higher education."
+      },
+      {
+        id: 4,
+        question: "You earned $5,000 from a summer job. Do you need to file taxes?",
+        options: ["No, students don't pay taxes", "Yes, if it exceeded the standard deduction", "Only if you're over 21", "Only if you had taxes withheld"],
+        correctAnswer: 1,
+        explanation: "If your income exceeds the standard deduction (around $13,850 for 2023), you must file. Even if below, filing may get you a refund of withheld taxes."
+      },
+      {
+        id: 5,
+        question: "What's the difference between a tax credit and a tax deduction?",
+        options: ["They're the same thing", "Credits reduce your tax dollar-for-dollar; deductions reduce taxable income", "Deductions are better", "Credits only apply to businesses"],
+        correctAnswer: 1,
+        explanation: "Tax credits directly reduce your tax bill ($1,000 credit = $1,000 less tax). Deductions reduce taxable income, so the savings depends on your tax bracket."
+      },
+      {
+        id: 6,
+        question: "What's a W-4 form used for?",
+        options: ["Filing your taxes", "Telling your employer how much tax to withhold", "Applying for financial aid", "Opening a bank account"],
+        correctAnswer: 1,
+        explanation: "The W-4 tells your employer how much federal income tax to withhold from your paycheck based on your situation and preferences."
+      },
+      {
+        id: 7,
+        question: "What does SAI (Student Aid Index) determine?",
+        options: ["Your GPA requirement for aid", "Your expected family contribution toward college", "Your loan interest rate", "Which scholarships you qualify for"],
+        correctAnswer: 1,
+        explanation: "SAI (formerly EFC) is calculated from your FAFSA and determines how much financial aid you're eligible to receive based on family financial situation."
+      },
+      {
+        id: 8,
+        question: "You received a Pell Grant. What do you have to pay back?",
+        options: ["Everything with interest", "Half of it", "Nothing - grants are free money", "Only if you drop out"],
+        correctAnswer: 2,
+        explanation: "Pell Grants are free money for students with financial need. Unlike loans, you don't have to repay grants (unless you withdraw early)."
+      },
+      {
+        id: 9,
+        question: "What's the Lifetime Learning Credit?",
+        options: ["A credit card for students", "A tax credit for any level of higher education, no limit on years", "A federal grant", "A type of student loan"],
+        correctAnswer: 1,
+        explanation: "The Lifetime Learning Credit provides up to $2,000/year for qualified education expenses and has no limit on years you can claim it."
+      },
+      {
+        id: 10,
+        question: "Which form shows your tuition payments for tax purposes?",
+        options: ["W-2", "1098-T", "1099", "W-4"],
+        correctAnswer: 1,
+        explanation: "Form 1098-T is sent by your school and shows tuition paid, which you need for education tax credits and deductions."
+      }
+    ],
+    6: [
+      {
+        id: 1,
+        question: "You're a full-time student. How many hours per week is realistic to work?",
+        options: ["0 - students shouldn't work", "10-15 hours", "40+ hours", "As many as possible"],
+        correctAnswer: 1,
+        explanation: "Studies show 10-15 hours/week is optimal - enough to earn money and gain experience without hurting grades. Beyond 20 hours can impact academics."
+      },
+      {
+        id: 2,
+        question: "What's the main benefit of a paid internship besides money?",
+        options: ["Free food", "Building skills and professional network", "Less homework", "Better parking"],
+        correctAnswer: 1,
+        explanation: "Internships build real skills, professional connections, and resume experience that help you land better jobs after graduation."
+      },
+      {
+        id: 3,
+        question: "Which side hustle has the LOWEST startup cost?",
+        options: ["Starting a food truck", "Freelance tutoring or writing", "Flipping cars", "Opening a store"],
+        correctAnswer: 1,
+        explanation: "Freelance services like tutoring, writing, or graphic design require minimal startup costs - just your skills and time."
+      },
+      {
+        id: 4,
+        question: "What is Federal Work-Study?",
+        options: ["Studying to get a federal job", "A need-based program providing part-time jobs for students", "Working from home for the government", "A type of scholarship"],
+        correctAnswer: 1,
+        explanation: "Federal Work-Study provides part-time employment for students with financial need, often on-campus or in community service."
+      },
+      {
+        id: 5,
+        question: "You're offered an unpaid internship at a dream company. What should you consider?",
+        options: ["Take it immediately", "Whether you can afford it and if the experience truly adds value", "Unpaid work is always bad", "Only GPA matters, skip it"],
+        correctAnswer: 1,
+        explanation: "Weigh the true costs (lost wages, expenses) against the value of experience and connections. Sometimes it's worth it; often paid internships exist too."
+      },
+      {
+        id: 6,
+        question: "What's the gig economy?",
+        options: ["Only music industry jobs", "Flexible, short-term work like Uber, Fiverr, DoorDash", "Traditional 9-5 jobs", "Government employment"],
+        correctAnswer: 1,
+        explanation: "The gig economy includes flexible, on-demand work through apps and platforms - great for student schedules but lacks benefits."
+      },
+      {
+        id: 7,
+        question: "You freelance on the side and made $2,000. What must you do at tax time?",
+        options: ["Nothing - it's under $10,000", "Report it as self-employment income", "Only report if you get a 1099", "Claim it as a gift"],
+        correctAnswer: 1,
+        explanation: "All income over $400 from self-employment must be reported, and you may owe self-employment tax (Social Security + Medicare)."
+      },
+      {
+        id: 8,
+        question: "What's the biggest advantage of on-campus jobs?",
+        options: ["Higher pay", "Work schedule built around class schedule", "No taxes", "No interview required"],
+        correctAnswer: 1,
+        explanation: "On-campus employers understand student schedules and typically work around classes and finals - plus no commute!"
+      },
+      {
+        id: 9,
+        question: "You want to start freelancing. What's your FIRST step?",
+        options: ["Quit your day job", "Identify a skill you have that others need", "Build a website", "Buy expensive equipment"],
+        correctAnswer: 1,
+        explanation: "Start with a marketable skill you already have. Then test the market before investing in websites or equipment."
+      },
+      {
+        id: 10,
+        question: "How should you negotiate pay for an internship or entry-level job?",
+        options: ["Never negotiate, just be grateful", "Research market rates and practice your pitch", "Demand double the offer", "Threaten to walk away immediately"],
+        correctAnswer: 1,
+        explanation: "Research comparable salaries, know your value, and practice negotiating professionally. Most employers expect some negotiation."
+      }
+    ],
+    7: [
+      {
+        id: 1,
+        question: "You have $10,000 in credit card debt at 22% APR and $10,000 in student loans at 5%. Which do you pay off first?",
+        options: ["Student loans - they're bigger", "Credit cards - higher interest saves more money", "Pay equal amounts to both", "Neither - invest instead"],
+        correctAnswer: 1,
+        explanation: "The avalanche method: Pay minimums on all, then throw extra money at the highest interest rate (22% credit card). This saves the most money over time."
+      },
+      {
+        id: 2,
+        question: "What's the 'snowball method' of debt payoff?",
+        options: ["Paying off smallest debts first for psychological wins", "Paying off highest interest first", "Making minimum payments only", "Consolidating all debt"],
+        correctAnswer: 0,
+        explanation: "The snowball method pays off the smallest balance first regardless of interest rate. The quick wins keep you motivated, even if it costs slightly more than avalanche."
+      },
+      {
+        id: 3,
+        question: "What is debt consolidation?",
+        options: ["Ignoring your debt", "Combining multiple debts into one payment, ideally at lower interest", "Declaring bankruptcy", "Taking on more debt"],
+        correctAnswer: 1,
+        explanation: "Consolidation combines multiple debts into one loan, ideally with a lower interest rate. It simplifies payments but doesn't reduce what you owe."
+      },
+      {
+        id: 4,
+        question: "You're struggling to pay bills. Which should you pay FIRST?",
+        options: ["Credit card minimums", "Netflix subscription", "Rent/housing", "New clothes"],
+        correctAnswer: 2,
+        explanation: "Essentials first: shelter, utilities, food, transportation to work. Then minimum debt payments. Everything else can wait."
+      },
+      {
+        id: 5,
+        question: "What's a 0% APR balance transfer offer useful for?",
+        options: ["Getting free money", "Paying down credit card debt faster without interest", "Building credit history", "Getting a higher credit limit"],
+        correctAnswer: 1,
+        explanation: "Balance transfer offers let you move debt to a 0% card temporarily. Use that time to aggressively pay down the balance before regular APR kicks in."
+      },
+      {
+        id: 6,
+        question: "What does 'debt-to-income ratio' measure?",
+        options: ["How much debt you can handle", "Monthly debt payments as a percentage of monthly income", "Your credit score", "How much you save"],
+        correctAnswer: 1,
+        explanation: "DTI = (total monthly debt payments ÷ gross monthly income) × 100. Lenders use this to determine if you can afford new loans."
+      },
+      {
+        id: 7,
+        question: "You receive a windfall of $5,000. You have $3,000 in credit card debt and no emergency fund. What's wisest?",
+        options: ["Pay off all debt, save nothing", "Save $1,000 emergency fund, pay off the $3,000 debt, save the rest", "Invest it all", "Spend it - treat yourself"],
+        correctAnswer: 1,
+        explanation: "Build a small emergency fund first ($1,000), then attack high-interest debt. Without an emergency fund, you'll just go back into debt when something breaks."
+      },
+      {
+        id: 8,
+        question: "What's predatory lending?",
+        options: ["All lending is predatory", "Unfair loan practices targeting vulnerable people with high fees/rates", "Loans from banks", "Student loans"],
+        correctAnswer: 1,
+        explanation: "Predatory lenders target desperate borrowers with extremely high interest rates, hidden fees, and unfair terms. Avoid payday loans and title loans."
+      },
+      {
+        id: 9,
+        question: "When does it make sense to use a personal loan?",
+        options: ["Never", "To consolidate high-interest debt at a lower rate", "For vacation", "To pay minimum credit card payments"],
+        correctAnswer: 1,
+        explanation: "Personal loans can make sense when the interest rate is lower than your current debt (like credit cards) and you have a plan to pay it off."
+      },
+      {
+        id: 10,
+        question: "How long does bankruptcy stay on your credit report?",
+        options: ["1 year", "3 years", "7-10 years", "Forever"],
+        correctAnswer: 2,
+        explanation: "Bankruptcy stays on your credit report for 7-10 years. It's a last resort that makes getting credit, housing, and sometimes jobs much harder."
+      }
+    ],
+    8: [
+      {
+        id: 1,
+        question: "What is compound interest?",
+        options: ["Interest on your principal only", "Earning interest on your interest over time", "A type of bank fee", "Tax on investments"],
+        correctAnswer: 1,
+        explanation: "Compound interest means you earn interest on your original investment AND on previously earned interest. It's how money grows exponentially over time."
+      },
+      {
+        id: 2,
+        question: "You invest $1,000 at 7% annually. Roughly how much will it be worth in 10 years (compound interest)?",
+        options: ["$1,070", "$1,700", "$1,967", "$2,500"],
+        correctAnswer: 2,
+        explanation: "At 7% compounding annually, $1,000 becomes about $1,967 in 10 years. The 'rule of 72' says your money doubles every ~10 years at 7%."
+      },
+      {
+        id: 3,
+        question: "What's an index fund?",
+        options: ["A fund run by one manager picking stocks", "A fund that tracks a market index like the S&P 500", "A guaranteed return investment", "A savings account"],
+        correctAnswer: 1,
+        explanation: "Index funds track a market index (like S&P 500) and hold the same stocks. They offer diversification with low fees."
+      },
+      {
+        id: 4,
+        question: "Why is diversification important in investing?",
+        options: ["It guarantees profits", "It spreads risk so one bad investment doesn't ruin you", "It's required by law", "It increases fees"],
+        correctAnswer: 1,
+        explanation: "Don't put all your eggs in one basket. Diversification spreads your money across different investments so one failure doesn't wipe you out."
+      },
+      {
+        id: 5,
+        question: "What's the difference between stocks and bonds?",
+        options: ["They're the same thing", "Stocks are ownership; bonds are loans to companies/governments", "Bonds are riskier", "Stocks pay guaranteed interest"],
+        correctAnswer: 1,
+        explanation: "When you buy stock, you own a piece of the company. When you buy bonds, you're lending money and earning interest. Stocks are riskier but historically have higher returns."
+      },
+      {
+        id: 6,
+        question: "You're 20 years old. What investment mix makes the most sense for retirement?",
+        options: ["100% bonds for safety", "Mostly stocks because you have time to recover from losses", "All cash", "50/50 stocks and bonds"],
+        correctAnswer: 1,
+        explanation: "Young investors can afford more risk because they have decades to recover from market downturns. A stock-heavy portfolio typically grows more over time."
+      },
+      {
+        id: 7,
+        question: "What is a brokerage account?",
+        options: ["A savings account", "An account for buying and selling investments", "A type of loan", "A checking account at a broker"],
+        correctAnswer: 1,
+        explanation: "A brokerage account lets you buy and sell investments like stocks, bonds, ETFs, and mutual funds. Many are now free with no minimums."
+      },
+      {
+        id: 8,
+        question: "What does 'buying the dip' mean?",
+        options: ["Buying when prices are at all-time highs", "Buying investments when prices drop temporarily", "Buying on credit", "Selling when prices drop"],
+        correctAnswer: 1,
+        explanation: "Buying the dip means purchasing investments when prices temporarily fall, ideally getting more shares for less money. But timing the market is tricky."
+      },
+      {
+        id: 9,
+        question: "What's dollar-cost averaging?",
+        options: ["Investing a large sum all at once", "Investing fixed amounts regularly regardless of market conditions", "Only buying when prices are low", "Converting to different currencies"],
+        correctAnswer: 1,
+        explanation: "Dollar-cost averaging means investing the same amount regularly (like $100/month). You buy more shares when prices are low, fewer when high, reducing timing risk."
+      },
+      {
+        id: 10,
+        question: "What is an ETF?",
+        options: ["A type of bond", "Exchange-Traded Fund - trades like a stock but holds many investments", "A government savings account", "A high-interest savings account"],
+        correctAnswer: 1,
+        explanation: "ETFs are baskets of investments that trade on stock exchanges like individual stocks. They offer diversification with low fees and flexibility."
+      }
+    ],
+    9: [
+      {
+        id: 1,
+        question: "At what age can you start contributing to a 401(k)?",
+        options: ["Must be 30+", "Any age if your employer offers one", "Only after paying off student loans", "Must be 25+"],
+        correctAnswer: 1,
+        explanation: "You can contribute to a 401(k) as soon as you're eligible at your job - often immediately or after a short waiting period. Start early!"
+      },
+      {
+        id: 2,
+        question: "Your employer matches 50% of 401(k) contributions up to 6% of salary. You make $40,000. How much FREE money can you get yearly?",
+        options: ["$400", "$1,200", "$2,400", "$6,000"],
+        correctAnswer: 1,
+        explanation: "6% of $40,000 = $2,400. Employer matches 50% of that = $1,200/year in FREE money! Always contribute at least enough to get the full match."
+      },
+      {
+        id: 3,
+        question: "What's the key difference between a Traditional and Roth IRA?",
+        options: ["Roth has no contribution limits", "Traditional = tax-deferred; Roth = tax-free in retirement", "Traditional is only for employees", "There is no difference"],
+        correctAnswer: 1,
+        explanation: "Traditional IRA: contribute pre-tax, pay taxes on withdrawals. Roth IRA: contribute after-tax, withdraw tax-free in retirement. When young, Roth is often better."
+      },
+      {
+        id: 4,
+        question: "What's the 2024 annual contribution limit for IRAs?",
+        options: ["$3,000", "$6,500", "$7,000", "$23,000"],
+        correctAnswer: 2,
+        explanation: "The 2024 IRA contribution limit is $7,000 (or $8,000 if you're 50+). Max it out if you can!"
+      },
+      {
+        id: 5,
+        question: "Why should you start saving for retirement in your 20s?",
+        options: ["Retirement is soon", "Compound interest needs time - starting early makes a huge difference", "Tax laws require it", "Your employer requires it"],
+        correctAnswer: 1,
+        explanation: "Time is your superpower. Someone who invests $200/month from age 22-32 and stops can have MORE than someone who starts at 32 and invests until 62!"
+      },
+      {
+        id: 6,
+        question: "What happens if you withdraw from a 401(k) before age 59½?",
+        options: ["Nothing", "10% early withdrawal penalty plus income taxes", "You lose the account", "You only pay regular income tax"],
+        correctAnswer: 1,
+        explanation: "Early withdrawal triggers a 10% penalty PLUS income taxes. Only access retirement funds early in true emergencies."
+      },
+      {
+        id: 7,
+        question: "What does 'vesting' mean for 401(k)?",
+        options: ["Your contribution amounts", "How much of employer contributions you can keep if you leave", "A type of investment", "The account opening process"],
+        correctAnswer: 1,
+        explanation: "Vesting determines how much of your employer's contributions you own. Your own contributions are always 100% yours immediately."
+      },
+      {
+        id: 8,
+        question: "You switch jobs. What should you do with your old 401(k)?",
+        options: ["Cash it out", "Roll it into your new employer's plan or an IRA", "Leave it forever", "It disappears automatically"],
+        correctAnswer: 1,
+        explanation: "Roll it into a new 401(k) or IRA to avoid taxes and penalties. Never cash out - you'll lose a huge chunk to taxes and penalties."
+      },
+      {
+        id: 9,
+        question: "What is a target-date fund?",
+        options: ["A fund with a specific end date when you get paid", "An investment that automatically adjusts risk as you approach retirement", "A guaranteed return fund", "A short-term savings account"],
+        correctAnswer: 1,
+        explanation: "Target-date funds (like 'Target 2060') automatically shift from aggressive to conservative investments as you approach retirement. Set it and forget it!"
+      },
+      {
+        id: 10,
+        question: "You're 22 and can invest $100/month. What should you prioritize?",
+        options: ["Just savings account", "401(k) up to employer match, then Roth IRA", "Individual stocks only", "Wait until you're older"],
+        correctAnswer: 1,
+        explanation: "First, get the full 401(k) employer match (free money!). Then max out a Roth IRA for tax-free growth. Time in the market beats timing the market."
+      }
+    ],
+    10: [
+      {
+        id: 1,
+        question: "You receive a job offer for $55,000. Research shows similar roles pay $58,000-$65,000. What should you do?",
+        options: ["Accept immediately - you need the job", "Counter at $60,000-$62,000 with your research", "Demand $80,000", "Decline and wait"],
+        correctAnswer: 1,
+        explanation: "Always negotiate! Counter with market data. Most employers expect it and have room in the budget. A few thousand more compounds over your career."
+      },
+      {
+        id: 2,
+        question: "Beyond salary, what benefits should you evaluate in a job offer?",
+        options: ["Only salary matters", "Health insurance, 401(k) match, PTO, and other perks", "Just the job title", "Only location"],
+        correctAnswer: 1,
+        explanation: "Total compensation includes health insurance, retirement benefits, PTO, bonuses, stock options, and perks. A lower salary with great benefits might be worth more!"
+      },
+      {
+        id: 3,
+        question: "What's a common mistake when negotiating salary?",
+        options: ["Asking for too much", "Giving your desired salary first instead of letting them make the first offer", "Researching market rates", "Negotiating at all"],
+        correctAnswer: 1,
+        explanation: "Let the employer make the first offer when possible. If you name a number first, you might aim too low. Always research before negotiating."
+      },
+      {
+        id: 4,
+        question: "What is an HSA (Health Savings Account)?",
+        options: ["A retirement account", "A tax-advantaged account for medical expenses with a high-deductible health plan", "A type of health insurance", "A checking account"],
+        correctAnswer: 1,
+        explanation: "HSAs offer triple tax advantages: tax-deductible contributions, tax-free growth, and tax-free withdrawals for medical expenses. A hidden retirement gem!"
+      },
+      {
+        id: 5,
+        question: "Your employer offers a $5,000 deductible health plan with an HSA or a $500 deductible plan. As a healthy 23-year-old, which might be better?",
+        options: ["Always the low deductible", "The high-deductible HSA plan if you're healthy", "Neither - go uninsured", "They're always equal"],
+        correctAnswer: 1,
+        explanation: "If you're healthy and rarely see doctors, a high-deductible plan + HSA often costs less overall. The HSA money is yours forever and can be invested."
+      },
+      {
+        id: 6,
+        question: "What's the best time to ask for a raise?",
+        options: ["When you're about to quit", "After a major accomplishment or during annual reviews", "Your first week", "When you're upset"],
+        correctAnswer: 1,
+        explanation: "Ask after you've demonstrated value - completed a big project, exceeded goals, or during scheduled reviews. Document your achievements."
+      },
+      {
+        id: 7,
+        question: "What is equity compensation (stock options)?",
+        options: ["A loan from your employer", "Ownership stake or options to buy company stock as part of compensation", "Your 401(k)", "A bonus"],
+        correctAnswer: 1,
+        explanation: "Equity compensation gives you ownership in the company through stock grants or options to purchase stock. Can be very valuable if the company grows!"
+      },
+      {
+        id: 8,
+        question: "What does 'vesting schedule' mean for stock options?",
+        options: ["When you can sell your clothes", "The timeline for earning your equity, usually 4 years with a 1-year cliff", "Tax payment schedule", "When the company pays dividends"],
+        correctAnswer: 1,
+        explanation: "Vesting schedules determine when you actually own your equity. Common: 4-year vesting with a 1-year 'cliff' (you must stay 1 year to get anything)."
+      },
+      {
+        id: 9,
+        question: "What should you prioritize when comparing job offers?",
+        options: ["Only the base salary", "Total compensation, growth potential, work-life balance, and career fit", "The coolest office", "Shortest commute only"],
+        correctAnswer: 1,
+        explanation: "Consider the whole picture: salary, benefits, growth opportunities, company culture, work-life balance, and alignment with your career goals."
+      },
+      {
+        id: 10,
+        question: "Why is networking important for career growth?",
+        options: ["It's not - only skills matter", "Many jobs are filled through connections before being posted", "It only helps salespeople", "To get free stuff"],
+        correctAnswer: 1,
+        explanation: "Up to 80% of jobs are filled through networking. Building genuine professional relationships opens doors throughout your career."
+      }
+    ],
+    11: [
+      {
+        id: 1,
+        question: "You earn $3,500/month. Using the 30% rule, what's your maximum rent?",
+        options: ["$350", "$700", "$1,050", "$1,500"],
+        correctAnswer: 2,
+        explanation: "$3,500 × 0.30 = $1,050. Spending more than 30% on housing can strain your entire budget."
+      },
+      {
+        id: 2,
+        question: "What's typically included in 'utilities' for an apartment?",
+        options: ["Only electricity", "Electricity, water, gas, trash, sometimes internet", "Just wifi", "Furniture"],
+        correctAnswer: 1,
+        explanation: "Utilities usually include electricity, water, gas, and trash. Internet/cable may be separate. Always clarify what's included in rent."
+      },
+      {
+        id: 3,
+        question: "What is a security deposit?",
+        options: ["Monthly rent payment", "Refundable money held by landlord for potential damages", "A down payment you never get back", "Insurance premium"],
+        correctAnswer: 1,
+        explanation: "Security deposits (usually 1-2 months rent) are refundable if you leave the unit in good condition. Document everything when moving in!"
+      },
+      {
+        id: 4,
+        question: "Before signing a lease, what should you check FIRST?",
+        options: ["The paint color", "Move-in costs, lease terms, landlord reviews, and neighborhood safety", "If pets are cute", "Nothing - just sign"],
+        correctAnswer: 1,
+        explanation: "Calculate total move-in costs, read lease terms carefully, research the landlord, check crime stats, and visit at different times of day."
+      },
+      {
+        id: 5,
+        question: "What is renter's insurance?",
+        options: ["Insurance the landlord must buy", "Coverage for your belongings, liability, and additional living expenses", "Expensive and unnecessary", "The same as health insurance"],
+        correctAnswer: 1,
+        explanation: "Renter's insurance covers your stuff if stolen/damaged, liability if someone's hurt in your unit, and hotel costs if you can't stay there. Usually $15-30/month!"
+      },
+      {
+        id: 6,
+        question: "Your landlord wants to enter your apartment. What are your rights?",
+        options: ["They can enter anytime", "They must typically give 24-48 hours notice except emergencies", "They can never enter", "You decide all entry times"],
+        correctAnswer: 1,
+        explanation: "Landlords must usually give advance notice (24-48 hours in most states) except for emergencies. Know your local tenant rights!"
+      },
+      {
+        id: 7,
+        question: "What's the advantage of having a roommate?",
+        options: ["No advantages", "Split rent, utilities, and shared household expenses", "They do all the cleaning", "You never have to communicate"],
+        correctAnswer: 1,
+        explanation: "Roommates cut housing costs significantly. But choose wisely and discuss expectations about cleaning, guests, bills, and quiet hours upfront."
+      },
+      {
+        id: 8,
+        question: "You find mold in your apartment. Whose responsibility is it?",
+        options: ["Always yours", "Typically the landlord's - it's a health hazard", "Nobody's", "Previous tenant's"],
+        correctAnswer: 1,
+        explanation: "Landlords are generally responsible for maintaining habitable conditions, including addressing mold. Document it, report it in writing, and know your rights."
+      },
+      {
+        id: 9,
+        question: "What happens if you break a lease early?",
+        options: ["Nothing", "You may owe penalties or rent until the unit is re-rented", "You go to jail", "The landlord must pay you"],
+        correctAnswer: 1,
+        explanation: "Breaking a lease typically means penalties, losing your deposit, or paying rent until a new tenant is found. Read your lease's early termination clause."
+      },
+      {
+        id: 10,
+        question: "When apartment hunting, what hidden costs should you budget for?",
+        options: ["Just first month's rent", "First/last month, security deposit, application fees, moving costs, setup fees", "Only security deposit", "Nothing else"],
+        correctAnswer: 1,
+        explanation: "Budget for application fees, first + last month rent, security deposit, moving costs, utility setup fees, and immediate needs like curtains or cleaning supplies."
+      }
+    ],
+    12: [
+      {
+        id: 1,
+        question: "What are the main types of insurance young adults need?",
+        options: ["Only car insurance", "Health, renter's, auto (if you drive), and life (if you have dependents)", "All types from day one", "None until age 30"],
+        correctAnswer: 1,
+        explanation: "Start with health and auto insurance (required). Add renter's insurance (cheap protection). Life insurance matters if others depend on your income."
+      },
+      {
+        id: 2,
+        question: "What's a deductible?",
+        options: ["Your monthly payment", "What you pay before insurance kicks in", "Tax deduction", "The insurance company's fee"],
+        correctAnswer: 1,
+        explanation: "The deductible is what you pay out-of-pocket before insurance covers costs. Higher deductible = lower premium, but more risk if something happens."
+      },
+      {
+        id: 3,
+        question: "You're 24 and can stay on your parents' health insurance. Until what age?",
+        options: ["21", "23", "26", "30"],
+        correctAnswer: 2,
+        explanation: "Under the ACA, you can stay on a parent's health plan until age 26, regardless of student status, marriage, or whether you live with them."
+      },
+      {
+        id: 4,
+        question: "What does 'premium' mean in insurance?",
+        options: ["The deductible", "The regular payment you make to maintain coverage", "What insurance pays", "A fancy plan"],
+        correctAnswer: 1,
+        explanation: "The premium is your regular payment (monthly or annually) to keep your insurance active, whether or not you file any claims."
+      },
+      {
+        id: 5,
+        question: "You cause a car accident. What type of auto insurance pays for the other driver's car?",
+        options: ["Collision", "Comprehensive", "Liability", "Personal injury protection"],
+        correctAnswer: 2,
+        explanation: "Liability insurance covers damage you cause to others (their car, their injuries). It's required in most states."
+      },
+      {
+        id: 6,
+        question: "What's the difference between HMO and PPO health plans?",
+        options: ["HMO is always better", "HMO requires referrals and has a network; PPO offers more flexibility at higher cost", "They're identical", "PPO requires referrals"],
+        correctAnswer: 1,
+        explanation: "HMOs have lower costs but require staying in-network and getting referrals. PPOs cost more but let you see any doctor without referrals."
+      },
+      {
+        id: 7,
+        question: "What is an 'out-of-pocket maximum'?",
+        options: ["Your premium", "The most you'll pay in a year before insurance covers 100%", "The deductible", "The maximum coverage amount"],
+        correctAnswer: 1,
+        explanation: "The out-of-pocket maximum is your safety net - once you hit it, insurance covers 100% of covered expenses for the rest of the year."
+      },
+      {
+        id: 8,
+        question: "When might a young adult need life insurance?",
+        options: ["Never - they're too young", "If someone depends on their income (spouse, kids, cosigned debts)", "Only after age 40", "Everyone needs it immediately"],
+        correctAnswer: 1,
+        explanation: "Life insurance matters when someone depends on your income. If you're single with no dependents or cosigned debt, you may not need it yet."
+      },
+      {
+        id: 9,
+        question: "What does comprehensive auto insurance cover?",
+        options: ["Only collisions", "Non-collision damage: theft, weather, vandalism, hitting animals", "Liability to others", "Medical expenses only"],
+        correctAnswer: 1,
+        explanation: "Comprehensive covers non-collision events: theft, hail, flood, fire, vandalism, and hitting an animal. 'Comp and collision' together cover most vehicle damage."
+      },
+      {
+        id: 10,
+        question: "How can you lower your auto insurance premiums?",
+        options: ["Drive a sports car", "Raise your deductible, maintain good credit, take safe driver discounts, bundle policies", "Never get quotes", "Buy the cheapest car"],
+        correctAnswer: 1,
+        explanation: "Higher deductibles, good driving record, bundling (home + auto), good student discounts, and shopping around all help reduce premiums."
+      }
+    ],
+    13: [
+      {
+        id: 1,
+        question: "You have $5,000 on a card with 20% APR and $5,000 on a card with 10% APR. You have $200 extra. Best strategy?",
+        options: ["Split it 50/50", "Pay minimum on both, extra on the 20% APR card", "Pay extra on the 10% card", "Put it in savings instead"],
+        correctAnswer: 1,
+        explanation: "Avalanche method: pay minimums on all, then extra on highest interest (20% APR). This saves the most money in interest over time."
+      },
+      {
+        id: 2,
+        question: "What's 'credit utilization' and why does it matter?",
+        options: ["How often you use credit", "Percentage of available credit you're using - affects 30% of your score", "The number of credit cards you have", "Your credit history length"],
+        correctAnswer: 1,
+        explanation: "Credit utilization is your balance ÷ credit limit. Keep it under 30% (ideally under 10%). It's 30% of your credit score!"
+      },
+      {
+        id: 3,
+        question: "Should you close old credit cards you don't use?",
+        options: ["Always - they're risky", "Usually no - they help credit history length and utilization", "Yes, close all but one", "Only if they have fees"],
+        correctAnswer: 1,
+        explanation: "Keeping old cards open (especially with no annual fee) helps your credit history length and keeps your overall utilization low. Just use them occasionally."
+      },
+      {
+        id: 4,
+        question: "What's a good credit score to aim for?",
+        options: ["500+", "650+", "740+ (excellent)", "Only 850 matters"],
+        correctAnswer: 2,
+        explanation: "740+ is considered excellent and qualifies you for the best rates on mortgages, car loans, and credit cards. 670-739 is good."
+      },
+      {
+        id: 5,
+        question: "How many credit cards should a young adult have?",
+        options: ["Zero", "1-3, used responsibly", "As many as possible", "Exactly 10"],
+        correctAnswer: 1,
+        explanation: "1-3 cards is usually optimal. Too few limits your credit mix; too many can be hard to manage. Focus on using them responsibly."
+      },
+      {
+        id: 6,
+        question: "What's a 'credit builder loan'?",
+        options: ["A regular loan", "A loan where your payments are held in savings until paid off, building credit", "A credit card", "A payday loan"],
+        correctAnswer: 1,
+        explanation: "Credit builder loans hold your loan amount in savings while you make payments. Once paid off, you get the money and a better credit score."
+      },
+      {
+        id: 7,
+        question: "You're denied credit. What should you do?",
+        options: ["Apply to 10 more places immediately", "Request the denial reason and review your credit report for errors", "Give up on credit", "Ignore it"],
+        correctAnswer: 1,
+        explanation: "You have the right to know why you were denied. Get your free credit report, dispute any errors, and work on the issues before applying again."
+      },
+      {
+        id: 8,
+        question: "What's the benefit of asking for a credit limit increase?",
+        options: ["So you can spend more", "It lowers your utilization ratio if spending stays the same", "Higher interest rates", "More fees"],
+        correctAnswer: 1,
+        explanation: "Higher credit limits lower your utilization ratio (if you don't spend more), which can boost your credit score. Request this after your income increases."
+      },
+      {
+        id: 9,
+        question: "How often should you check your credit report?",
+        options: ["Never - it hurts your score", "At least annually, ideally quarterly", "Only when applying for credit", "Every 10 years"],
+        correctAnswer: 1,
+        explanation: "Check each bureau's report at least once a year for free at annualcreditreport.com. Many services offer free weekly monitoring now."
+      },
+      {
+        id: 10,
+        question: "You found an error on your credit report. What's the next step?",
+        options: ["Ignore it", "File a dispute with the credit bureau in writing", "Sue immediately", "Close all accounts"],
+        correctAnswer: 1,
+        explanation: "Dispute errors in writing with the credit bureau(s). They must investigate within 30 days. Include documentation supporting your dispute."
+      }
+    ],
+    14: [
+      {
+        id: 1,
+        question: "At age 22, you invest $5,000 at 8% average annual return. What will it be worth at 62?",
+        options: ["$10,000", "$50,000", "$108,000", "$250,000"],
+        correctAnswer: 2,
+        explanation: "Compound interest is powerful! $5,000 at 8% for 40 years becomes about $108,000. Time in the market matters most."
+      },
+      {
+        id: 2,
+        question: "What's the 'Rule of 72' used for?",
+        options: ["Calculating taxes", "Estimating how long it takes money to double at a given interest rate", "Determining your retirement age", "Calculating your budget"],
+        correctAnswer: 1,
+        explanation: "72 ÷ interest rate = years to double. At 8%, money doubles every 9 years. At 6%, about 12 years."
+      },
+      {
+        id: 3,
+        question: "What's 'asset allocation'?",
+        options: ["Where you keep your money physically", "How you divide investments among stocks, bonds, and other assets", "Your emergency fund amount", "Your savings rate"],
+        correctAnswer: 1,
+        explanation: "Asset allocation is how you split your portfolio among different types of investments. It's the biggest factor in your long-term returns and risk."
+      },
+      {
+        id: 4,
+        question: "What's the typical historical average annual return of the S&P 500?",
+        options: ["2-3%", "5-6%", "9-10%", "15-20%"],
+        correctAnswer: 2,
+        explanation: "The S&P 500 has historically returned about 9-10% annually on average, though individual years vary wildly."
+      },
+      {
+        id: 5,
+        question: "What's a 'bear market'?",
+        options: ["When stocks rise 20%+", "When stocks fall 20%+ from recent highs", "A market for selling bears", "A stable market"],
+        correctAnswer: 1,
+        explanation: "A bear market is when major indices fall 20% or more from recent highs. They're scary but historically temporary - usually the best buying opportunities."
+      },
+      {
+        id: 6,
+        question: "You panic and sell during a market crash. Why is this usually bad?",
+        options: ["You lock in losses and miss the recovery", "It's actually the smart move", "You save money", "Markets never recover"],
+        correctAnswer: 0,
+        explanation: "Selling in a panic locks in your losses. Markets have always recovered eventually. Time in the market beats timing the market."
+      },
+      {
+        id: 7,
+        question: "What's a REIT?",
+        options: ["A type of bond", "A Real Estate Investment Trust - own real estate without buying property", "A retirement account", "A type of cryptocurrency"],
+        correctAnswer: 1,
+        explanation: "REITs let you invest in real estate without buying physical property. They own buildings and pay dividends from rental income."
+      },
+      {
+        id: 8,
+        question: "What's 'rebalancing' your portfolio?",
+        options: ["Selling everything and starting over", "Adjusting your asset allocation back to your target percentages", "Moving money between banks", "Canceling your accounts"],
+        correctAnswer: 1,
+        explanation: "Rebalancing means periodically selling winners and buying losers to maintain your target allocation. Usually done annually or when significantly off-target."
+      },
+      {
+        id: 9,
+        question: "Why are index funds popular for long-term wealth building?",
+        options: ["They're guaranteed to make money", "Low fees, broad diversification, and they often outperform active managers", "No risk", "Fast returns"],
+        correctAnswer: 1,
+        explanation: "Index funds have low fees, provide instant diversification, and over time typically outperform most actively managed funds."
+      },
+      {
+        id: 10,
+        question: "What's the danger of trying to 'time the market'?",
+        options: ["There is none - it works great", "Missing the best days tanks your returns - staying invested beats timing", "It's too easy", "You'll always succeed"],
+        correctAnswer: 1,
+        explanation: "Missing just the 10 best days in the market over 20 years can cut your returns in half. Consistent investing beats trying to time the market."
+      }
+    ],
+    15: [
+      {
+        id: 1,
+        question: "What's the first step before starting a side business?",
+        options: ["Quit your job", "Validate your idea by testing if people will actually pay", "Buy expensive equipment", "Rent an office"],
+        correctAnswer: 1,
+        explanation: "Validate first! Test your idea cheaply before investing time and money. Talk to potential customers and get actual sales/commitments."
+      },
+      {
+        id: 2,
+        question: "What's the difference between gross and net income for a freelancer?",
+        options: ["They're the same", "Gross is total revenue; net is what's left after expenses and taxes", "Net is before taxes", "Gross is after expenses"],
+        correctAnswer: 1,
+        explanation: "Gross income is total revenue. Net income is what you actually keep after expenses, taxes, and business costs."
+      },
+      {
+        id: 3,
+        question: "As a freelancer, you should set aside approximately what percentage for taxes?",
+        options: ["5%", "10%", "25-30%", "50%"],
+        correctAnswer: 2,
+        explanation: "Self-employed individuals should save 25-30% for taxes (income tax + self-employment tax). Pay quarterly estimated taxes to avoid penalties."
+      },
+      {
+        id: 4,
+        question: "What's an LLC and why might a freelancer want one?",
+        options: ["It's only for big companies", "A Limited Liability Company that separates personal and business assets", "It eliminates all taxes", "It's required to freelance"],
+        correctAnswer: 1,
+        explanation: "An LLC protects your personal assets from business debts and lawsuits. It's not always necessary for small freelancers but adds protection as you grow."
+      },
+      {
+        id: 5,
+        question: "What's the 'gig economy'?",
+        options: ["Only for musicians", "Flexible, short-term contract work through platforms like Uber, Fiverr, Upwork", "Traditional 9-5 employment", "Government jobs only"],
+        correctAnswer: 1,
+        explanation: "The gig economy includes flexible, on-demand work through apps and platforms. It offers flexibility but typically lacks benefits and job security."
+      },
+      {
+        id: 6,
+        question: "You're freelancing while employed full-time. What should you check first?",
+        options: ["Nothing - it's always fine", "Your employment contract for non-compete and outside work clauses", "If your boss will be jealous", "If you need a business card"],
+        correctAnswer: 1,
+        explanation: "Check your employment contract and company policies. Many have non-compete clauses or restrictions on outside work in similar industries."
+      },
+      {
+        id: 7,
+        question: "What's the main advantage of building a personal brand online?",
+        options: ["Fame", "Attracting clients/opportunities and commanding higher rates", "Getting free stuff", "It's required by law"],
+        correctAnswer: 1,
+        explanation: "A strong personal brand builds credibility, attracts clients and opportunities, and allows you to charge more for your expertise."
+      },
+      {
+        id: 8,
+        question: "What's 'bootstrapping' a business?",
+        options: ["Taking out loans", "Starting with personal savings without external funding", "Getting a small business grant", "Using crowdfunding"],
+        correctAnswer: 1,
+        explanation: "Bootstrapping means funding your business yourself without investors or loans. It keeps you in full control but limits how fast you can grow."
+      },
+      {
+        id: 9,
+        question: "A client wants to pay $500 for work that should cost $2,000. What should you do?",
+        options: ["Take whatever you can get", "Politely decline or negotiate - know your worth", "Do the work and resent them", "Ghost them"],
+        correctAnswer: 1,
+        explanation: "Know your worth and be willing to walk away from bad deals. Explain your value, negotiate, or politely decline. Underpricing hurts your business."
+      },
+      {
+        id: 10,
+        question: "What's the biggest mistake new entrepreneurs make?",
+        options: ["Starting too small", "Not validating the idea and running out of money before finding customers", "Having too much savings", "Being too careful"],
+        correctAnswer: 1,
+        explanation: "Many entrepreneurs build without validating that customers will pay. Test your idea small, get paying customers, then scale."
+      }
+    ],
+    16: [
+      {
+        id: 1,
+        question: "What does FIRE stand for?",
+        options: ["Fast Income Retirement Earnings", "Financial Independence, Retire Early", "Future Investment Returns Expected", "Free Income Retirement Easily"],
+        correctAnswer: 1,
+        explanation: "FIRE = Financial Independence, Retire Early. It's about saving aggressively and investing wisely to have the option to retire decades early."
+      },
+      {
+        id: 2,
+        question: "According to the 4% rule, how much do you need saved to withdraw $40,000 annually?",
+        options: ["$400,000", "$600,000", "$1,000,000", "$2,000,000"],
+        correctAnswer: 2,
+        explanation: "The 4% rule: Annual spending × 25 = amount needed. $40,000 × 25 = $1,000,000. This assumes your investments grow enough to last 30+ years."
+      },
+      {
+        id: 3,
+        question: "What's the most important factor for achieving financial independence?",
+        options: ["Having a high income", "Your savings rate (the percentage of income you save)", "Winning the lottery", "Inheriting money"],
+        correctAnswer: 1,
+        explanation: "Savings rate matters more than income. Someone earning $50k saving 50% can reach FI faster than someone earning $200k saving 10%."
+      },
+      {
+        id: 4,
+        question: "What's 'Coast FIRE'?",
+        options: ["Retiring on a coast", "When you have enough invested that it will grow to your retirement goal without adding more", "A type of investment", "Saving less than $1,000"],
+        correctAnswer: 1,
+        explanation: "Coast FIRE means you've invested enough that compound growth alone will get you to your retirement goal. You just need to cover current expenses."
+      },
+      {
+        id: 5,
+        question: "To achieve financial independence faster, what's most effective?",
+        options: ["Only focus on cutting expenses", "Only focus on increasing income", "Both increasing income AND decreasing expenses", "Timing the market perfectly"],
+        correctAnswer: 2,
+        explanation: "The most powerful approach combines cutting unnecessary expenses AND growing income. The gap between income and expenses is what you can invest."
+      },
+      {
+        id: 6,
+        question: "What's 'lifestyle inflation' and why is it dangerous?",
+        options: ["When prices go up", "Increasing spending as income increases, preventing wealth building", "A good thing to do", "Inflation rate"],
+        correctAnswer: 1,
+        explanation: "Lifestyle inflation is spending more as you earn more. It's why many high earners live paycheck to paycheck. Keep expenses stable as income grows."
+      },
+      {
+        id: 7,
+        question: "You get a $10,000 raise. To build wealth fastest, what should you do with most of it?",
+        options: ["Upgrade your apartment", "Invest most of the increase before lifestyle inflation sets in", "Buy a nicer car", "Celebrate with a big vacation"],
+        correctAnswer: 1,
+        explanation: "Invest raises and windfalls before you 'need' them. Lifestyle inflation happens slowly - capturing raises for investing accelerates wealth building."
+      },
+      {
+        id: 8,
+        question: "What's the relationship between your savings rate and years until retirement?",
+        options: ["No relationship", "Higher savings rate = fewer years until you can retire", "Higher savings rate = more years", "Only income matters"],
+        correctAnswer: 1,
+        explanation: "A 10% saver might work 50+ years. A 50% saver can retire in ~17 years. Your savings rate dramatically affects your timeline to FI."
+      },
+      {
+        id: 9,
+        question: "What's a 'net worth statement' and why track it?",
+        options: ["Only for wealthy people", "Assets minus liabilities - shows your true financial position and progress", "Your salary", "A bill you receive"],
+        correctAnswer: 1,
+        explanation: "Net worth = what you own - what you owe. Tracking it monthly or quarterly shows your real progress toward financial goals."
+      },
+      {
+        id: 10,
+        question: "You just finished this financial literacy program. What's your most important next step?",
+        options: ["Forget about it", "Take ONE action today: automate savings, check your credit, or start tracking expenses", "Wait until you're older", "Read another book"],
+        correctAnswer: 1,
+        explanation: "Action beats perfection. Pick ONE thing from everything you've learned and do it TODAY. Small actions compound into life-changing results."
+      }
+    ]
+  };
+
+  const questions = programId === 'COLLEGE' ? (collegeQuizData[weekNumber] || []) : (quizData[weekNumber] || []);
   const totalQuestions = questions.length;
 
   // Timer effect
@@ -1414,7 +2572,7 @@ export function QuizScreen({
   // Pre-quiz screen
   if (!quizStarted) {
     return (
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-6 pb-6 md:pb-0">
         {/* Header */}
         <div className="flex items-center justify-between">
           <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
@@ -1470,7 +2628,7 @@ export function QuizScreen({
     const percentage = Math.round((score / totalQuestions) * 100);
 
     return (
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-6 pb-6 md:pb-0">
         {/* Header */}
         <div className="flex items-center justify-center">
           <img src={logo} alt="Beyond The Game" className="h-12 object-contain opacity-80"/>
@@ -1618,7 +2776,7 @@ export function QuizScreen({
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">

@@ -553,7 +553,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   // Pre-exam screen
   if (!examStarted) {
     return (
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-6 pb-6 md:pb-0">
         {/* Header */}
         <div className="flex items-center justify-between">
           <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors">
@@ -638,7 +638,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
     const categoryScores = calculateCategoryScores();
 
     return (
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-6 pb-6 md:pb-0">
         {/* Header */}
         <div className="flex items-center justify-center">
           <img src={logo} alt="Beyond The Game" className="h-12 object-contain opacity-80"/>
@@ -810,7 +810,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   const answeredCount = selectedAnswers.filter(a => a !== undefined).length;
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors">

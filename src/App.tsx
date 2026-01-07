@@ -30,6 +30,10 @@ function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // User profile state
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [userDisplayName, setUserDisplayName] = useState<string | null>(null);
+
   // Check if mobile
   const [isMobile, setIsMobile] = useState(false);
 
@@ -52,6 +56,18 @@ function App() {
           setUser(currentUser);
           setIsLoggedIn(true);
           await checkEnrollment(currentUser.id);
+
+          // Fetch user profile for avatar and display name
+          const { data: userProfile } = await supabase
+            .from('users')
+            .select('avatar_url, display_name')
+            .eq('id', currentUser.id)
+            .single();
+
+          if (userProfile) {
+            setUserAvatarUrl(userProfile.avatar_url);
+            setUserDisplayName(userProfile.display_name);
+          }
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -70,6 +86,19 @@ function App() {
         setUser(authUser);
         setIsLoggedIn(true);
         await checkEnrollment(authUser.id);
+
+        // Fetch user profile for avatar and display name
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('avatar_url, display_name')
+          .eq('id', authUser.id)
+          .single();
+
+        if (userProfile) {
+          setUserAvatarUrl(userProfile.avatar_url);
+          setUserDisplayName(userProfile.display_name);
+        }
+
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -77,6 +106,8 @@ function App() {
         setEnrollment(null);
         setEnrollmentState('checking');
         setActiveTab('dashboard');
+        setUserAvatarUrl(null);
+        setUserDisplayName(null);
         setAuthLoading(false);
       }
     });
@@ -278,12 +309,22 @@ function App() {
         <div className="p-3 border-t border-white/10 space-y-2">
           {/* User info */}
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white text-sm font-bold">
-              {user?.email?.charAt(0).toUpperCase()}
-            </div>
+            {userAvatarUrl ? (
+              <img
+                src={userAvatarUrl}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover border border-white/10"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white text-sm font-bold">
+                {(userDisplayName || user?.email || 'U').charAt(0).toUpperCase()}
+              </div>
+            )}
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user?.email}</p>
+                <p className="text-sm font-medium text-white truncate">
+                  {userDisplayName || user?.email?.split('@')[0] || 'User'}
+                </p>
                 <p className="text-xs text-[#9CA3AF]">
                   {enrollment?.program_id === 'HS' ? 'High School' : 'College'}
                 </p>
@@ -313,7 +354,7 @@ function App() {
         className="min-h-screen transition-all duration-300"
         style={{
           marginLeft: isMobile ? 0 : sidebarWidth,
-          paddingBottom: isMobile ? '80px' : '0',
+          paddingBottom: isMobile ? '100px' : '0',
         }}
       >
         {/* Content wrapper */}
@@ -349,6 +390,7 @@ function App() {
             <ProfileScreen
               enrollment={enrollment}
               onSignOut={handleSignOut}
+              onAvatarUpdate={(avatarUrl) => setUserAvatarUrl(avatarUrl)}
             />
           )}
         </div>

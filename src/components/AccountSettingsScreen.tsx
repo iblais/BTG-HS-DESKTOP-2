@@ -1,23 +1,43 @@
-import { useState } from 'react';
-import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff, Loader2, X } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
 import { signOut, getCurrentUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import { uploadAvatar, deleteAvatar, createPreviewUrl, revokePreviewUrl } from '@/lib/avatarUpload';
 
 interface AccountSettingsScreenProps {
   onBack: () => void;
+  userId: string;
+  initialDisplayName: string;
+  initialEmail: string;
+  initialAvatarUrl: string | null;
+  onProfileUpdate?: (updates: { displayName?: string; avatarUrl?: string | null }) => void;
 }
 
-export function AccountSettingsScreen({ onBack }: AccountSettingsScreenProps) {
+export function AccountSettingsScreen({
+  onBack,
+  userId,
+  initialDisplayName,
+  initialEmail,
+  initialAvatarUrl,
+  onProfileUpdate
+}: AccountSettingsScreenProps) {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [profileData, setProfileData] = useState({
-    displayName: '',
-    email: '',
+    displayName: initialDisplayName || '',
+    email: initialEmail || '',
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -27,6 +47,93 @@ export function AccountSettingsScreen({ onBack }: AccountSettingsScreenProps) {
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        revokePreviewUrl(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setMessage({ type: 'error', text: 'Please select a JPG, PNG, or WebP image' });
+      return;
+    }
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Image must be less than 2MB' });
+      return;
+    }
+
+    // Clean up old preview
+    if (previewUrl) {
+      revokePreviewUrl(previewUrl);
+    }
+
+    // Create preview
+    const preview = createPreviewUrl(file);
+    setPreviewUrl(preview);
+    setSelectedFile(file);
+    setMessage(null);
+  };
+
+  const handleUploadPhoto = async () => {
+    if (!selectedFile) return;
+
+    setIsUploadingPhoto(true);
+    setMessage(null);
+
+    const result = await uploadAvatar(userId, selectedFile);
+
+    if (result.success && result.url) {
+      setAvatarUrl(result.url);
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      setMessage({ type: 'success', text: 'Profile photo updated!' });
+      onProfileUpdate?.({ avatarUrl: result.url });
+    } else {
+      setMessage({ type: 'error', text: result.error || 'Failed to upload photo' });
+    }
+
+    setIsUploadingPhoto(false);
+  };
+
+  const handleRemovePhoto = async () => {
+    setIsUploadingPhoto(true);
+    setMessage(null);
+
+    const result = await deleteAvatar(userId);
+
+    if (result.success) {
+      setAvatarUrl(null);
+      setMessage({ type: 'success', text: 'Profile photo removed' });
+      onProfileUpdate?.({ avatarUrl: null });
+    } else {
+      setMessage({ type: 'error', text: result.error || 'Failed to remove photo' });
+    }
+
+    setIsUploadingPhoto(false);
+  };
+
+  const handleCancelPreview = () => {
+    if (previewUrl) {
+      revokePreviewUrl(previewUrl);
+    }
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleUpdateProfile = async () => {
     if (!profileData.displayName.trim()) {
@@ -38,17 +145,15 @@ export function AccountSettingsScreen({ onBack }: AccountSettingsScreenProps) {
     setMessage(null);
 
     try {
-      const user = await getCurrentUser();
-      if (!user) throw new Error('Not logged in');
-
       const { error } = await supabase
         .from('users')
         .update({ display_name: profileData.displayName })
-        .eq('id', user.id);
+        .eq('id', userId);
 
       if (error) throw error;
 
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      onProfileUpdate?.({ displayName: profileData.displayName });
     } catch (err) {
       console.error('Profile update error:', err);
       setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
@@ -124,8 +229,15 @@ export function AccountSettingsScreen({ onBack }: AccountSettingsScreenProps) {
     }
   };
 
+  // Get display initial for avatar fallback
+  const displayInitial = profileData.displayName?.[0]?.toUpperCase() ||
+                         profileData.email?.[0]?.toUpperCase() || 'U';
+
+  // Determine which image to show
+  const displayImageUrl = previewUrl || avatarUrl;
+
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
@@ -166,14 +278,85 @@ export function AccountSettingsScreen({ onBack }: AccountSettingsScreenProps) {
 
         <div className="space-y-4">
           {/* Avatar */}
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4A5FFF] to-[#00BFFF] flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="relative">
+              {displayImageUrl ? (
+                <img
+                  src={displayImageUrl}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-white/20"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FF8E53] flex items-center justify-center border-2 border-white/20">
+                  <span className="text-2xl font-bold text-white">{displayInitial}</span>
+                </div>
+              )}
+              {isUploadingPhoto && (
+                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+              )}
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-white/80 hover:bg-white/20 transition-colors">
-              <Camera className="w-4 h-4" />
-              <span className="text-sm">Change Photo</span>
-            </button>
+
+            <div className="flex flex-col gap-2">
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+
+              {previewUrl && selectedFile ? (
+                // Show save/cancel when there's a preview
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleUploadPhoto}
+                    disabled={isUploadingPhoto}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#50D890] rounded-lg text-white font-medium hover:bg-[#50D890]/90 transition-colors disabled:opacity-50"
+                  >
+                    {isUploadingPhoto ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4" />
+                    )}
+                    <span className="text-sm">Save Photo</span>
+                  </button>
+                  <button
+                    onClick={handleCancelPreview}
+                    disabled={isUploadingPhoto}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-white/80 hover:bg-white/20 transition-colors disabled:opacity-50"
+                  >
+                    <X className="w-4 h-4" />
+                    <span className="text-sm">Cancel</span>
+                  </button>
+                </div>
+              ) : (
+                // Show change/remove buttons
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingPhoto}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-white/80 hover:bg-white/20 transition-colors disabled:opacity-50"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span className="text-sm">{avatarUrl ? 'Change Photo' : 'Add Photo'}</span>
+                  </button>
+                  {avatarUrl && (
+                    <button
+                      onClick={handleRemovePhoto}
+                      disabled={isUploadingPhoto}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-500/20 rounded-lg text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm">Remove</span>
+                    </button>
+                  )}
+                </div>
+              )}
+              <p className="text-white/40 text-xs">JPG, PNG or WebP. Max 2MB.</p>
+            </div>
           </div>
 
           {/* Display Name */}

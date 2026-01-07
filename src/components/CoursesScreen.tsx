@@ -69,6 +69,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeWeek, setActiveWeek] = useState<number>(1);
+  const [startSection, setStartSection] = useState<number>(0);
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
@@ -96,7 +97,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     }
   };
 
-  const weekTitles: Record<number, { title: string; description: string }> = {
+  // High School week titles (18 weeks)
+  const hsWeekTitles: Record<number, { title: string; description: string }> = {
     1: { title: 'Understanding Income, Expenses & Savings', description: 'Learn to track your money flow' },
     2: { title: 'Increasing Your Income & Reach Your Goal', description: 'Strategies to earn more' },
     3: { title: 'What is Credit?', description: 'How credit works and its importance' },
@@ -117,8 +119,32 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     18: { title: 'Graduation & Certification', description: 'Celebrate your success!' },
   };
 
-  const handleStartLesson = (weekNum: number) => {
+  // College week titles (16 weeks) - More advanced topics
+  const collegeWeekTitles: Record<number, { title: string; description: string }> = {
+    1: { title: 'Student Loans Mastery', description: 'Understanding federal vs private loans' },
+    2: { title: 'Credit Building Fundamentals', description: 'Your first credit card and credit score' },
+    3: { title: 'Smart Budgeting for College Life', description: 'Meal plans, textbooks, and real scenarios' },
+    4: { title: 'Banking Essentials', description: 'Accounts, apps, and avoiding fees' },
+    5: { title: 'Taxes & Financial Aid', description: 'W-2s, FAFSA, and education credits' },
+    6: { title: 'Maximizing Your Income', description: 'Part-time jobs, internships, side hustles' },
+    7: { title: 'Debt Management Strategies', description: 'Prioritizing payments and avoiding traps' },
+    8: { title: 'Introduction to Investing', description: 'Stocks, ETFs, and compound interest' },
+    9: { title: 'Retirement Planning 101', description: '401k, Roth IRA, and starting early' },
+    10: { title: 'Career Preparation', description: 'Salary negotiation and understanding benefits' },
+    11: { title: 'Housing & Renting', description: 'Leases, roommates, and utilities' },
+    12: { title: 'Insurance Fundamentals', description: 'Health, auto, and renters insurance' },
+    13: { title: 'Advanced Credit Strategies', description: 'Building excellent credit and rewards' },
+    14: { title: 'Wealth Building Foundations', description: 'Long-term strategies and diversification' },
+    15: { title: 'Entrepreneurship & Freelancing', description: 'Starting your own business or side gig' },
+    16: { title: 'Financial Independence Planning', description: 'Your roadmap to FI' },
+  };
+
+  // Select the right week titles based on program
+  const weekTitles = enrollment?.program_id === 'COLLEGE' ? collegeWeekTitles : hsWeekTitles;
+
+  const handleStartLesson = (weekNum: number, section: number = 0) => {
     setActiveWeek(weekNum);
+    setStartSection(section);
     setViewMode('lesson');
     setSelectedWeek(null);
   };
@@ -185,6 +211,31 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     setViewMode('list');
   };
 
+  // Save progress when each section is completed (fire and forget - don't block UI)
+  const handleSectionComplete = (sectionIndex: number, totalSections: number) => {
+    // Run async without blocking
+    (async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        // Calculate progress percentage based on sections completed
+        const progressPercent = Math.round(((sectionIndex + 1) / totalSections) * 50);
+
+        await supabase
+          .from('course_progress')
+          .upsert({
+            user_id: user.id,
+            week_number: activeWeek,
+            score: progressPercent,
+            completed: false
+          }, { onConflict: 'user_id,week_number' });
+      } catch (err) {
+        console.error('Failed to save section progress:', err);
+      }
+    })();
+  };
+
   const getWeekStatus = (weekNum: number): Week['status'] => {
     const progress = courseProgress.find(p => p.week_number === weekNum);
     if (progress?.completed) return 'completed';
@@ -226,8 +277,11 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
         weekNumber={activeWeek}
         weekTitle={week?.title || `Week ${activeWeek}`}
         trackLevel={enrollment?.track_level || 'beginner'}
+        programId={enrollment?.program_id || 'HS'}
+        startSection={startSection}
         onBack={() => setViewMode('list')}
         onComplete={handleLessonComplete}
+        onSectionComplete={handleSectionComplete}
       />
     );
   }
@@ -239,6 +293,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       <QuizScreen
         weekNumber={activeWeek}
         weekTitle={week?.title || `Week ${activeWeek}`}
+        programId={enrollment?.program_id || 'HS'}
         onBack={() => setViewMode('list')}
         onComplete={handleQuizComplete}
       />
@@ -287,7 +342,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   }
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 pb-6 md:pb-0">
       {/* Progress Overview - EXCITING VERSION */}
       <div className="hero-card rounded-2xl p-8 overflow-hidden">
         <div className="flex items-center justify-between mb-6">
@@ -491,17 +546,17 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       {/* Selected Week Modal */}
       {selectedWeek && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-6"
           onClick={() => setSelectedWeek(null)}
         >
           <div
-            className="bg-[#0A0E27] border border-white/[0.1] rounded-2xl max-w-lg w-full p-6"
+            className="bg-[#0A0E27] border border-white/[0.1] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
               const week = weeks.find(w => w.number === selectedWeek)!;
               return (
-                <>
+                <div className="p-6">
                   <div className="flex items-start justify-between mb-6">
                     <div>
                       <p className="text-white/40 text-sm mb-1">Week {week.number}</p>
@@ -510,18 +565,19 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     </div>
                     <button
                       onClick={() => setSelectedWeek(null)}
-                      className="text-white/40 hover:text-white transition-colors"
+                      className="text-white/40 hover:text-white transition-colors flex-shrink-0 ml-4"
                     >
                       ✕
                     </button>
                   </div>
 
-                  {/* Modules */}
+                  {/* Modules - Clickable */}
                   <div className="space-y-3 mb-6">
                     {Array.from({ length: 5 }, (_, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors cursor-pointer"
+                        onClick={() => handleStartLesson(week.number, i)}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 transition-all cursor-pointer active:scale-[0.98]"
                       >
                         <div className={cn(
                           "w-10 h-10 rounded-lg flex items-center justify-center",
@@ -535,7 +591,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                         </div>
                         <div className="flex-1">
                           <p className="text-white font-medium">Module {i + 1}</p>
-                          <p className="text-white/40 text-sm">Lesson content</p>
+                          <p className="text-white/40 text-sm">Tap to start</p>
                         </div>
                         <ChevronRight className="w-5 h-5 text-white/30" />
                       </div>
@@ -559,7 +615,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                       Take Quiz
                     </button>
                   </div>
-                </>
+                </div>
               );
             })()}
           </div>

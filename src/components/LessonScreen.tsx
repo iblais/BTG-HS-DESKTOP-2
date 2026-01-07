@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle, FileText, Video, Users } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
@@ -8,13 +8,21 @@ interface LessonScreenProps {
   weekNumber: number;
   weekTitle: string;
   trackLevel?: string;
+  programId?: string;
+  startSection?: number;
   onBack: () => void;
   onComplete: (completed: boolean) => void;
+  onSectionComplete?: (sectionIndex: number, totalSections: number) => void;
 }
 
-export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', onBack, onComplete }: LessonScreenProps) {
-  const [currentSection, setCurrentSection] = useState(0);
+export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', programId = 'HS', startSection = 0, onBack, onComplete, onSectionComplete }: LessonScreenProps) {
+  const [currentSection, setCurrentSection] = useState(startSection);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
+
+  // Sync currentSection when startSection prop changes
+  useEffect(() => {
+    setCurrentSection(startSection);
+  }, [startSection, weekNumber]);
 
   // Lesson content for different weeks
   const getLessonContent = (week: number) => {
@@ -1514,6 +1522,1918 @@ You put in the work. You learned the material. You're ready for whatever comes n
     };
   };
 
+  // College-specific lesson content (16 weeks)
+  const getCollegeLessonContent = (week: number) => {
+    const collegeLessonMap: Record<number, any> = {
+      1: {
+        title: "Student Loans Mastery",
+        sections: [
+          {
+            title: "Understanding Federal vs Private Loans",
+            type: "reading",
+            duration: "6 min",
+            content: `Let's talk about the money that's funding your education. Student loans come in two main flavors, and understanding the difference could save you thousands.
+
+**FEDERAL STUDENT LOANS:**
+These come from the government and are almost always your better option:
+• **Direct Subsidized Loans** - The government pays interest while you're in school (need-based)
+• **Direct Unsubsidized Loans** - Interest accrues from day one, but still decent rates
+• **PLUS Loans** - For graduate students or parents (higher rates)
+
+**PRIVATE STUDENT LOANS:**
+These come from banks, credit unions, or online lenders:
+• Interest rates vary widely (often higher than federal)
+• Usually require a co-signer if you have no credit
+• Fewer repayment options and protections
+• No income-driven repayment plans
+
+**The Golden Rule:** Always max out federal loans before considering private loans. Federal loans have income-driven repayment, potential forgiveness programs, and deferment options that private loans simply don't offer.`,
+            keyPoints: [
+              "Federal loans have better protections and lower rates",
+              "Subsidized loans don't accrue interest in school",
+              "Private loans should be your last resort",
+              "Always complete FAFSA to see federal options first"
+            ]
+          },
+          {
+            title: "Interest Rates and How They Work",
+            type: "reading",
+            duration: "5 min",
+            content: `Interest is the cost of borrowing money, and understanding it is crucial for managing your loans.
+
+**HOW STUDENT LOAN INTEREST WORKS:**
+
+Let's say you borrow $10,000 at 5% interest:
+• Annual interest = $10,000 × 5% = $500
+• Daily interest = $500 ÷ 365 = about $1.37 per day
+
+**CAPITALIZATION - THE SNEAKY COST:**
+When you're not making payments (like during school), unpaid interest can "capitalize" - meaning it gets added to your principal balance. Now you're paying interest on interest.
+
+Example: $10,000 loan, 5% rate, 4 years of school
+• Interest accrued: ~$2,000
+• New balance after capitalization: $12,000
+• You now pay interest on $12,000, not $10,000
+
+**PRO TIP:** Even paying $25-50/month toward interest while in school can save you hundreds or thousands over the life of your loan.`,
+            keyPoints: [
+              "Interest accrues daily on most student loans",
+              "Capitalization adds unpaid interest to your principal",
+              "Small payments in school can save thousands later",
+              "Federal subsidized loans don't accrue interest during school"
+            ]
+          },
+          {
+            title: "Repayment Plans Explained",
+            type: "video",
+            duration: "7 min",
+            content: `After graduation, you'll need to choose how to repay your federal loans. Here are your options:
+
+**STANDARD REPAYMENT:**
+• Fixed payments over 10 years
+• Highest monthly payment, lowest total cost
+• Best if you can afford it
+
+**GRADUATED REPAYMENT:**
+• Starts low, increases every 2 years
+• Still 10-year term
+• Good if you expect rising income
+
+**EXTENDED REPAYMENT:**
+• Stretch payments over 25 years
+• Lower monthly payments, more interest paid
+
+**INCOME-DRIVEN PLANS (MOST POPULAR):**
+• **IBR (Income-Based Repayment)** - 10-15% of discretionary income
+• **PAYE (Pay As You Earn)** - 10% of discretionary income
+• **SAVE (Saving on a Valuable Education)** - Newest plan, often lowest payments
+• **ICR (Income-Contingent)** - 20% of discretionary income
+
+**FORGIVENESS POTENTIAL:**
+After 20-25 years of income-driven payments, remaining balance may be forgiven (though potentially taxable).
+Public Service Loan Forgiveness (PSLF): Work for government/nonprofit for 10 years, remaining balance forgiven tax-free.`,
+            keyPoints: [
+              "Standard 10-year plan costs least in total interest",
+              "Income-driven plans base payments on what you earn",
+              "PSLF can forgive loans after 10 years of public service",
+              "You can change repayment plans anytime"
+            ]
+          },
+          {
+            title: "Your Loan Management Strategy",
+            type: "interactive",
+            duration: "8 min",
+            content: `Let's create your personal loan management plan:
+
+**STEP 1: KNOW YOUR NUMBERS**
+Log into StudentAid.gov and document:
+• Total federal loan balance
+• Interest rate on each loan
+• Servicer for each loan
+• Expected monthly payment
+
+**STEP 2: GRACE PERIOD GAME PLAN**
+You have 6 months after graduation before payments start. Use this time wisely:
+• Research repayment plans
+• Set up auto-pay (often gets you 0.25% rate reduction)
+• Consider making interest-only payments
+
+**STEP 3: PRIORITIZE STRATEGICALLY**
+• Pay minimums on all loans
+• Put extra money toward highest interest rate first (avalanche method)
+• OR pay smallest balance first for motivation (snowball method)
+
+**STEP 4: REFINANCING CONSIDERATION**
+After establishing income and credit:
+• Private refinancing can lower rates
+• BUT you lose federal protections (income-driven plans, forgiveness)
+• Only refinance if you're sure you won't need those protections
+
+**EMERGENCY PLAN:**
+If you can't pay, contact your servicer immediately. Options include deferment, forbearance, or switching plans. Never just stop paying.`,
+            keyPoints: [
+              "Know exactly what you owe and to whom",
+              "Use your grace period to prepare, not ignore loans",
+              "Auto-pay often reduces your interest rate",
+              "Contact servicer immediately if you can't pay"
+            ]
+          }
+        ]
+      },
+      2: {
+        title: "Credit Building Fundamentals",
+        sections: [
+          {
+            title: "Your Credit Score Decoded",
+            type: "reading",
+            duration: "6 min",
+            content: `Your credit score is a three-digit number that affects everything from apartment applications to car insurance rates. Here's exactly how it works:
+
+**THE FICO SCORE BREAKDOWN:**
+
+• **Payment History (35%)** - Do you pay on time? This is HUGE.
+• **Credit Utilization (30%)** - How much of your available credit are you using?
+• **Length of Credit History (15%)** - How long have you had credit?
+• **Credit Mix (10%)** - Do you have different types of credit?
+• **New Credit (10%)** - Have you opened many accounts recently?
+
+**SCORE RANGES:**
+• 800-850: Exceptional
+• 740-799: Very Good
+• 670-739: Good
+• 580-669: Fair
+• Below 580: Poor
+
+**AS A COLLEGE STUDENT:**
+You're starting from scratch, which is actually better than having bad credit. A "thin file" (little credit history) is easier to build than a damaged one is to repair.
+
+**WHERE TO CHECK YOUR SCORE:**
+• AnnualCreditReport.com - Free credit reports (not scores)
+• Credit Karma, Credit Sesame - Free score estimates
+• Many banks now offer free FICO scores
+• Never pay for your credit score`,
+            keyPoints: [
+              "Payment history is 35% of your score - always pay on time",
+              "Keep credit utilization under 30%, ideally under 10%",
+              "Length of history matters - start building early",
+              "Check your credit regularly through free services"
+            ]
+          },
+          {
+            title: "Your First Credit Card",
+            type: "reading",
+            duration: "5 min",
+            content: `Getting your first credit card is a milestone. Here's how to do it right:
+
+**BEST OPTIONS FOR STUDENTS:**
+
+1. **Secured Credit Cards**
+   • You deposit $200-500 as collateral
+   • That becomes your credit limit
+   • Easiest approval, great for building credit
+   • Examples: Discover it Secured, Capital One Platinum Secured
+
+2. **Student Credit Cards**
+   • Designed for college students
+   • No security deposit needed
+   • Lower credit limits ($500-1500)
+   • Examples: Discover it Student, Capital One Journey
+
+3. **Authorized User**
+   • Get added to a parent's card
+   • Their good history can boost your score
+   • You get a card but they're responsible
+
+**WHAT TO LOOK FOR:**
+• No annual fee (never pay annual fees when starting out)
+• Reports to all three credit bureaus
+• Rewards are a bonus, not a priority
+• Low or no foreign transaction fees if you travel
+
+**APPLICATION TIPS:**
+• Only apply for one card at a time
+• Each application creates a hard inquiry
+• Have income (even part-time job) before applying
+• Use your campus address if more stable`,
+            keyPoints: [
+              "Secured cards are easiest to get approved for",
+              "Never pay an annual fee on a starter card",
+              "Being an authorized user can jumpstart your credit",
+              "Only apply for one card - multiple apps hurt your score"
+            ]
+          },
+          {
+            title: "Using Credit Cards Wisely",
+            type: "video",
+            duration: "6 min",
+            content: `A credit card is a tool. Used correctly, it builds your financial future. Used poorly, it creates debt that follows you for years.
+
+**THE GOLDEN RULES:**
+
+1. **Pay Your FULL Balance Every Month**
+   • Treat it like a debit card
+   • Only charge what you can pay off
+   • Carrying a balance costs you interest (15-25% APR is common)
+
+2. **Keep Utilization Low**
+   • Use less than 30% of your limit
+   • If limit is $1,000, keep balance under $300
+   • Ideally, keep it under 10%
+
+3. **Never Miss a Payment**
+   • Set up autopay for at least the minimum
+   • Late payments stay on your report for 7 years
+   • One late payment can drop your score 100+ points
+
+4. **Don't Close Old Cards**
+   • Length of history matters
+   • Keep your first card open forever (even if you don't use it)
+   • Closing cards also increases your utilization ratio
+
+**WHAT NOT TO DO:**
+• Don't buy things you can't afford
+• Don't pay only the minimum
+• Don't max out your card for rewards
+• Don't let friends borrow your card`,
+            keyPoints: [
+              "Pay your full balance every month, not just the minimum",
+              "Keep utilization under 30% of your credit limit",
+              "One late payment can devastate your score",
+              "Never close your first credit card"
+            ]
+          },
+          {
+            title: "Building Credit Fast",
+            type: "interactive",
+            duration: "7 min",
+            content: `Ready to build excellent credit quickly? Here's your action plan:
+
+**MONTH 1: FOUNDATION**
+• Apply for a secured or student credit card
+• Set up autopay for full balance
+• Make one small recurring purchase (like Netflix or Spotify)
+• Pay it off immediately
+
+**MONTHS 2-6: CONSISTENCY**
+• Keep using the card for small, planned purchases
+• Pay balance weekly (keeps utilization ultra-low)
+• Never miss a payment
+• Don't apply for any new credit
+
+**MONTH 6-12: GROWTH**
+• Request a credit limit increase (don't use more credit, just have more available)
+• Your score should be 650+ by now
+• Consider becoming an authorized user on a parent's old card
+
+**YEAR 2: ADVANCEMENT**
+• Apply for a second card (cash-back is great)
+• Your score should be 700+ with good habits
+• Start using cards for bigger purchases, always paying in full
+
+**CREDIT-BUILDING HACKS:**
+• Use credit cards for bills you'd pay anyway
+• Time your purchases to keep reported balance low
+• Experian Boost can add utility/phone payments
+• Rent reporting services can help too
+
+**REMEMBER:** Good credit takes time. There's no shortcut, but consistent good behavior gets you there faster than you'd think.`,
+            keyPoints: [
+              "Start with one card and small recurring purchases",
+              "Pay weekly to keep utilization reported as low",
+              "Request limit increases after 6 months",
+              "Be patient - good credit takes 12-24 months to build"
+            ]
+          }
+        ]
+      },
+      3: {
+        title: "Smart Budgeting for College Life",
+        sections: [
+          {
+            title: "The Real Costs of College",
+            type: "reading",
+            duration: "5 min",
+            content: `Tuition is just the beginning. Let's break down what college really costs:
+
+**THE OBVIOUS COSTS:**
+• Tuition and fees
+• Room and board
+• Books and supplies
+• Meal plans
+
+**THE HIDDEN COSTS (where budgets die):**
+• Food outside the meal plan
+• Uber/Lyft and transportation
+• Subscriptions (streaming, Spotify, apps)
+• Weekend activities and events
+• Clothes and personal items
+• Late-night snacks and coffee
+• Greek life or club dues
+• Formals, trips, and events
+• Technology (laptop repairs, phone)
+
+**REALITY CHECK:**
+The average college student spends $2,000-3,000 per SEMESTER on discretionary spending. That's $500-750 per month beyond the basics.
+
+**YOUR FIRST STEP:**
+Track every dollar for 2 weeks. Use an app or just note it in your phone. You'll be shocked at where money goes.`,
+            keyPoints: [
+              "Discretionary spending can exceed $500/month",
+              "Food outside meal plans is usually the biggest budget leak",
+              "Track every purchase for 2 weeks to see reality",
+              "Hidden costs often double what you expect to spend"
+            ]
+          },
+          {
+            title: "Creating Your College Budget",
+            type: "video",
+            duration: "6 min",
+            content: `Here's a realistic college budget framework:
+
+**STEP 1: CALCULATE YOUR INCOME**
+• Financial aid refund (divide by months)
+• Part-time job earnings
+• Family contributions
+• Savings you're willing to spend
+
+**STEP 2: FIXED EXPENSES**
+• Phone bill
+• Subscriptions
+• Insurance
+• Any recurring payments
+
+**STEP 3: VARIABLE EXPENSES (where control matters)**
+• Food beyond meal plan: $100-200/month
+• Entertainment: $50-100/month
+• Transportation: $50-100/month
+• Personal/shopping: $50-75/month
+• Unexpected: $50/month buffer
+
+**SAMPLE BUDGET: $800/month available**
+• Fixed expenses: $100
+• Food/coffee: $150
+• Entertainment: $75
+• Transportation: $75
+• Personal items: $75
+• Savings/emergency: $100
+• Buffer for unexpected: $225
+
+**THE KEY:** Review and adjust monthly. Your first budget won't be perfect, and that's okay.`,
+            keyPoints: [
+              "Include financial aid refunds in your monthly income",
+              "Fixed expenses should be as low as possible",
+              "Always include a buffer for unexpected costs",
+              "Review and adjust your budget monthly"
+            ]
+          },
+          {
+            title: "Saving Money in College",
+            type: "reading",
+            duration: "5 min",
+            content: `Being broke in college is optional. Here's how to stretch your money:
+
+**FOOD HACKS:**
+• Max out your meal plan swipes - those are paid for
+• Bring containers to the dining hall for leftovers (if allowed)
+• Learn 5-10 cheap recipes you can make in a dorm/apartment
+• Use campus food pantries - no shame, that's what they're for
+• Student discounts at restaurants (always ask!)
+
+**TEXTBOOK STRATEGIES:**
+• Never buy new textbooks from the campus store
+• Check Library Genesis, OpenStax for free versions
+• Rent from Chegg, Amazon
+• Buy older editions (usually same content)
+• Share with classmates
+
+**ENTERTAINMENT ON A BUDGET:**
+• Campus events are usually free (and often have free food)
+• Student discounts on streaming, Spotify, Amazon Prime
+• Free gym access at recreation center
+• Library has free movies, games, even board games
+
+**TRANSPORTATION SAVINGS:**
+• Campus shuttles are usually free
+• Bike instead of Uber for close distances
+• Carpool with friends for grocery runs
+• Many cities offer student transit discounts
+
+**THE MINDSET SHIFT:**
+Rich people got rich by not spending money on things that don't matter. Being frugal in college isn't embarrassing - it's smart.`,
+            keyPoints: [
+              "Campus resources (events, food pantries, gym) are already paid for",
+              "Never buy new textbooks - always find alternatives",
+              "Student discounts are everywhere - always ask",
+              "Being frugal now builds wealth habits for life"
+            ]
+          },
+          {
+            title: "Budget Apps and Tools",
+            type: "interactive",
+            duration: "5 min",
+            content: `Technology makes budgeting easier. Here are the best tools:
+
+**FREE BUDGETING APPS:**
+
+1. **Mint (by Intuit)**
+   • Connects to all accounts
+   • Automatic categorization
+   • Bill reminders
+   • Good for passive tracking
+
+2. **YNAB (You Need A Budget)**
+   • Free for students (1-year trial)
+   • Zero-based budgeting method
+   • Best for active budget management
+   • Strong community and education
+
+3. **Copilot (iOS) / Monarch (all platforms)**
+   • Modern, clean interface
+   • Great for couples/roommates
+   • More expensive but worth it for some
+
+4. **Spreadsheets**
+   • Google Sheets is free
+   • Full control and customization
+   • Great templates available online
+
+**STUDENT-SPECIFIC TOOLS:**
+• UNiDAYS - Student discounts central
+• Student Beans - More discounts
+• Campus apps - Many have deals/offers
+
+**AUTOMATION TIP:**
+• Set up autopay for all bills
+• Auto-transfer savings on payday
+• Set spending alerts at 80% of budget categories
+
+**YOUR ASSIGNMENT:**
+Download one budgeting app today and connect your accounts. Start by just tracking - no judgment. Information is power.`,
+            keyPoints: [
+              "YNAB is free for students and highly effective",
+              "Automate bill payments to never miss due dates",
+              "Start with tracking, then add budget limits",
+              "Use student discount apps to save on everything"
+            ]
+          }
+        ]
+      },
+      4: {
+        title: "Banking Essentials",
+        sections: [
+          {
+            title: "Choosing the Right Bank Account",
+            type: "reading",
+            duration: "5 min",
+            content: `Your bank account is the foundation of your finances. Here's how to choose wisely:
+
+**CHECKING VS SAVINGS:**
+• **Checking**: For daily spending, bill payments, debit card
+• **Savings**: For emergency fund and goals, limited transactions
+
+**WHAT TO LOOK FOR:**
+
+**Must-Haves:**
+• No monthly maintenance fees (or easy ways to waive them)
+• Free ATM network or ATM fee refunds
+• Mobile deposit and good app
+• No minimum balance requirements
+
+**Nice-to-Haves:**
+• Early direct deposit
+• Overdraft protection options
+• Zelle or instant transfers
+• Good customer service
+
+**YOUR OPTIONS:**
+
+1. **Big Banks (Chase, Bank of America, Wells Fargo)**
+   • Branches everywhere
+   • Often have student accounts with no fees
+   • May charge fees after you graduate
+
+2. **Online Banks (Ally, Marcus, Discover)**
+   • Higher savings interest rates
+   • Usually no fees ever
+   • ATM fee refunds common
+   • No physical branches
+
+3. **Credit Unions**
+   • Lower fees generally
+   • Better loan rates
+   • Must qualify for membership
+   • Community-focused
+
+**STUDENT RECOMMENDATION:**
+• Open a student checking at a big bank (free, convenient)
+• Open a high-yield savings at an online bank (earn interest)
+• Use both strategically`,
+            keyPoints: [
+              "Never pay monthly maintenance fees - student accounts waive these",
+              "Online banks offer higher savings interest rates",
+              "Having accounts at two institutions can be strategic",
+              "ATM access matters - check the bank's network"
+            ]
+          },
+          {
+            title: "Banking Apps and Technology",
+            type: "video",
+            duration: "5 min",
+            content: `Modern banking is mobile-first. Here's what you need to know:
+
+**ESSENTIAL FEATURES TO USE:**
+
+1. **Mobile Check Deposit**
+   • Snap a photo of checks
+   • Funds usually available next day
+   • Keep checks for 30 days, then shred
+
+2. **Instant Transfers**
+   • Zelle for person-to-person payments
+   • Linked to phone number or email
+   • Usually instant and free
+
+3. **Bill Pay**
+   • Schedule recurring payments
+   • Never miss a due date
+   • Some even mail paper checks for you
+
+4. **Alerts and Notifications**
+   • Low balance warnings
+   • Large transaction alerts
+   • Login notifications for security
+
+**PAYMENT APPS:**
+• Venmo - Social, great for splitting bills
+• Cash App - Also has debit card and stocks
+• Apple Pay/Google Pay - Tap to pay with phone
+• PayPal - Good for online purchases
+
+**SECURITY MUST-DOs:**
+• Enable two-factor authentication
+• Use unique, strong passwords
+• Don't use public WiFi for banking
+• Set up account alerts
+• Review transactions weekly`,
+            keyPoints: [
+              "Set up mobile deposit - it's faster than going to a branch",
+              "Use Zelle for free instant transfers",
+              "Enable two-factor authentication on all accounts",
+              "Set up alerts for large transactions and low balances"
+            ]
+          },
+          {
+            title: "Avoiding Fees and Pitfalls",
+            type: "reading",
+            duration: "5 min",
+            content: `Banks make billions from fees. Here's how to pay $0:
+
+**COMMON FEES AND HOW TO AVOID THEM:**
+
+**Overdraft Fees ($35 each!)**
+• Set up low balance alerts
+• Link savings as backup
+• Opt out of overdraft "protection"
+• Track your spending closely
+
+**Monthly Maintenance Fees**
+• Use student accounts (fee-free)
+• Meet minimum balance requirements
+• Set up direct deposit
+• Switch to online banks
+
+**ATM Fees ($3-5 per transaction)**
+• Use your bank's ATM network
+• Get cash back at stores
+• Use online banks that refund ATM fees
+• Plan cash withdrawals ahead
+
+**Wire Transfer Fees**
+• Use Zelle or ACH instead (free)
+• Only wire when absolutely necessary
+
+**Foreign Transaction Fees**
+• Get a no-FTF debit card before traveling
+• Many student cards have no FTF
+
+**THE $500+ PROBLEM:**
+Average American pays $500+ per year in bank fees. That's money that could be in YOUR pocket. Being aware is 90% of the solution.`,
+            keyPoints: [
+              "Overdraft fees are the biggest trap - opt out of overdraft",
+              "Set up alerts to prevent low balance surprises",
+              "Use Zelle/ACH instead of wire transfers",
+              "The average person wastes $500/year on avoidable fees"
+            ]
+          },
+          {
+            title: "Building Your Banking System",
+            type: "interactive",
+            duration: "6 min",
+            content: `Let's set up your optimal banking system:
+
+**THE MULTI-ACCOUNT STRATEGY:**
+
+**Account 1: Primary Checking**
+• Where paychecks go
+• Pay bills from here
+• Keep 1 month of expenses as buffer
+
+**Account 2: High-Yield Savings**
+• Emergency fund goes here
+• Earning 4-5% interest
+• Separate bank makes it harder to spend
+
+**Account 3: Goals Savings**
+• For specific goals (travel, car, etc.)
+• Some banks let you create "buckets"
+• Automate transfers on payday
+
+**AUTOMATION SETUP:**
+
+Day 1 of paycheck:
+• 10-20% auto-transfers to savings
+• Bill pay sends fixed expenses
+• What's left is your spending money
+
+**WEEKLY HABITS:**
+• Check accounts every Sunday
+• Categorize transactions
+• Review upcoming bills
+• Adjust if needed
+
+**MONTHLY HABITS:**
+• Review all subscriptions
+• Check for unexpected fees
+• Assess progress toward goals
+• Adjust budget if needed
+
+**YOUR ACTION STEPS:**
+1. Open a high-yield savings (5 minutes online)
+2. Set up automatic transfers
+3. Download your banks' apps
+4. Set up all security features`,
+            keyPoints: [
+              "Multiple accounts help organize money by purpose",
+              "Automate savings on payday so it happens first",
+              "Review accounts weekly to catch issues early",
+              "Keep emergency fund in separate bank to avoid temptation"
+            ]
+          }
+        ]
+      },
+      5: {
+        title: "Taxes & Financial Aid",
+        sections: [
+          {
+            title: "Student Tax Basics",
+            type: "reading",
+            duration: "6 min",
+            content: `Taxes aren't as scary as they seem. Here's what college students need to know:
+
+**DO YOU NEED TO FILE?**
+If you earned income, probably yes. For 2024:
+• Self-employed: File if you earned $400+
+• Employed: File if you earned $13,850+ (or any tax was withheld)
+• Even if you don't have to, you might want to (to get refunds!)
+
+**FORMS YOU'LL SEE:**
+
+**W-2** - From your employer
+• Shows wages earned and taxes withheld
+• You'll get this by January 31
+
+**1099-NEC** - For freelance/gig work
+• Shows payments over $600
+• You owe self-employment tax on this
+
+**1098-T** - From your school
+• Shows tuition paid
+• Used for education credits
+• Your parents might need this
+
+**1098-E** - Student loan interest
+• Shows interest paid on loans
+• Can deduct up to $2,500
+
+**STANDARD DEDUCTION:**
+Most students take the standard deduction ($13,850 for 2024). This means you don't owe tax on your first $13,850 of income.`,
+            keyPoints: [
+              "File taxes if you had any tax withheld - you might get it back",
+              "Keep all tax forms you receive (W-2, 1099, 1098)",
+              "Standard deduction means first $13,850 is tax-free",
+              "Self-employment income has extra taxes - plan for it"
+            ]
+          },
+          {
+            title: "Education Tax Benefits",
+            type: "video",
+            duration: "6 min",
+            content: `Education comes with significant tax benefits. Here's how to claim them:
+
+**AMERICAN OPPORTUNITY TAX CREDIT (AOTC)**
+• Worth up to $2,500 per year
+• First 4 years of college only
+• 40% is refundable (get money even if you owe no tax)
+• Covers tuition, fees, books, supplies
+• Income limits apply (usually parents claim this)
+
+**LIFETIME LEARNING CREDIT**
+• Worth up to $2,000 per year
+• Any year of college or grad school
+• Not refundable
+• Good backup if AOTC doesn't apply
+
+**STUDENT LOAN INTEREST DEDUCTION**
+• Deduct up to $2,500 of interest paid
+• Available even if you don't itemize
+• Income limits apply
+• You can claim this yourself
+
+**529 PLAN WITHDRAWALS**
+• Tax-free when used for education
+• Can cover tuition, room, board, books
+• Leftover funds can be rolled to Roth IRA (new rule!)
+
+**WHO CLAIMS WHAT:**
+If your parents claim you as a dependent:
+• They claim education credits
+• You can still claim student loan interest deduction
+• Coordinate with them at tax time`,
+            keyPoints: [
+              "AOTC can get you up to $2,500 back per year",
+              "Student loan interest deduction saves money on taxes",
+              "Coordinate with parents on who claims what",
+              "529 withdrawals are tax-free for qualified expenses"
+            ]
+          },
+          {
+            title: "FAFSA Mastery",
+            type: "reading",
+            duration: "5 min",
+            content: `The Free Application for Federal Student Aid (FAFSA) is your key to financial aid. Here's how to maximize it:
+
+**WHEN TO FILE:**
+• Opens October 1 each year
+• File as early as possible
+• Some aid is first-come, first-served
+• State deadlines vary (check yours!)
+
+**WHAT YOU'LL NEED:**
+• Your FSA ID (create at StudentAid.gov)
+• Social Security number
+• Tax returns (yours and parents')
+• Bank statements
+• Investment records
+
+**TIPS TO MAXIMIZE AID:**
+
+1. **Report Assets Correctly**
+   • Retirement accounts don't count
+   • Money in parent's name counts less than yours
+   • 529 plans count as parent assets
+
+2. **Timing Matters**
+   • Report assets as of date you file
+   • Large cash gifts should come after filing
+   • Don't deposit money right before filing
+
+3. **Special Circumstances**
+   • Job loss, medical expenses, divorce
+   • Request a "professional judgment" appeal
+   • Explain circumstances in writing
+
+**YOUR SAI (Student Aid Index):**
+This number determines your aid. Lower = more need-based aid. The formula considers income, assets, family size, and number in college.`,
+            keyPoints: [
+              "File FAFSA as early as possible after October 1",
+              "Create your FSA ID before you need it",
+              "Report assets as of the day you file",
+              "Appeal if special circumstances affect your finances"
+            ]
+          },
+          {
+            title: "Filing Your Tax Return",
+            type: "interactive",
+            duration: "6 min",
+            content: `Ready to file? Here's your step-by-step guide:
+
+**FREE FILING OPTIONS:**
+
+1. **IRS Free File**
+   • Free if income under $79,000
+   • Uses major tax software
+   • Go through IRS.gov to access
+
+2. **Cash App Taxes (formerly Credit Karma)**
+   • Totally free, any income
+   • Good for simple returns
+   • Handles most student situations
+
+3. **VITA (Volunteer Income Tax Assistance)**
+   • Free in-person help
+   • Often on college campuses
+   • Great for complex situations
+
+**STEP-BY-STEP:**
+
+1. **Gather Documents**
+   • All W-2s and 1099s
+   • 1098-T from school
+   • 1098-E for loan interest
+   • Last year's return
+
+2. **Choose Your Method**
+   • Free software for simple returns
+   • VITA if you need help
+   • Parent's accountant if they claim you
+
+3. **Answer Questions Carefully**
+   • Are you a dependent?
+   • Full-time student?
+   • Any education expenses?
+
+4. **Review Before Filing**
+   • Check Social Security number
+   • Verify bank account for refund
+   • Don't rush through
+
+5. **Save Everything**
+   • Keep copies of returns
+   • Save receipts and documents
+   • You might need them for 7 years
+
+**REFUND TIMING:**
+E-file + direct deposit = fastest (often 2-3 weeks)
+Paper filing = slowest (2+ months)`,
+            keyPoints: [
+              "Free filing options exist for most students",
+              "E-file with direct deposit for fastest refund",
+              "Save copies of everything for at least 7 years",
+              "Coordinate with parents if they claim you as dependent"
+            ]
+          }
+        ]
+      },
+      6: {
+        title: "Maximizing Your Income",
+        sections: [
+          {
+            title: "Part-Time Jobs That Build Skills",
+            type: "reading",
+            duration: "5 min",
+            content: `Not all jobs are equal. Some pay bills; others launch careers. Here's how to choose wisely:
+
+**HIGH-VALUE CAMPUS JOBS:**
+
+• **Research Assistant** - Get paid to learn, build professor relationships
+• **Teaching Assistant** - Great for grad school applications
+• **IT Help Desk** - Tech skills, flexible hours
+• **Library** - Quiet, often allows studying during slow times
+• **Admissions/Alumni Office** - Networking, communication skills
+• **Rec Center** - Fitness, CPR certification
+
+**JOBS THAT BUILD CAREER SKILLS:**
+
+• **Internships (paid)** - Industry experience, connections
+• **Tutoring** - Communication, patience, expertise demonstration
+• **Campus Media** - Writing, video, social media skills
+• **Student Government** - Leadership, budgeting, politics
+
+**FLEXIBILITY MATTERS:**
+Look for jobs that:
+• Understand exam schedules
+• Offer flexible hours
+• Allow shift swaps
+• Won't schedule during classes
+
+**PAY VS. EXPERIENCE:**
+Early in college: Prioritize flexibility and experience
+Later in college: Prioritize pay and career relevance
+
+**WORK-STUDY:**
+If you have federal work-study:
+• Guaranteed job funding
+• Often more flexible
+• Doesn't affect financial aid
+• Use it or lose it each year`,
+            keyPoints: [
+              "Research and TA positions build academic credentials",
+              "Some jobs let you study during slow periods",
+              "Work-study doesn't affect your financial aid",
+              "Career-relevant jobs matter more than high hourly rates"
+            ]
+          },
+          {
+            title: "Side Hustles for Students",
+            type: "video",
+            duration: "6 min",
+            content: `Want more income without a traditional job? Here are proven side hustles:
+
+**LOW-BARRIER HUSTLES:**
+
+• **Tutoring** - $20-50/hour for subjects you know
+• **Food Delivery** - Flexible, instant pay (DoorDash, UberEats)
+• **Reselling** - Thrift stores to eBay/Poshmark
+• **Task Apps** - TaskRabbit, Fiverr for odd jobs
+• **Surveys/Studies** - Campus research studies often pay $15-50
+
+**SKILL-BASED HUSTLES:**
+
+• **Freelance Writing** - Content mills pay $10-50 per article
+• **Graphic Design** - Logos, social media graphics on Fiverr
+• **Web Development** - Small business sites for $500-2000
+• **Photography** - Events, headshots, product photos
+• **Video Editing** - YouTube, TikTok content creation
+
+**PASSIVE-ISH INCOME:**
+
+• **Sell Notes** - StudySoup, Stuvia
+• **Print on Demand** - Design t-shirts (Printful, Redbubble)
+• **Content Creation** - YouTube, TikTok, Substack
+• **Referral Programs** - Bank bonuses, app referrals
+
+**REALITY CHECK:**
+• Side hustles take time to build
+• Don't sacrifice grades for extra income
+• Track all income for taxes
+• Self-employment has extra tax (15.3%)`,
+            keyPoints: [
+              "Tutoring is high-paying and flexible for students",
+              "Track all side hustle income for taxes",
+              "Don't sacrifice academics for extra income",
+              "Skills-based hustles pay more but take time to build"
+            ]
+          },
+          {
+            title: "Internships and Career Income",
+            type: "reading",
+            duration: "5 min",
+            content: `Internships are the bridge between college and career. Here's how to land them:
+
+**WHEN TO START:**
+• Freshman/Sophomore: Explore, any experience counts
+• Junior: Target your industry seriously
+• Senior: Full-time recruiting, less interning
+
+**WHERE TO FIND THEM:**
+• Handshake (your campus job board)
+• LinkedIn
+• Company websites directly
+• Career fairs (actually valuable!)
+• Professor and alumni connections
+
+**WHAT INTERNSHIPS PAY:**
+• Tech: $30-50/hour (some over $10k/month)
+• Finance: $20-40/hour
+• Marketing/Communications: $15-25/hour
+• Nonprofits: Often unpaid (but valuable)
+• Government: Varies, some competitive pay
+
+**NEGOTIATING INTERNSHIP PAY:**
+• Research market rates (Glassdoor, Levels.fyi)
+• Highlight relevant experience
+• Ask politely: "Is there flexibility in the compensation?"
+• Benefits matter: Housing stipend, relocation, training
+
+**CONVERTING TO FULL-TIME:**
+• 70%+ of interns get full-time offers
+• Treat it like a long job interview
+• Network with everyone, not just your team
+• Ask for feedback regularly
+• Express interest in returning`,
+            keyPoints: [
+              "Start looking for internships sophomore year",
+              "Tech and finance internships pay exceptionally well",
+              "Most internships lead to full-time job offers",
+              "Networking during internships is as important as the work"
+            ]
+          },
+          {
+            title: "Building Multiple Income Streams",
+            type: "interactive",
+            duration: "6 min",
+            content: `Wealthy people have multiple income streams. Start building yours now:
+
+**THE STUDENT INCOME PORTFOLIO:**
+
+**Stream 1: Primary Job/Work-Study**
+• Stable, predictable income
+• 10-15 hours/week max during classes
+
+**Stream 2: Side Hustle**
+• Flexible, variable income
+• 5-10 hours/week
+• Build skills and extra cash
+
+**Stream 3: Summer Internship**
+• Biggest earning period
+• Full-time focus
+• Build career and savings
+
+**Stream 4: Passive Income (Building)**
+• Takes time to develop
+• Could be content, investments, etc.
+• Plant seeds now, harvest later
+
+**MANAGING MULTIPLE INCOMES:**
+
+Tax Planning:
+• Set aside 25-30% of side hustle income
+• Track all income sources
+• Keep receipts for business expenses
+
+Time Management:
+• Academics FIRST, always
+• Block time for each income stream
+• Don't overcommit
+
+Goal Setting:
+• Monthly income targets
+• Savings goals from each source
+• Skills to develop per stream
+
+**ACTION PLAN:**
+1. Secure one stable income source
+2. Add one flexible side income
+3. Plan for summer internship
+4. Explore passive income options
+5. Track everything in a spreadsheet`,
+            keyPoints: [
+              "Multiple income streams provide security and growth",
+              "Never sacrifice academics for income",
+              "Summer is your highest earning potential",
+              "Start building passive income early, even if small"
+            ]
+          }
+        ]
+      },
+      7: {
+        title: "Debt Management Strategies",
+        sections: [
+          {
+            title: "Understanding Your Debt",
+            type: "reading",
+            duration: "5 min",
+            content: `Before you can manage debt, you need to understand it completely.
+
+**TYPES OF DEBT YOU MIGHT HAVE:**
+
+**Student Loans**
+• Federal: Lower rates, more protections
+• Private: Higher rates, fewer options
+• Accrues interest, payments start after graduation
+
+**Credit Card Debt**
+• Highest interest rates (15-25% APR)
+• Minimum payments are a trap
+• Should be paid in full monthly
+
+**Car Loans**
+• Fixed payments
+• Asset can be repossessed
+• Often underwater (owe more than value)
+
+**GOOD DEBT VS. BAD DEBT:**
+
+Good debt (potentially):
+• Student loans (if degree leads to income)
+• Mortgage (builds equity)
+• Business loans (for profitable ventures)
+
+Bad debt (almost always):
+• Credit card balances
+• Payday loans
+• High-interest personal loans
+• Financing for depreciating items
+
+**KNOW YOUR NUMBERS:**
+Create a debt inventory:
+• Lender name
+• Balance owed
+• Interest rate
+• Minimum payment
+• Payoff date
+
+This clarity is the foundation of your debt strategy.`,
+            keyPoints: [
+              "Know exactly what you owe, to whom, and at what rate",
+              "Credit card debt is almost always bad debt",
+              "Student loans can be good debt if degree pays off",
+              "Create a complete debt inventory to start"
+            ]
+          },
+          {
+            title: "Debt Payoff Strategies",
+            type: "video",
+            duration: "6 min",
+            content: `Ready to attack your debt? Here are the two proven methods:
+
+**AVALANCHE METHOD (Mathematically Optimal)**
+
+1. List all debts by interest rate (highest first)
+2. Pay minimums on everything
+3. Put all extra money toward highest rate debt
+4. Once paid, roll that payment to next highest
+5. Repeat until debt-free
+
+Example:
+• Credit Card: 22% APR - attack first
+• Car Loan: 7% APR - second
+• Student Loans: 5% APR - last
+
+Pros: Saves the most money on interest
+Cons: Might take longer to see progress
+
+**SNOWBALL METHOD (Psychologically Optimal)**
+
+1. List all debts by balance (smallest first)
+2. Pay minimums on everything
+3. Put all extra money toward smallest balance
+4. Once paid, roll that payment to next smallest
+5. Repeat until debt-free
+
+Example:
+• Store Card: $200 balance - first
+• Credit Card: $2,000 balance - second
+• Car Loan: $10,000 balance - last
+
+Pros: Quick wins build motivation
+Cons: May pay more interest overall
+
+**WHICH TO CHOOSE?**
+• Avalanche: If you're disciplined and motivated by math
+• Snowball: If you need quick wins to stay motivated
+• Either works if you stick with it!`,
+            keyPoints: [
+              "Avalanche method saves the most money mathematically",
+              "Snowball method provides quick motivational wins",
+              "Both methods work - pick what fits your personality",
+              "Consistency matters more than which method you choose"
+            ]
+          },
+          {
+            title: "Avoiding Debt Traps",
+            type: "reading",
+            duration: "5 min",
+            content: `Some debt is designed to trap you. Learn to recognize and avoid these:
+
+**PAYDAY LOANS**
+• Short-term, high-cost loans
+• Average APR: 400%+
+• Roll over creates debt spiral
+• NEVER use these, ever
+
+**BUY NOW, PAY LATER**
+• Afterpay, Klarna, Affirm
+• Seems harmless
+• Multiple accounts hard to track
+• Late fees add up
+• Hurts credit if missed
+
+**STORE CREDIT CARDS**
+• "Save 20% today!"
+• Interest rates often 25-30%
+• One-store limits usefulness
+• Usually not worth it
+
+**CAR TITLE LOANS**
+• Use your car as collateral
+• Interest rates 100-300% APR
+• Risk losing your transportation
+• Another hard no
+
+**CREDIT CARD MINIMUMS**
+• $5,000 balance at 20% APR
+• Minimum payment: ~$100/month
+• Time to payoff: 9+ years
+• Interest paid: $6,000+
+• Always pay more than minimum!
+
+**FURNITURE/ELECTRONICS FINANCING**
+• "No interest for 12 months!"
+• Miss one payment = ALL interest owed
+• Called "deferred interest"
+• Read the fine print carefully`,
+            keyPoints: [
+              "Payday loans and title loans are predatory - never use",
+              "Buy Now Pay Later can spiral out of control",
+              "Store credit cards rarely make sense",
+              "0% financing has catches - read the fine print"
+            ]
+          },
+          {
+            title: "Building a Debt-Free Future",
+            type: "interactive",
+            duration: "6 min",
+            content: `Let's create your personal debt freedom plan:
+
+**STEP 1: STOP THE BLEEDING**
+• No new debt (freeze cards if needed)
+• Cut subscriptions and extras
+• Create a bare-bones budget
+
+**STEP 2: BUILD A MINI EMERGENCY FUND**
+• $500-1,000 in savings
+• Prevents using cards for emergencies
+• Do this BEFORE aggressive debt payoff
+
+**STEP 3: CHOOSE YOUR STRATEGY**
+• Avalanche or Snowball
+• List all debts in order
+• Calculate minimum payments total
+
+**STEP 4: FIND EXTRA MONEY**
+• Side hustle income
+• Selling unused items
+• Cutting expenses
+• Tax refunds and windfalls
+
+**STEP 5: AUTOMATE YOUR PLAN**
+• Set up auto-payments
+• Schedule extra payments
+• Track progress monthly
+
+**STEP 6: CELEBRATE MILESTONES**
+• Each paid-off debt is a win
+• Small rewards keep you motivated
+• Share progress with accountability partner
+
+**THE DEBT-FREE MINDSET:**
+• Visualize your life without payments
+• Calculate what you'll save/invest instead
+• Remember: This is temporary sacrifice for permanent freedom
+
+**YOUR NUMBERS:**
+Total debt: $______
+Monthly extra payment possible: $______
+Estimated payoff date: ______
+
+Write these down. Put them where you'll see them daily.`,
+            keyPoints: [
+              "Build $1,000 emergency fund before aggressive payoff",
+              "Choose avalanche or snowball and commit",
+              "Automate payments to remove emotion from the process",
+              "Celebrate milestones to stay motivated"
+            ]
+          }
+        ]
+      },
+      8: {
+        title: "Introduction to Investing",
+        sections: [
+          {
+            title: "Why Start Investing Now",
+            type: "reading",
+            duration: "5 min",
+            content: `You might think investing is for people with real jobs and big salaries. Wrong. Starting now, even with tiny amounts, gives you an enormous advantage.
+
+**THE POWER OF COMPOUND INTEREST:**
+
+Meet two investors:
+• **Early Emma**: Invests $200/month from age 22-32 (10 years), then stops. Total invested: $24,000
+• **Late Larry**: Invests $200/month from age 32-62 (30 years). Total invested: $72,000
+
+At age 62 (assuming 8% average return):
+• Emma: $595,000 (invested $24,000)
+• Larry: $298,000 (invested $72,000)
+
+Emma invested 1/3 the money but ended up with DOUBLE. That's compound interest.
+
+**TIME IS YOUR SUPERPOWER:**
+• You have 40+ years until retirement
+• You can take more risk (and get more reward)
+• You can weather market downturns
+• Small amounts grow massive
+
+**STARTING SMALL IS FINE:**
+• $50/month = $600/year
+• In 40 years at 8%: ~$175,000
+• That's from just $50/month!
+
+**THE COST OF WAITING:**
+Every year you wait costs you more than you think. Starting at 25 vs 35 can mean hundreds of thousands less at retirement.`,
+            keyPoints: [
+              "Time in the market beats timing the market",
+              "Starting with $50/month is perfectly fine",
+              "Compound interest turns small amounts into fortunes",
+              "Every year you wait costs you exponentially"
+            ]
+          },
+          {
+            title: "Investment Basics",
+            type: "video",
+            duration: "7 min",
+            content: `Let's demystify the main investment types:
+
+**STOCKS**
+• Ownership shares in a company
+• Higher risk, higher potential return
+• Can lose value short-term
+• Historically ~10% annual return long-term
+
+**BONDS**
+• Loans to companies or governments
+• Lower risk, lower return
+• More stable than stocks
+• ~4-6% typical return
+
+**MUTUAL FUNDS**
+• Baskets of stocks/bonds
+• Professional management
+• Diversification built-in
+• Often have higher fees
+
+**ETFs (Exchange-Traded Funds)**
+• Like mutual funds but trade like stocks
+• Usually lower fees
+• Very popular for beginners
+• Can buy with any brokerage
+
+**INDEX FUNDS**
+• Track a market index (like S&P 500)
+• Very low fees
+• No stock picking needed
+• Warren Buffett's recommendation for most people
+
+**WHAT SHOULD YOU BUY?**
+
+For beginners, one of these is usually best:
+• **VTI** - Total US Stock Market ETF
+• **VOO** - S&P 500 ETF
+• **VXUS** - International Stocks ETF
+• **Target Date Fund** - Auto-adjusts as you age
+
+A simple portfolio:
+• 80-90% stocks (you're young!)
+• 10-20% bonds (stability)`,
+            keyPoints: [
+              "Stocks = ownership, higher risk/reward",
+              "Index funds are best for most investors",
+              "Lower fees = more money for you",
+              "Young investors should be mostly in stocks"
+            ]
+          },
+          {
+            title: "How to Start Investing",
+            type: "reading",
+            duration: "5 min",
+            content: `Ready to invest your first dollar? Here's exactly how:
+
+**STEP 1: OPEN A BROKERAGE ACCOUNT**
+
+Best options for beginners:
+• **Fidelity** - No minimums, great research, fractional shares
+• **Charles Schwab** - Similar to Fidelity, excellent service
+• **Vanguard** - Pioneer of index funds, slightly older interface
+• **Robinhood** - Simple app, good for beginners (limited research)
+
+What you need to open:
+• Social Security number
+• Bank account for transfers
+• ~10 minutes
+
+**STEP 2: FUND YOUR ACCOUNT**
+• Link your bank account
+• Set up automatic transfers (even $25/week)
+• Start with what you can afford to not touch
+
+**STEP 3: BUY YOUR FIRST INVESTMENT**
+• Search for ticker symbol (like VTI or VOO)
+• Choose "buy"
+• Enter dollar amount or shares
+• Confirm purchase
+
+**STEP 4: SET UP AUTO-INVESTING**
+• Most brokerages offer this
+• Picks the same day each month
+• Takes emotion out of investing
+• Called "dollar-cost averaging"
+
+**HOW MUCH TO INVEST:**
+• Invest after: Emergency fund + high-interest debt paid
+• Start with: Whatever you can consistently contribute
+• Goal: Eventually 15-20% of income`,
+            keyPoints: [
+              "Fidelity and Schwab are excellent for beginners",
+              "Auto-investing removes emotion and builds habit",
+              "Start after you have emergency fund and no high-interest debt",
+              "Dollar-cost averaging means buying regularly regardless of price"
+            ]
+          },
+          {
+            title: "Building Your First Portfolio",
+            type: "interactive",
+            duration: "7 min",
+            content: `Let's build your starter investment portfolio:
+
+**THE SIMPLE THREE-FUND PORTFOLIO:**
+
+1. **US Total Stock Market (60-70%)**
+   • VTI (Vanguard) or FSKAX (Fidelity)
+   • Captures entire US market
+   • Core of your portfolio
+
+2. **International Stocks (20-30%)**
+   • VXUS (Vanguard) or FZILX (Fidelity)
+   • Global diversification
+   • Don't skip this!
+
+3. **Bonds (0-10% while young)**
+   • BND (Vanguard) or FXNAX (Fidelity)
+   • Stability
+   • Increase this as you age
+
+**EVEN SIMPLER: ONE-FUND OPTION**
+
+Target Date Fund (like VFFVX for 2055 retirement):
+• Pick your expected retirement year
+• One fund does everything
+• Auto-rebalances
+• Slightly higher fees, maximum simplicity
+
+**WHAT NOT TO DO:**
+• Don't day trade
+• Don't buy individual stocks (yet)
+• Don't panic sell in downturns
+• Don't check your balance daily
+
+**YOUR ACTION PLAN:**
+
+Week 1:
+• Open brokerage account
+• Link bank account
+
+Week 2:
+• Set up $25-50 auto-investment
+• Buy your first ETF or target date fund
+
+Every month:
+• Contribute consistently
+• Ignore the news
+• Check quarterly at most
+
+**REMEMBER:**
+Investing is boring. That's the point. Set it, forget it, and let time do the work.`,
+            keyPoints: [
+              "Three-fund portfolio: US stocks, international stocks, bonds",
+              "Target date funds are great one-fund solutions",
+              "Don't day trade or try to time the market",
+              "Boring, consistent investing beats exciting trading"
+            ]
+          }
+        ]
+      }
+    };
+
+    // Add remaining weeks 9-16
+    collegeLessonMap[9] = {
+      title: "Retirement Planning 101",
+      sections: [
+        {
+          title: "Why Retirement Savings Matter Now",
+          type: "reading",
+          duration: "5 min",
+          content: `Retirement feels impossibly far away. That's exactly why starting now is so powerful.
+
+**THE MATH IS CLEAR:**
+
+Starting at 22 vs 32, investing $200/month at 8% return:
+• Start at 22: $702,000 at 62
+• Start at 32: $298,000 at 62
+• 10 years = $400,000+ difference
+
+**THE RETIREMENT SAVINGS GAP:**
+• Average American has $65,000 saved for retirement
+• That covers ~2-3 years of expenses
+• You need $1-2 million+ for a comfortable retirement
+• Start now to close the gap
+
+**YOUR ADVANTAGES:**
+• Time: 40+ years of compounding
+• Risk tolerance: Can weather market crashes
+• Flexibility: No kids, mortgage, etc. (usually)
+• Habit building: Save now, continue forever`,
+          keyPoints: [
+            "10 years of delay costs $400,000+",
+            "Average Americans are severely undersaved",
+            "Your youth is your biggest advantage",
+            "Habits formed now last a lifetime"
+          ]
+        },
+        {
+          title: "401(k) Explained",
+          type: "video",
+          duration: "6 min",
+          content: `The 401(k) is likely your most powerful retirement tool. Here's how it works:
+
+**WHAT IS A 401(k)?**
+• Employer-sponsored retirement account
+• Pre-tax contributions (Traditional) or post-tax (Roth)
+• Money grows tax-free
+• Withdrawals taxed in retirement (Traditional) or tax-free (Roth)
+
+**THE EMPLOYER MATCH:**
+This is FREE MONEY. Example:
+• Employer matches 50% up to 6% of salary
+• You earn $50,000 and contribute 6% ($3,000)
+• Employer adds $1,500 free
+• That's a 50% instant return!
+
+**ALWAYS CONTRIBUTE ENOUGH TO GET THE FULL MATCH.**
+
+**2024 CONTRIBUTION LIMITS:**
+• Employee: $23,000
+• Plus employer match
+• Catch-up (50+): Additional $7,500
+
+**TRADITIONAL VS ROTH 401(k):**
+Traditional: Tax break now, pay taxes later
+Roth: Pay taxes now, withdrawals tax-free
+
+**WHICH TO CHOOSE?**
+Young and low income now? → Roth (tax rates probably higher later)
+High income now? → Traditional (reduce current taxes)
+Unsure? → Split between both`,
+          keyPoints: [
+            "Always contribute enough to get the full employer match",
+            "Match is free money - 50-100% instant return",
+            "Roth 401(k) is often best for young workers",
+            "Contribution limit is $23,000 in 2024"
+          ]
+        },
+        {
+          title: "IRA Options",
+          type: "reading",
+          duration: "5 min",
+          content: `Individual Retirement Accounts (IRAs) give you more control than a 401(k).
+
+**TRADITIONAL IRA:**
+• Contributions may be tax-deductible
+• Grows tax-deferred
+• Taxed when you withdraw
+• 2024 limit: $7,000
+
+**ROTH IRA:**
+• Contributions are NOT tax-deductible
+• Grows tax-free
+• Withdrawals in retirement are TAX-FREE
+• Same $7,000 limit
+
+**WHY ROTH IRA IS AMAZING FOR YOUNG PEOPLE:**
+
+1. Tax-free growth forever
+2. Can withdraw contributions (not earnings) anytime
+3. No required minimum distributions ever
+4. Tax rates likely higher when you're older
+
+**ROTH IRA INCOME LIMITS (2024):**
+• Single: Up to $161,000 (phases out)
+• Married: Up to $240,000 (phases out)
+• If over limit: Look into "Backdoor Roth"
+
+**WHERE TO OPEN:**
+• Fidelity, Schwab, or Vanguard
+• Same platforms as regular brokerage
+• 10 minutes to open`,
+          keyPoints: [
+            "Roth IRA is the best deal for young investors",
+            "Tax-free growth and tax-free withdrawals",
+            "2024 limit is $7,000",
+            "Open at Fidelity, Schwab, or Vanguard"
+          ]
+        },
+        {
+          title: "Your Retirement Roadmap",
+          type: "interactive",
+          duration: "6 min",
+          content: `Here's your step-by-step retirement savings plan:
+
+**ORDER OF OPERATIONS:**
+
+1. **Emergency Fund First**
+   • 3-6 months expenses
+   • In a high-yield savings account
+
+2. **401(k) to Get Full Match**
+   • Free money, can't skip this
+   • Usually 3-6% of salary
+
+3. **Max Out Roth IRA**
+   • $7,000/year
+   • Tax-free forever
+
+4. **Back to 401(k)**
+   • Max out if possible ($23,000)
+   • Before taxable investing
+
+5. **Taxable Brokerage**
+   • After maxing tax-advantaged
+   • More flexibility, less tax benefit
+
+**MONTHLY CONTRIBUTION TARGETS:**
+
+To max Roth IRA ($7,000/year):
+• $583/month or
+• $269/biweekly
+
+**THE 15% RULE:**
+• Aim to save 15% of income for retirement
+• Includes employer match
+• Start with whatever you can, increase over time
+
+**YOUR ACTION ITEMS:**
+1. Check if your employer offers 401(k)
+2. Open Roth IRA at Fidelity/Schwab/Vanguard
+3. Set up automatic contributions
+4. Set calendar reminder to increase by 1% each year`,
+          keyPoints: [
+            "Order: Emergency fund → 401k match → Roth IRA → More 401k",
+            "Aim for 15% of income toward retirement",
+            "Increase contributions by 1% each year",
+            "Automation is key to consistency"
+          ]
+        }
+      ]
+    };
+
+    collegeLessonMap[10] = {
+      title: "Career Preparation",
+      sections: [
+        {
+          title: "Salary Negotiation Fundamentals",
+          type: "reading",
+          duration: "6 min",
+          content: `Your first job offer is negotiable. Most people don't know this or are too scared to try. Here's how to do it:
+
+**WHY NEGOTIATE?**
+• 73% of employers expect candidates to negotiate
+• Average raise from negotiating: 7-15%
+• First salary affects all future raises
+• $5,000 more now = $500,000+ over career
+
+**WHEN TO NEGOTIATE:**
+• After receiving the official offer
+• When you're ready to accept (or close)
+• Never in the first interview
+
+**WHAT TO SAY:**
+"Thank you so much for this offer. I'm really excited about the role. Based on my research and experience, I was expecting something closer to [X]. Is there flexibility in the salary?"
+
+**RESEARCH FIRST:**
+• Glassdoor, Levels.fyi, LinkedIn Salary
+• Ask people in similar roles
+• Know the range for your role and location
+
+**NEGOTIATION TIPS:**
+• Be enthusiastic, not demanding
+• Always give a specific number or range
+• They might say no, and that's okay
+• Silence is powerful after you ask`,
+          keyPoints: [
+            "73% of employers expect you to negotiate",
+            "Not negotiating costs $500,000+ over career",
+            "Research salary ranges before the conversation",
+            "Be confident but not demanding"
+          ]
+        },
+        {
+          title: "Understanding Your Benefits",
+          type: "video",
+          duration: "6 min",
+          content: `Salary is just part of your compensation. Benefits can be worth $10,000-50,000+ per year.
+
+**HEALTH INSURANCE:**
+• Employer usually pays 50-80% of premium
+• HSA vs PPO options
+• Deductibles, copays, out-of-pocket max
+• This alone can be worth $5,000-15,000/year
+
+**RETIREMENT BENEFITS:**
+• 401(k) match (often 3-6% of salary)
+• If you make $60,000 and get 4% match = $2,400 free/year
+
+**PAID TIME OFF:**
+• Vacation days
+• Sick days
+• Holidays
+• Parental leave
+• Value: $200-500 per day
+
+**OTHER BENEFITS:**
+• Health Savings Account (HSA) contributions
+• Life/disability insurance
+• Tuition reimbursement ($5,000+ common)
+• Stock options/equity
+• Gym memberships, commuter benefits
+
+**CALCULATING TOTAL COMPENSATION:**
+Salary: $60,000
++ Health insurance value: $8,000
++ 401(k) match: $2,400
++ PTO value: $5,000
+= Total comp: ~$75,400`,
+          keyPoints: [
+            "Benefits can add $10,000-50,000 to your compensation",
+            "Health insurance alone is often $5,000-15,000 value",
+            "401(k) match is free money - always take it",
+            "Calculate total compensation, not just salary"
+          ]
+        },
+        {
+          title: "Your First 90 Days",
+          type: "reading",
+          duration: "5 min",
+          content: `The first 90 days set the tone for your entire tenure. Here's how to crush them:
+
+**WEEK 1: ABSORB**
+• Listen more than you talk
+• Take extensive notes
+• Meet everyone you can
+• Understand the culture
+• Set up your systems (email, calendar, files)
+
+**WEEKS 2-4: LEARN**
+• Understand your role deeply
+• Identify key stakeholders
+• Learn the unwritten rules
+• Find a mentor or ally
+• Start contributing in small ways
+
+**MONTHS 2-3: CONTRIBUTE**
+• Take on increasing responsibility
+• Deliver quality work on time
+• Ask for feedback proactively
+• Build relationships across teams
+• Look for quick wins
+
+**WHAT TO AVOID:**
+• Trying to change things immediately
+• Complaining about processes
+• Being late or missing deadlines
+• Overpromising and underdelivering
+• Gossiping or office politics
+
+**QUESTIONS TO ASK:**
+• "What does success look like in this role?"
+• "What should I prioritize?"
+• "Who should I connect with?"
+• "What would you do differently if you were me?"`,
+          keyPoints: [
+            "Listen and learn before trying to change things",
+            "The first impression is lasting",
+            "Build relationships across the organization",
+            "Seek feedback early and often"
+          ]
+        },
+        {
+          title: "Building Your Career",
+          type: "interactive",
+          duration: "6 min",
+          content: `Your first job is just the beginning. Here's how to build an exceptional career:
+
+**THE FIRST 5 YEARS:**
+• Learn as much as possible
+• Build foundational skills
+• Develop a specialty
+• Change jobs every 2-3 years if needed
+• Average job tenure for 25-34: 2.8 years
+
+**SALARY GROWTH STRATEGIES:**
+• Internal promotions: 3-5% raises typical
+• Job hopping: 10-20% increases common
+• New skills: Certifications, degrees
+• Networking: Many jobs never get posted
+
+**SKILLS THAT MATTER:**
+Technical:
+• Data analysis
+• Project management
+• Industry-specific tools
+
+Soft:
+• Communication (written and verbal)
+• Leadership
+• Problem-solving
+• Emotional intelligence
+
+**YOUR 5-YEAR PLAN:**
+Year 1: Master your current role
+Year 2: Take on additional responsibilities
+Year 3: Get promoted or find new opportunity
+Year 4: Develop leadership skills
+Year 5: Consider management or specialization
+
+**ACTION ITEMS:**
+1. Set up LinkedIn properly
+2. Identify skills gaps in your industry
+3. Find a mentor
+4. Network consistently (even when not job hunting)
+5. Save at least 15% of income`,
+          keyPoints: [
+            "Change jobs every 2-3 years for faster salary growth",
+            "Soft skills matter as much as technical skills",
+            "Network before you need to",
+            "Always be learning and growing"
+          ]
+        }
+      ]
+    };
+
+    // Weeks 11-16 with more condensed but complete content
+    collegeLessonMap[11] = {
+      title: "Housing & Renting",
+      sections: [
+        { title: "Finding Your First Apartment", type: "reading", duration: "6 min", content: `Finding your first apartment is exciting. Here's how to do it right:\n\n**WHAT YOU'LL NEED:**\n• Proof of income (3x rent typically)\n• Credit check (soft pull usually)\n• References (landlord, employer)\n• Security deposit (1-2 months rent)\n• First month's rent\n\n**BUDGETING FOR RENT:**\nThe 30% rule: Spend no more than 30% of gross income on housing.\n• $40,000 salary = $1,000/month max rent\n• $50,000 salary = $1,250/month max rent\n\n**WHAT TO LOOK FOR:**\n• Location (commute, safety, amenities)\n• Included utilities\n• Parking situation\n• Laundry access\n• Natural light and ventilation\n• Cell service in the unit`, keyPoints: ["Never spend more than 30% of income on rent", "Budget for security deposit + first month", "Location affects more than just commute", "Check cell service before signing"] },
+        { title: "Understanding Your Lease", type: "video", duration: "5 min", content: `Your lease is a legal contract. Know what you're signing:\n\n**KEY TERMS:**\n• Lease term (usually 12 months)\n• Rent amount and due date\n• Late fees\n• Security deposit terms\n• Pet policies\n• Subletting rules\n• Renewal terms\n\n**RED FLAGS:**\n• Fees not disclosed upfront\n• Vague maintenance responsibility\n• Excessive penalties\n• No written documentation`, keyPoints: ["Read every word of your lease", "Document apartment condition at move-in", "Understand renewal and termination terms", "Get everything in writing"] },
+        { title: "Roommate Finances", type: "reading", duration: "5 min", content: `Living with roommates saves money but requires financial coordination:\n\n**SPLITTING COSTS:**\n• Rent: By room size or equally\n• Utilities: Equally or by usage\n• Shared supplies: Household fund\n\n**TOOLS:**\n• Splitwise for tracking\n• Joint account for bills\n• Written agreement for expectations\n\n**CONFLICT PREVENTION:**\n• Discuss finances before moving in\n• Set up autopay systems\n• Have monthly check-ins`, keyPoints: ["Discuss money before moving in together", "Use apps to track shared expenses", "Have a written roommate agreement", "Regular communication prevents issues"] },
+        { title: "Moving Costs & Setup", type: "interactive", duration: "5 min", content: `Moving is expensive. Budget for:\n\n**UPFRONT COSTS:**\n• Security deposit: $1,000-3,000\n• First month's rent: $1,000-2,000\n• Moving truck/help: $200-500\n• Utility deposits: $100-300\n\n**SETUP COSTS:**\n• Basic furniture\n• Kitchen essentials\n• Cleaning supplies\n• Internet setup\n\n**MONEY-SAVING TIPS:**\n• Move mid-month or winter (lower demand)\n• Facebook Marketplace for furniture\n• Ask friends to help move\n• Start utility accounts early`, keyPoints: ["Budget $3,000-5,000 for moving costs", "Timing your move can save money", "Buy used furniture to save thousands", "Set up utilities before move-in day"] }
+      ]
+    };
+
+    collegeLessonMap[12] = {
+      title: "Insurance Fundamentals",
+      sections: [
+        { title: "Health Insurance 101", type: "reading", duration: "6 min", content: `Health insurance is confusing but essential. Here's what you need to know:\n\n**KEY TERMS:**\n• **Premium**: Monthly cost\n• **Deductible**: What you pay before insurance kicks in\n• **Copay**: Fixed amount per visit\n• **Coinsurance**: Percentage you pay after deductible\n• **Out-of-pocket max**: Most you'll pay per year\n\n**PLAN TYPES:**\n• HMO: Lower cost, need referrals, in-network only\n• PPO: More flexibility, higher cost\n• HDHP: High deductible, pairs with HSA\n\n**STAYING ON PARENTS' PLAN:**\nYou can stay on until age 26, regardless of:\n• Student status\n• Marital status\n• Living situation\n• Employment`, keyPoints: ["Stay on parents' insurance until 26 if possible", "Understand deductibles before choosing a plan", "In-network vs out-of-network matters greatly", "HSA-eligible plans can save money long-term"] },
+        { title: "Auto Insurance Explained", type: "video", duration: "5 min", content: `If you drive, you need auto insurance. Here's the breakdown:\n\n**COVERAGE TYPES:**\n• Liability: Covers damage you cause to others (required)\n• Collision: Covers your car in accidents\n• Comprehensive: Covers theft, weather, etc.\n• Uninsured motorist: Covers you if other driver has no insurance\n\n**SAVING MONEY:**\n• Shop around every 6-12 months\n• Bundle with renters insurance\n• Good student discounts\n• Higher deductible = lower premium\n• Pay full premium upfront`, keyPoints: ["Liability is required, collision/comprehensive optional", "Shop around - prices vary significantly", "Good student discounts can save 10-25%", "Higher deductible lowers premium but increases risk"] },
+        { title: "Renters Insurance", type: "reading", duration: "4 min", content: `Renters insurance is cheap and incredibly valuable:\n\n**WHAT IT COVERS:**\n• Your belongings (theft, fire, water damage)\n• Liability (someone gets hurt in your place)\n• Additional living expenses (if displaced)\n\n**COST:**\n• Typically $15-30/month\n• Easily worth it for peace of mind\n\n**HOW MUCH COVERAGE:**\n• Inventory your belongings\n• Most people have $20,000-50,000 in stuff\n• Don't underestimate electronics and clothes`, keyPoints: ["Only $15-30/month for protection", "Covers theft, fire, and liability", "Your landlord's insurance doesn't cover your stuff", "Document your belongings with photos/video"] },
+        { title: "Building Your Insurance Portfolio", type: "interactive", duration: "5 min", content: `Here's what insurance you need at each stage:\n\n**COLLEGE STUDENT:**\n• Health (parents' plan or school's)\n• Renters (highly recommended)\n• Auto (if you drive)\n\n**FIRST JOB:**\n• Health (employer plan)\n• Renters (required by many landlords)\n• Auto (required if driving)\n• Disability (if offered)\n\n**AS YOU GROW:**\n• Life insurance (when you have dependents)\n• Umbrella policy (extra liability coverage)\n\n**ACTION ITEMS:**\n1. Review current coverage\n2. Get renters insurance quote today\n3. Shop auto insurance annually\n4. Understand employer health options`, keyPoints: ["Build coverage as your life complexity grows", "Renters insurance is a no-brainer at $15-30/month", "Shop insurance annually for better rates", "Document everything you own for claims"] }
+      ]
+    };
+
+    collegeLessonMap[13] = {
+      title: "Advanced Credit Strategies",
+      sections: [
+        { title: "Optimizing Your Credit Score", type: "reading", duration: "5 min", content: `Once you've built credit, here's how to optimize it:\n\n**UTILIZATION HACKS:**\n• Keep under 10% for best scores (not just 30%)\n• Pay before statement closes to report low balance\n• Request limit increases (without hard pull if possible)\n• Multiple cards = more total credit = lower utilization\n\n**PAYMENT STRATEGIES:**\n• Set up autopay for every card\n• Pay weekly to keep utilization low\n• Never miss a payment - set multiple reminders\n\n**LENGTH OF HISTORY:**\n• Never close your oldest card\n• Authorized user on parent's old card\n• Unused cards can be closed by issuers - use them occasionally`, keyPoints: ["Under 10% utilization is ideal, not just 30%", "Pay before statement closes to report lower balance", "Never close your oldest credit card", "Set up autopay on every single card"] },
+        { title: "Credit Card Rewards Strategy", type: "video", duration: "5 min", content: `Once your credit is solid, rewards cards can pay you back:\n\n**TYPES OF REWARDS:**\n• Cash back (1-5%)\n• Travel points (often higher value)\n• Store-specific rewards\n\n**BEGINNER REWARDS CARDS:**\n• Citi Double Cash (2% on everything)\n• Chase Freedom Flex (5% categories)\n• Discover it (5% rotating categories)\n\n**THE GOLDEN RULES:**\n• Never carry a balance for rewards\n• Rewards < interest if you carry balance\n• Sign-up bonuses can be $200-500+\n• Upgrade path within card families`, keyPoints: ["Never carry a balance just to earn rewards", "Sign-up bonuses can be worth hundreds", "2% cash back is the baseline to beat", "Only get rewards cards when credit is solid"] },
+        { title: "Protecting Your Credit", type: "reading", duration: "4 min", content: `Your credit is valuable. Protect it:\n\n**MONITORING:**\n• Free credit monitoring (Credit Karma, bank apps)\n• Review credit reports annually (AnnualCreditReport.com)\n• Set up fraud alerts\n\n**SECURITY:**\n• Freeze your credit at all three bureaus (free)\n• Strong, unique passwords for all accounts\n• Enable two-factor authentication everywhere\n\n**IF YOU'RE A VICTIM:**\n• Freeze credit immediately\n• File police report\n• Contact all affected creditors\n• Place fraud alert on credit reports`, keyPoints: ["Freeze your credit at all three bureaus for free", "Monitor credit weekly through free services", "Strong passwords and 2FA prevent most fraud", "Act immediately if you suspect identity theft"] },
+        { title: "Credit for Major Purchases", type: "interactive", duration: "5 min", content: `Your credit affects major life purchases:\n\n**AUTO LOANS:**\n• 750+ credit: Best rates (4-6% currently)\n• 700-749: Good rates (6-8%)\n• Below 700: Higher rates, consider waiting\n\n**MORTGAGES:**\n• 740+ for best rates\n• 620 minimum for most loans\n• Each 20-point improvement saves thousands\n\n**PREPARATION TIMELINE:**\n• 12 months before: Check credit, fix errors\n• 6 months before: Pay down balances, no new accounts\n• 3 months before: Stop credit shopping\n• Day of: Rate shop within 14-day window\n\n**CREDIT IMPACT OF LOANS:**\n• Hard inquiry: Small, temporary dip\n• New account: Short-term decrease\n• Payment history: Long-term benefit`, keyPoints: ["740+ credit score gets best mortgage rates", "Don't open new credit 6+ months before major purchase", "Rate shopping within 14 days counts as one inquiry", "Good credit saves tens of thousands on homes"] }
+      ]
+    };
+
+    collegeLessonMap[14] = {
+      title: "Wealth Building Foundations",
+      sections: [
+        { title: "The Wealth Building Framework", type: "reading", duration: "6 min", content: `Building wealth follows a proven formula:\n\n**THE EQUATION:**\nWealth = (Income - Expenses) × Time × Rate of Return\n\n**THE LEVERS:**\n1. **Increase Income**: Career growth, side hustles\n2. **Decrease Expenses**: Live below your means\n3. **Increase Time**: Start early (you have this!)\n4. **Improve Returns**: Invest wisely\n\n**THE MILLIONAIRE MATH:**\n• Invest $500/month at 8% for 30 years = $745,000\n• Invest $1,000/month at 8% for 30 years = $1.49 million\n• Start 10 years earlier with $500/month = $1.19 million\n\n**WEALTH VS HIGH INCOME:**\nMany high earners are broke because they spend it all. Wealth is what you keep, not what you make.`, keyPoints: ["Wealth = (Income - Expenses) × Time × Returns", "Starting early is your biggest advantage", "High income doesn't equal wealth", "Consistency beats intensity in building wealth"] },
+        { title: "Investment Diversification", type: "video", duration: "5 min", content: `Don't put all your eggs in one basket:\n\n**DIVERSIFICATION ACROSS:**\n• Asset classes (stocks, bonds, real estate)\n• Geography (US, international, emerging)\n• Sectors (tech, healthcare, finance)\n• Time (consistent investing regardless of market)\n\n**A DIVERSIFIED PORTFOLIO:**\n• 60% US stocks (VTI)\n• 20% International stocks (VXUS)\n• 10% Bonds (BND)\n• 10% REITs/Alternative (VNQ)\n\n**REBALANCING:**\n• Check annually\n• Sell winners, buy losers to maintain ratios\n• Or use target-date funds that auto-rebalance`, keyPoints: ["Diversification reduces risk without sacrificing returns", "Rebalance annually to maintain your allocation", "Target-date funds auto-diversify and rebalance", "Don't over-concentrate in any single stock"] },
+        { title: "Real Estate Basics", type: "reading", duration: "5 min", content: `Real estate is a powerful wealth builder:\n\n**WAYS TO INVEST:**\n• Primary residence (build equity)\n• Rental properties (cash flow + appreciation)\n• REITs (real estate stocks, no property management)\n\n**BUYING YOUR FIRST HOME:**\n• Save 20% down to avoid PMI\n• Budget for closing costs (2-5%)\n• Maintenance reserves (1% of value/year)\n• Don't exceed 3x annual income\n\n**RENTING VS BUYING:**\nRent makes sense when:\n• Staying less than 5 years\n• Market prices are inflated\n• You need flexibility\n\nBuying makes sense when:\n• Long-term commitment\n• Building equity > rent cost\n• You want control/customization`, keyPoints: ["20% down avoids PMI (private mortgage insurance)", "Budget 1% of home value for annual maintenance", "REITs give real estate exposure without buying property", "Don't buy if staying less than 5 years"] },
+        { title: "Your Wealth Building Plan", type: "interactive", duration: "6 min", content: `Create your personalized wealth building roadmap:\n\n**PHASE 1: FOUNDATION (Now - Age 30)**\n• Emergency fund: 6 months\n• Retirement: 15% of income\n• Debt: Eliminate high-interest\n• Net worth goal: $100,000\n\n**PHASE 2: GROWTH (30-45)**\n• Max retirement accounts\n• Build taxable investments\n• Consider real estate\n• Net worth goal: $500,000+\n\n**PHASE 3: ACCUMULATION (45-55)**\n• Coast to early retirement\n• Diversify income streams\n• Net worth goal: $1-2 million\n\n**PHASE 4: PRESERVATION (55+)**\n• Shift to income-producing assets\n• Estate planning\n• Enjoy your wealth!\n\n**YOUR ACTIONS:**\n1. Calculate current net worth\n2. Set 1-year financial goals\n3. Automate your savings/investing\n4. Review quarterly`, keyPoints: ["Set net worth goals for each life phase", "Automate everything to ensure consistency", "Review and adjust quarterly", "Wealth building is a 40-year game"] }
+      ]
+    };
+
+    collegeLessonMap[15] = {
+      title: "Entrepreneurship & Freelancing",
+      sections: [
+        { title: "The Entrepreneur Mindset", type: "reading", duration: "5 min", content: `Entrepreneurship isn't just about starting companies—it's a mindset:\n\n**ENTREPRENEURIAL THINKING:**\n• See problems as opportunities\n• Take calculated risks\n• Learn from failure\n• Create value for others\n• Always be learning\n\n**SIDE BUSINESS VS FULL-TIME:**\nStart as a side hustle while employed:\n• Test your idea with minimal risk\n• Build income before quitting\n• Save 12+ months expenses first\n• Grow it until it replaces your salary\n\n**BUSINESS IDEAS TO START SMALL:**\n• Freelance your current skills\n• Consulting in your expertise\n• Content creation\n• E-commerce/products\n• Services (tutoring, coaching, etc.)`, keyPoints: ["Start side hustles while still employed", "Entrepreneurship is a learnable skill", "Solve problems others have", "Save 12+ months expenses before going full-time"] },
+        { title: "Freelancing Fundamentals", type: "video", duration: "5 min", content: `Freelancing is entrepreneurship with training wheels:\n\n**GETTING STARTED:**\n• List your marketable skills\n• Research going rates\n• Create simple portfolio/website\n• Start with people you know\n\n**FINDING CLIENTS:**\n• Upwork, Fiverr (to start)\n• LinkedIn networking\n• Referrals from happy clients\n• Cold outreach\n\n**PRICING YOUR SERVICES:**\n• Research market rates\n• Value-based pricing > hourly\n• Start competitive, raise as you prove value\n• Never work for free (even for "exposure")\n\n**FREELANCE FINANCES:**\n• Set aside 25-30% for taxes\n• Track all expenses\n• Separate business bank account\n• Invoice promptly, follow up on late payments`, keyPoints: ["Start freelancing with skills you already have", "Set aside 25-30% for taxes", "Value-based pricing beats hourly rates", "Never work for free or 'exposure'"] },
+        { title: "Business Basics", type: "reading", duration: "5 min", content: `If you're making money, you're running a business:\n\n**LEGAL STRUCTURE:**\n• Sole proprietorship: Simplest, least protection\n• LLC: Good protection, moderate complexity\n• S-Corp: Tax advantages at higher income\n\n**BUSINESS BANKING:**\n• Separate business account\n• Keep business/personal expenses separate\n• Makes taxes much easier\n\n**TAXES:**\n• Quarterly estimated payments\n• Self-employment tax (15.3%)\n• Deduct legitimate business expenses\n• Consider hiring an accountant\n\n**INSURANCE:**\n• General liability\n• Professional liability (if applicable)\n• Health insurance (marketplace or spouse's plan)`, keyPoints: ["LLC provides liability protection", "Keep business and personal finances separate", "Pay quarterly estimated taxes", "Deduct all legitimate business expenses"] },
+        { title: "Scaling Your Business", type: "interactive", duration: "5 min", content: `From side hustle to real business:\n\n**GROWTH PATH:**\n1. Validate: Does someone pay for this?\n2. Systemize: Document your processes\n3. Optimize: Improve efficiency\n4. Scale: Increase capacity/clients\n5. Hire: Delegate to grow further\n\n**WHEN TO GO FULL-TIME:**\n• Business income = 75%+ of salary\n• 12+ months expenses saved\n• Health insurance figured out\n• Strong pipeline/recurring revenue\n\n**BUILDING RECURRING REVENUE:**\n• Retainer clients\n• Subscription services\n• Productized services\n• Digital products\n\n**YOUR ACTION PLAN:**\n1. Identify one skill to monetize\n2. Get your first paying client\n3. Reinvest profits in the business\n4. Build towards recurring revenue`, keyPoints: ["Validate before scaling", "Recurring revenue creates stability", "Save 12+ months before going full-time", "Systemize your processes to scale"] }
+      ]
+    };
+
+    collegeLessonMap[16] = {
+      title: "Financial Independence Planning",
+      sections: [
+        { title: "What is Financial Independence?", type: "reading", duration: "5 min", content: `Financial Independence (FI) means your investments cover your living expenses:\n\n**THE DEFINITION:**\n• Passive income ≥ expenses\n• Work becomes optional\n• You own your time\n\n**THE 4% RULE:**\n• Safe withdrawal rate from investments\n• $1M invested = $40,000/year safely\n• Adjust for inflation annually\n• 25x your annual expenses = FI number\n\n**EXAMPLES:**\n• Spend $40,000/year → Need $1,000,000\n• Spend $60,000/year → Need $1,500,000\n• Spend $80,000/year → Need $2,000,000\n\n**IT'S ACHIEVABLE:**\nWith $500/month at 8% for 35 years = $1.1 million\nThat's starting at 22, FI by 57 with just $500/month.`, keyPoints: ["25x annual expenses = financial independence number", "4% withdrawal rate is considered safe", "Lower expenses = faster path to FI", "FI is achievable even with modest savings"] },
+        { title: "Calculating Your FI Number", type: "video", duration: "5 min", content: `Let's calculate your personal FI number:\n\n**STEP 1: KNOW YOUR EXPENSES**\nTrack for 3 months minimum:\n• Housing\n• Food\n• Transportation\n• Healthcare\n• Entertainment\n• Everything else\n\n**STEP 2: ANNUAL EXPENSES**\nMonthly × 12 = annual\nExample: $3,500/month × 12 = $42,000/year\n\n**STEP 3: MULTIPLY BY 25**\n$42,000 × 25 = $1,050,000 = Your FI number\n\n**STEP 4: TRACK YOUR PROGRESS**\n• Current investments / FI number = % FI\n• Example: $50,000 / $1,050,000 = 4.7% FI\n\n**ACCELERATING FI:**\n• Reduce expenses (25x less needed)\n• Increase savings rate\n• Optimize investment returns`, keyPoints: ["Annual expenses × 25 = FI number", "Track expenses to know your true number", "Lowering expenses reduces FI target", "Calculate your FI percentage to track progress"] },
+        { title: "The Path to FI", type: "reading", duration: "5 min", content: `Here's the roadmap to financial independence:\n\n**SAVINGS RATE IS EVERYTHING:**\n• 10% savings rate = 51 years to FI\n• 25% savings rate = 32 years to FI\n• 50% savings rate = 17 years to FI\n• 75% savings rate = 7 years to FI\n\n**THE FI JOURNEY:**\n\n1. **Coast FI** - Enough invested that you'll have enough by traditional retirement, even if you stop contributing\n\n2. **Barista FI** - Investments + part-time work covers expenses\n\n3. **Lean FI** - FI with tight budget\n\n4. **FI** - FI with normal spending\n\n5. **Fat FI** - FI with luxurious spending\n\n**YOUR OPTIONS:**\n• Keep working (optional now)\n• Work part-time on passion projects\n• Volunteer full-time\n• Travel the world\n• Start businesses without financial pressure`, keyPoints: ["Savings rate determines years to FI", "There are many flavors of FI", "Coast FI is an achievable milestone", "FI gives you options, not just retirement"] },
+        { title: "Your FI Action Plan", type: "interactive", duration: "6 min", content: `Create your personalized path to financial independence:\n\n**CALCULATE YOUR NUMBERS:**\n• Monthly expenses: $______\n• Annual expenses: $______\n• FI number (×25): $______\n• Current investments: $______\n• FI percentage: ______%\n\n**SET YOUR MILESTONES:**\n• $10,000 invested (started!)\n• $100,000 invested (six figures!)\n• Coast FI\n• 50% FI\n• 75% FI\n• 100% FI\n\n**YOUR ACTION ITEMS:**\n1. Calculate your FI number today\n2. Automate savings (even 10%)\n3. Increase savings rate by 1% every 6 months\n4. Track net worth monthly\n5. Optimize the big three: housing, transport, food\n\n**REMEMBER:**\n• This is a marathon, not a sprint\n• Small consistent actions win\n• You're already ahead by thinking about this\n• Financial independence is freedom`, keyPoints: ["Know your FI number", "Increase savings rate incrementally", "Track net worth monthly", "Every 1% increase in savings rate matters"] }
+      ]
+    };
+
+    return collegeLessonMap[week] || {
+      title: "Lesson Coming Soon",
+      sections: [
+        {
+          title: "Content Under Development",
+          type: "reading",
+          duration: "1 min",
+          content: "This college-level lesson is currently being developed. Check back soon for comprehensive content.",
+          keyPoints: ["College lesson content coming soon"]
+        }
+      ]
+    };
+  };
+
   // Get difficulty-specific additional content
   const getDifficultyContent = (week: number, sectionIndex: number, level: string) => {
     if (level === 'beginner') return null;
@@ -2309,7 +4229,7 @@ You've completed this program - now go build the life you want.`,
     };
   };
 
-  const lessonData = getLessonContent(weekNumber);
+  const lessonData = programId === 'COLLEGE' ? getCollegeLessonContent(weekNumber) : getLessonContent(weekNumber);
   const currentSectionData = lessonData.sections[currentSection];
   const totalSections = lessonData.sections.length;
   const progressPercentage = ((currentSection + 1) / totalSections) * 100;
@@ -2319,6 +4239,8 @@ You've completed this program - now go build the life you want.`,
     // Mark current section as completed
     if (!completedSections.includes(currentSection)) {
       setCompletedSections([...completedSections, currentSection]);
+      // Notify parent about section completion for progress tracking
+      onSectionComplete?.(currentSection, totalSections);
     }
 
     if (currentSection < totalSections - 1) {
@@ -2350,7 +4272,7 @@ You've completed this program - now go build the life you want.`,
   const isLastSection = currentSection === totalSections - 1;
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="text-white/60 hover:text-white transition-colors">

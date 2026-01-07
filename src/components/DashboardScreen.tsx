@@ -192,7 +192,7 @@ export function DashboardScreen({ enrollment, onNavigateToTab }: DashboardScreen
   }
 
   return (
-    <div className="w-full space-y-4 md:space-y-8">
+    <div className="w-full space-y-4 md:space-y-8 pb-6 md:pb-0">
       {/* Welcome + Stats Row - Stack on mobile, side by side on desktop */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 md:gap-6">
         {/* Welcome Card - takes remaining space */}

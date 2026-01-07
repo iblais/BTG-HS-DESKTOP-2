@@ -5,31 +5,35 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   Mail, Calendar, Trophy, Star, Flame, BookOpen,
   LogOut, ChevronRight, Edit2, Shield, Bell,
-  Download, Trash2, Loader2, Check
+  Download, Trash2, Loader2, Check, Settings, Camera
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AccountSettingsScreen } from './AccountSettingsScreen';
 
 interface ProfileScreenProps {
   enrollment: Enrollment | null;
   onSignOut: () => void;
+  onAvatarUpdate?: (avatarUrl: string | null) => void;
 }
 
 interface UserProfile {
   id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   xp: number;
   level: number;
   streak_days: number;
   created_at: string;
 }
 
-export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
+export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: ProfileScreenProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -84,6 +88,21 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
     onSignOut();
   };
 
+  const handleProfileUpdate = (updates: { displayName?: string; avatarUrl?: string | null }) => {
+    if (!profile) return;
+
+    const newProfile = { ...profile };
+    if (updates.displayName !== undefined) {
+      newProfile.display_name = updates.displayName;
+      setDisplayName(updates.displayName);
+    }
+    if (updates.avatarUrl !== undefined) {
+      newProfile.avatar_url = updates.avatarUrl;
+      onAvatarUpdate?.(updates.avatarUrl);
+    }
+    setProfile(newProfile);
+  };
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'long',
@@ -91,6 +110,20 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
       year: 'numeric'
     });
   };
+
+  // Show Account Settings Screen
+  if (showAccountSettings && profile) {
+    return (
+      <AccountSettingsScreen
+        onBack={() => setShowAccountSettings(false)}
+        userId={profile.id}
+        initialDisplayName={profile.display_name || ''}
+        initialEmail={profile.email}
+        initialAvatarUrl={profile.avatar_url}
+        onProfileUpdate={handleProfileUpdate}
+      />
+    );
+  }
 
   if (loading) {
     return (
@@ -110,10 +143,20 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
     { label: 'Courses', value: 0, icon: BookOpen, color: 'text-[#50D890]', bg: 'bg-[#50D890]/20' },
   ];
 
-  const settingsSections = [
+  const settingsSections: Array<{
+    title: string;
+    items: Array<{
+      icon: typeof Settings;
+      label: string;
+      description: string;
+      action?: () => void;
+      danger?: boolean;
+    }>;
+  }> = [
     {
       title: 'Account',
       items: [
+        { icon: Settings, label: 'Account Settings', description: 'Profile, password, and security', action: () => setShowAccountSettings(true) },
         { icon: Bell, label: 'Notifications', description: 'Manage notification preferences' },
         { icon: Shield, label: 'Privacy & Security', description: 'Password and security settings' },
       ]
@@ -127,26 +170,52 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
     }
   ];
 
+  // Get display initial for avatar fallback
+  const displayInitial = (profile?.display_name || profile?.email || 'U').charAt(0).toUpperCase();
+
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 pb-6 md:pb-0">
       {/* Profile Header */}
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6">
-        <div className="flex items-start gap-6">
-          {/* Avatar */}
-          <div className="relative">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FF8E53] flex items-center justify-center">
-              <span className="text-white font-bold text-3xl">
-                {(profile?.display_name || profile?.email || 'U').charAt(0).toUpperCase()}
-              </span>
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          {/* Avatar with Edit Overlay */}
+          <div
+            onClick={() => setShowAccountSettings(true)}
+            className="relative group cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && setShowAccountSettings(true)}
+          >
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt="Profile"
+                className="w-24 h-24 rounded-2xl object-cover border-2 border-white/10 group-hover:border-[#4A5FFF]/50 transition-colors"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FF8E53] flex items-center justify-center group-hover:opacity-90 transition-opacity">
+                <span className="text-white font-bold text-3xl">
+                  {displayInitial}
+                </span>
+              </div>
+            )}
+            {/* Camera overlay on hover */}
+            <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <Camera className="w-8 h-8 text-white" />
             </div>
-            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[#0A0E27]">
-              <span className="text-white text-xs font-bold">{profile?.level || 1}</span>
+            {/* Edit badge */}
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#4A5FFF] flex items-center justify-center border-2 border-[#0A0E27]">
+              <Camera className="w-3.5 h-3.5 text-white" />
+            </div>
+            {/* Level badge */}
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[#0A0E27]">
+              <span className="text-white text-[10px] font-bold">{profile?.level || 1}</span>
             </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="flex-1 text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
               {editing ? (
                 <div className="flex items-center gap-2">
                   <input
@@ -189,12 +258,12 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-white/60 mb-4">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-white/60 mb-4">
               <Mail className="w-4 h-4" />
               <span className="text-sm">{profile?.email}</span>
             </div>
 
-            <div className="flex items-center gap-4 text-white/40 text-sm">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-white/40 text-sm">
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
                 Joined {profile?.created_at ? formatDate(profile.created_at) : 'Recently'}
@@ -204,6 +273,15 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
                 {enrollment?.program_id === 'HS' ? 'High School Program' : 'College Program'}
               </span>
             </div>
+
+            {/* Edit Profile Button - Always visible */}
+            <button
+              onClick={() => setShowAccountSettings(true)}
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A5FFF] hover:bg-[#3A4FEF] rounded-xl text-white font-medium transition-colors"
+            >
+              <Edit2 className="w-4 h-4" />
+              <span>Edit Profile</span>
+            </button>
           </div>
         </div>
       </div>
@@ -262,6 +340,7 @@ export function ProfileScreen({ enrollment, onSignOut }: ProfileScreenProps) {
               return (
                 <button
                   key={index}
+                  onClick={item.action}
                   className="w-full flex items-center gap-4 px-6 py-4 hover:bg-white/[0.03] transition-colors"
                 >
                   <div className={cn(
