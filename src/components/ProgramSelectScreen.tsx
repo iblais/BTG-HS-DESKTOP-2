@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { getPrograms, createEnrollment, type Program } from '@/lib/enrollment';
+import { useState, useEffect, useMemo } from 'react';
+import { getPrograms, createEnrollmentSafe, type Program } from '@/lib/enrollment';
 import { type ProgramId, type TrackLevel, type Language } from '@/lib/supabase';
-import { GraduationCap, BookOpen, TrendingUp, Globe, Target, Sparkles, Loader2, ChevronRight, Check } from 'lucide-react';
+import { GraduationCap, BookOpen, TrendingUp, Globe, Target, Sparkles, Loader2, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import { useFeatureFlag } from '@/lib/featureFlags';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 
@@ -18,6 +19,9 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Feature flag: Remove intermediate level (only show beginner + advanced)
+  const removeIntermediate = useFeatureFlag('removeIntermediate');
 
   useEffect(() => {
     loadPrograms();
@@ -45,21 +49,30 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
     setEnrolling(true);
     setError(null);
 
-    try {
-      await createEnrollment(selectedProgram, trackLevel, language);
+    const result = await createEnrollmentSafe(selectedProgram, trackLevel, language);
+
+    if (result.success) {
       onEnrollmentCreated();
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Unknown error';
-      setError(`Failed to create enrollment: ${errorMessage}`);
+    } else {
+      // Show the specific error message (already formatted and logged by errorLogging utility)
+      setError(result.error || 'Failed to create enrollment. Please try again.');
       setEnrolling(false);
     }
   };
 
-  const trackLevels: { id: TrackLevel; label: string; description: string }[] = [
+  // Track levels - filter out intermediate when feature flag is enabled
+  const allTrackLevels: { id: TrackLevel; label: string; description: string }[] = [
     { id: 'beginner', label: 'Beginner', description: 'New to financial concepts' },
     { id: 'intermediate', label: 'Intermediate', description: 'Some prior knowledge' },
     { id: 'advanced', label: 'Advanced', description: 'Ready for deep dives' },
   ];
+
+  const trackLevels = useMemo(() => {
+    if (removeIntermediate) {
+      return allTrackLevels.filter(level => level.id !== 'intermediate');
+    }
+    return allTrackLevels;
+  }, [removeIntermediate]);
 
   if (loading) {
     return (
@@ -138,13 +151,22 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
             {/* Error Message */}
             {error && (
               <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-red-400 text-sm">{error}</p>
-                <button
-                  onClick={loadPrograms}
-                  className="mt-2 text-red-400 text-sm underline hover:no-underline"
-                >
-                  Try again
-                </button>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-red-400 text-sm font-medium mb-1">Enrollment Error</p>
+                    <p className="text-red-400/80 text-sm">{error}</p>
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        loadPrograms();
+                      }}
+                      className="mt-3 text-red-400 text-sm underline hover:no-underline"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -228,7 +250,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
                   Choose Your Level
                 </h2>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className={cn("grid gap-3", trackLevels.length === 2 ? "grid-cols-2" : "grid-cols-3")}>
                   {trackLevels.map((level) => (
                     <button
                       key={level.id}

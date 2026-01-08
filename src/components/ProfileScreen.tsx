@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { type Enrollment } from '@/lib/enrollment';
+import { type Enrollment, resetEnrollment } from '@/lib/enrollment';
 import {
   Mail, Calendar, Trophy, Star, Flame, BookOpen,
   LogOut, ChevronRight, Edit2, Shield, Bell,
-  Download, Trash2, Loader2, Check, Settings, Camera
+  Download, Trash2, Loader2, Check, Settings, Camera, RotateCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountSettingsScreen } from './AccountSettingsScreen';
@@ -157,15 +157,38 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
       title: 'Account',
       items: [
         { icon: Settings, label: 'Account Settings', description: 'Profile, password, and security', action: () => setShowAccountSettings(true) },
-        { icon: Bell, label: 'Notifications', description: 'Manage notification preferences' },
-        { icon: Shield, label: 'Privacy & Security', description: 'Password and security settings' },
+        { icon: Bell, label: 'Notifications', description: 'Manage notification preferences', action: () => alert('Notification settings coming soon!') },
+        { icon: Shield, label: 'Privacy & Security', description: 'Password and security settings', action: () => setShowAccountSettings(true) },
       ]
     },
     {
       title: 'Data',
       items: [
-        { icon: Download, label: 'Download Data', description: 'Export your progress and data' },
-        { icon: Trash2, label: 'Clear Cache', description: 'Clear offline data cache', danger: true },
+        { icon: Download, label: 'Download Data', description: 'Export your progress and data', action: () => alert('Data export coming soon! You\'ll be able to download all your progress.') },
+        { icon: Trash2, label: 'Clear Cache', description: 'Clear offline data cache', danger: true, action: () => {
+          if (confirm('Clear all cached data? This will not affect your saved progress.')) {
+            localStorage.removeItem('btg_quiz_attempts');
+            localStorage.removeItem('btg_current_quiz_attempt');
+            if ('caches' in window) {
+              caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+              });
+            }
+            alert('Cache cleared successfully!');
+          }
+        } },
+        {
+          icon: RotateCcw,
+          label: 'Reset Onboarding',
+          description: 'Start fresh with program selection',
+          danger: true,
+          action: async () => {
+            if (confirm('This will reset your program selection and start you over. Your progress data will be kept. Continue?')) {
+              await resetEnrollment(false);
+              window.location.reload();
+            }
+          }
+        },
       ]
     }
   ];

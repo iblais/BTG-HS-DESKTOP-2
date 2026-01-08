@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff, Loader2, X } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff, Loader2, X, Settings, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
 import { signOut, getCurrentUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { uploadAvatar, deleteAvatar, createPreviewUrl, revokePreviewUrl } from '@/lib/avatarUpload';
+import { useFeatureFlagAdmin } from '@/lib/featureFlags';
 
 interface AccountSettingsScreenProps {
   onBack: () => void;
@@ -47,6 +48,16 @@ export function AccountSettingsScreen({
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Admin feature flags
+  const { flags: adminFlags, loading: adminLoading, isAdmin, toggleFlag, refresh: refreshFlags } = useFeatureFlagAdmin();
+  const [flagUpdating, setFlagUpdating] = useState<string | null>(null);
+
+  const handleToggleFlag = async (flagKey: string, currentValue: boolean) => {
+    setFlagUpdating(flagKey);
+    await toggleFlag(flagKey, !currentValue);
+    setFlagUpdating(null);
+  };
 
   // Cleanup preview URL on unmount
   useEffect(() => {
@@ -471,6 +482,71 @@ export function AccountSettingsScreen({
           </Button3D>
         </div>
       </GlassCard>
+
+      {/* Admin: Feature Flags (only shown to admins) */}
+      {isAdmin && (
+        <GlassCard className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <Settings className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">Feature Flags</h2>
+                <p className="text-white/40 text-xs">Admin only</p>
+              </div>
+            </div>
+            <button
+              onClick={refreshFlags}
+              disabled={adminLoading}
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 text-white/60 ${adminLoading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+
+          {adminLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {adminFlags.map((flag) => (
+                <div
+                  key={flag.flag_key}
+                  className="flex items-center justify-between p-3 bg-white/5 rounded-xl"
+                >
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-white font-medium text-sm truncate">{flag.flag_key}</p>
+                    {flag.description && (
+                      <p className="text-white/40 text-xs truncate">{flag.description}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleToggleFlag(flag.flag_key, flag.enabled)}
+                    disabled={flagUpdating === flag.flag_key}
+                    className="flex-shrink-0"
+                  >
+                    {flagUpdating === flag.flag_key ? (
+                      <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
+                    ) : flag.enabled ? (
+                      <ToggleRight className="w-8 h-8 text-[#50D890]" />
+                    ) : (
+                      <ToggleLeft className="w-8 h-8 text-white/30" />
+                    )}
+                  </button>
+                </div>
+              ))}
+
+              {adminFlags.length === 0 && (
+                <p className="text-white/40 text-center py-4 text-sm">
+                  No feature flags found. Run the database migration first.
+                </p>
+              )}
+            </div>
+          )}
+        </GlassCard>
+      )}
 
       {/* Sign Out & Danger Zone */}
       <GlassCard className="p-6">

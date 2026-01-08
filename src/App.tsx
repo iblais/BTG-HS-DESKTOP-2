@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { type AuthUser, getCurrentUser } from '@/lib/auth';
-import { type Enrollment } from '@/lib/enrollment';
+import { type Enrollment, getActiveEnrollment } from '@/lib/enrollment';
 import { LoginScreen } from '@/components/LoginScreen';
 import { ProgramSelectScreen } from '@/components/ProgramSelectScreen';
 import { OnboardingScreen } from '@/components/OnboardingScreen';
@@ -148,8 +148,9 @@ function App() {
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
-  // Check enrollment - LOCAL ONLY for instant loading
+  // Check enrollment - uses database with localStorage fallback
   const checkEnrollment = async (_userId: string) => {
+    // First check localStorage for instant loading
     const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
     if (cachedEnrollment) {
       try {
@@ -157,11 +158,33 @@ function App() {
         setEnrollment(parsed);
         localStorage.setItem('btg-onboarding-complete', 'true');
         setEnrollmentState('ready');
+        // Then sync with database in background
+        getActiveEnrollment().then((dbEnrollment) => {
+          if (dbEnrollment) {
+            setEnrollment(dbEnrollment);
+          }
+        }).catch(() => {
+          // Keep using cached enrollment on error
+        });
         return;
       } catch {
-        // Invalid cache
+        // Invalid cache, continue to database check
       }
     }
+
+    // No cache, check database
+    try {
+      const dbEnrollment = await getActiveEnrollment();
+      if (dbEnrollment) {
+        setEnrollment(dbEnrollment);
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
+        return;
+      }
+    } catch {
+      // Database check failed
+    }
+
     setEnrollmentState('needs_program');
   };
 

@@ -5,9 +5,10 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle, Award
+  FileText, HelpCircle, Award, Calendar, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFeatureFlag } from '@/lib/featureFlags';
 import {
   week1Image, week2Image, week3Image, week4Image,
   week5Image, week6Image, week7Image, week8Image,
@@ -70,6 +71,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [startSection, setStartSection] = useState<number>(0);
+
+  // Feature flag: When enabled, quizzes are only on Fridays (after completing Days 1-4)
+  const fridayQuizOnly = useFeatureFlag('fridayQuizOnly');
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
@@ -241,9 +245,15 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     if (progress?.completed) return 'completed';
     if (progress) return 'in_progress';
 
-    // DEMO MODE: All courses unlocked for presentation
-    // TODO: Remove this for production
-    return 'available';
+    // Week 1 is always available
+    if (weekNum === 1) return 'available';
+
+    // Check if previous week is completed (quiz passed)
+    const previousWeekProgress = courseProgress.find(p => p.week_number === weekNum - 1);
+    if (previousWeekProgress?.completed) return 'available';
+
+    // Week is locked until previous week's quiz is passed
+    return 'locked';
   };
 
   const getWeekProgress = (weekNum: number): number => {
@@ -427,11 +437,16 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             key={week.number}
             onClick={() => week.status !== 'locked' && setSelectedWeek(week.number)}
             className={cn(
-              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group",
+              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group",
+              week.status === 'locked'
+                ? "opacity-60 cursor-not-allowed"
+                : "cursor-pointer",
               week.status === 'completed'
                 ? "bg-gradient-to-br from-[var(--success)]/10 to-[var(--bg-elevated)] border-2 border-[var(--success)]/30"
                 : week.status === 'in_progress'
                 ? "bg-gradient-to-br from-[var(--primary-500)]/10 to-[var(--bg-elevated)] border-2 border-[var(--primary-500)]/30"
+                : week.status === 'locked'
+                ? "bg-[var(--bg-elevated)] border border-white/5"
                 : "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--primary-500)]/30"
             )}
           >
@@ -453,10 +468,14 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90"
+                    : week.status === 'locked'
+                    ? "bg-gray-600/90"
                     : "bg-black/50"
                 )}>
                   {week.status === 'completed' ? (
                     <CheckCircle className="w-5 h-5 text-white" />
+                  ) : week.status === 'locked' ? (
+                    <Lock className="w-5 h-5 text-white/70" />
                   ) : (
                     <span className="text-lg font-black text-white">{week.number}</span>
                   )}
@@ -471,12 +490,16 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90 text-white"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90 text-white"
+                    : week.status === 'locked'
+                    ? "bg-gray-600/90 text-white/70"
                     : "bg-black/50 text-white/80"
                 )}>
                   {week.status === 'completed' && <CheckCircle className="w-3 h-3" />}
                   {week.status === 'in_progress' && <Zap className="w-3 h-3" />}
+                  {week.status === 'locked' && <Lock className="w-3 h-3" />}
                   {week.status === 'completed' ? 'Complete' :
-                   week.status === 'in_progress' ? 'In Progress' : 'Ready'}
+                   week.status === 'in_progress' ? 'In Progress' :
+                   week.status === 'locked' ? 'Locked' : 'Ready'}
                 </div>
               </div>
 
@@ -607,13 +630,31 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                       <FileText className="w-5 h-5" />
                       {week.progress > 0 && week.progress < 100 ? 'Continue Lesson' : 'Start Lesson'}
                     </button>
-                    <button
-                      onClick={() => handleStartQuiz(week.number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors"
-                    >
-                      <HelpCircle className="w-5 h-5" />
-                      Take Quiz
-                    </button>
+                    {fridayQuizOnly ? (
+                      /* New structure: Quiz only available after completing Days 1-4 (lesson progress >= 80%) */
+                      <button
+                        onClick={() => week.progress >= 80 && handleStartQuiz(week.number)}
+                        disabled={week.progress < 80}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-colors",
+                          week.progress >= 80
+                            ? "border border-[#4A5FFF]/50 text-[#4A5FFF] hover:bg-[#4A5FFF]/10"
+                            : "border border-white/[0.06] text-white/30 cursor-not-allowed"
+                        )}
+                      >
+                        <Calendar className="w-5 h-5" />
+                        {week.progress >= 80 ? 'Friday Quiz' : 'Complete Days 1-4'}
+                      </button>
+                    ) : (
+                      /* Legacy: Quiz always available */
+                      <button
+                        onClick={() => handleStartQuiz(week.number)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors"
+                      >
+                        <HelpCircle className="w-5 h-5" />
+                        Take Quiz
+                      </button>
+                    )}
                   </div>
                 </div>
               );

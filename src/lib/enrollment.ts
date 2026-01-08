@@ -1,5 +1,6 @@
 import { supabase, type ProgramId, type TrackLevel, type Language } from './supabase';
 import { getCurrentUser } from './auth';
+import { logException, handleEnrollmentError, type EnrollmentResult } from './errorLogging';
 
 // Local storage key for offline enrollments
 const LOCAL_ENROLLMENT_KEY = 'btg_local_enrollment';
@@ -20,6 +21,9 @@ export interface Enrollment {
   language: Language;
   enrolled_at: string;
   completed_at: string | null;
+  is_active?: boolean;
+  current_week?: number;
+  current_day?: number;
 }
 
 // Fallback programs when database is not available
@@ -27,15 +31,15 @@ const FALLBACK_PROGRAMS: Program[] = [
   {
     id: 'HS' as ProgramId,
     title: 'High School Program',
-    description: 'A comprehensive 12-week financial literacy course designed for high school students. Learn budgeting, saving, credit basics, and smart money habits.',
-    weeks_total: 12,
+    description: 'A comprehensive 18-week financial literacy course designed for high school students. Learn budgeting, saving, credit basics, and smart money habits.',
+    weeks_total: 18,
     target_audience: 'High School Students'
   },
   {
     id: 'COLLEGE' as ProgramId,
     title: 'College Program',
-    description: 'Advanced financial education for college students covering investing, debt management, career preparation, and building long-term wealth.',
-    weeks_total: 12,
+    description: 'Advanced 16-week financial education for college students covering investing, debt management, career preparation, and building long-term wealth.',
+    weeks_total: 16,
     target_audience: 'College Students'
   }
 ];
@@ -166,10 +170,100 @@ export async function getActiveEnrollment(): Promise<Enrollment | null> {
 }
 
 /**
+ * Create a new enrollment for the user using the safe RPC function.
+ * Returns detailed error information for proper UI display.
+ */
+export async function createEnrollmentSafe(
+  programId: ProgramId,
+  trackLevel: TrackLevel = 'beginner',
+  language: Language = 'en'
+): Promise<EnrollmentResult & { enrollment?: Enrollment }> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return {
+      success: false,
+      error: 'You must be signed in to enroll in a program.',
+      errorCode: 'NOT_AUTHENTICATED',
+    };
+  }
+
+  try {
+    // Use the safe enrollment RPC function
+    const { data, error } = await supabase.rpc('create_enrollment_safe', {
+      p_program_id: programId,
+      p_track_level: trackLevel,
+      p_language: language,
+    });
+
+    if (error) {
+      // Log to database and return formatted error
+      const result = await handleEnrollmentError(error, programId, trackLevel, language);
+      return result;
+    }
+
+    // RPC returns a table, so data is an array
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (!row || !row.success) {
+      const errorMsg = row?.error_message || 'Unknown enrollment error';
+      await logException(new Error(errorMsg), 'enrollment', {
+        programId,
+        trackLevel,
+        language,
+      });
+      return {
+        success: false,
+        error: errorMsg,
+        errorCode: 'RPC_ERROR',
+      };
+    }
+
+    // Fetch the full enrollment record
+    const { data: enrollmentData, error: fetchError } = await supabase
+      .from('enrollments')
+      .select('*')
+      .eq('id', row.enrollment_id)
+      .single();
+
+    if (fetchError || !enrollmentData) {
+      // Enrollment was created but fetch failed - still a success
+      const enrollment: Enrollment = {
+        id: row.enrollment_id,
+        user_id: user.id,
+        program_id: programId,
+        track_level: trackLevel,
+        language: language,
+        enrolled_at: new Date().toISOString(),
+        completed_at: null,
+        is_active: true,
+        current_week: 1,
+        current_day: 1,
+      };
+      localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+      return { success: true, enrollmentId: row.enrollment_id, enrollment };
+    }
+
+    const enrollment = { ...enrollmentData, completed_at: null } as Enrollment;
+    localStorage.setItem(LOCAL_ENROLLMENT_KEY, JSON.stringify(enrollment));
+
+    return {
+      success: true,
+      enrollmentId: row.enrollment_id,
+      enrollment,
+    };
+  } catch (err) {
+    const result = await handleEnrollmentError(err, programId, trackLevel, language);
+    return result;
+  }
+}
+
+/**
  * Create a new enrollment for the user
  * If user already has an enrollment for this program, return it.
  * Otherwise, create a new enrollment.
  * Falls back to local storage if database is unavailable.
+ *
+ * @deprecated Use createEnrollmentSafe for better error handling
  */
 export async function createEnrollment(
   programId: ProgramId,
@@ -181,11 +275,18 @@ export async function createEnrollment(
     throw new Error('User not authenticated');
   }
 
+  // Try the safe RPC first
+  const result = await createEnrollmentSafe(programId, trackLevel, language);
+  if (result.success && result.enrollment) {
+    return result.enrollment;
+  }
+
+  // Fall back to direct insert for backwards compatibility
   try {
     // First, check if an enrollment already exists for this user/program
     const { data: existingEnrollment, error: fetchError } = await supabase
       .from('enrollments')
-      .select('id, user_id, program_id, track_level, language, enrolled_at')
+      .select('id, user_id, program_id, track_level, language, enrolled_at, is_active, current_week, current_day')
       .eq('user_id', user.id)
       .eq('program_id', programId)
       .order('enrolled_at', { ascending: false })
@@ -206,9 +307,12 @@ export async function createEnrollment(
         user_id: user.id,
         program_id: programId,
         track_level: trackLevel,
-        language: language
+        language: language,
+        is_active: true,
+        current_week: 1,
+        current_day: 1,
       })
-      .select('id, user_id, program_id, track_level, language, enrolled_at')
+      .select('id, user_id, program_id, track_level, language, enrolled_at, is_active, current_week, current_day')
       .single();
 
     if (!error && data) {
@@ -330,6 +434,29 @@ export async function completeEnrollment(enrollmentId: string): Promise<void> {
       .eq('id', enrollmentId);
   } catch {
     // Silently ignore if completed_at column doesn't exist
+  }
+}
+
+/**
+ * Reset enrollment - clears local storage and optionally database
+ * Useful for admins to reset a user's onboarding state
+ */
+export async function resetEnrollment(deleteFromDatabase = false): Promise<void> {
+  // Clear local storage
+  localStorage.removeItem(LOCAL_ENROLLMENT_KEY);
+  localStorage.removeItem('btg-onboarding-complete');
+  localStorage.removeItem('btg_quiz_attempts');
+  localStorage.removeItem('btg_current_quiz_attempt');
+
+  if (deleteFromDatabase) {
+    const user = await getCurrentUser();
+    if (user) {
+      // Delete enrollment from database
+      await supabase
+        .from('enrollments')
+        .delete()
+        .eq('user_id', user.id);
+    }
   }
 }
 
