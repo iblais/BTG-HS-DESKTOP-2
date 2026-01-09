@@ -1,28 +1,47 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Video, Users, Send, MessageSquare } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
 import { Button3D } from './ui/Button3D';
+import { supabase } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/auth';
 
 interface LessonScreenProps {
   weekNumber: number;
   weekTitle: string;
   trackLevel?: string;
   programId?: string;
-  startSection?: number;
+  startSection?: number; // Now represents day number (0-3 for days 1-4)
   onBack: () => void;
   onComplete: (completed: boolean) => void;
   onSectionComplete?: (sectionIndex: number, totalSections: number) => void;
 }
 
+// Day names for display
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
 export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', programId = 'HS', startSection = 0, onBack, onComplete, onSectionComplete }: LessonScreenProps) {
   const [currentSection, setCurrentSection] = useState(startSection);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
 
+  // Activity submission state
+  const [activityResponse, setActivityResponse] = useState('');
+  const [isSubmittingActivity, setIsSubmittingActivity] = useState(false);
+  const [activitySubmitted, setActivitySubmitted] = useState(false);
+  const [showActivitySection, setShowActivitySection] = useState(false);
+
   // Sync currentSection when startSection prop changes
   useEffect(() => {
     setCurrentSection(startSection);
+    // Reset activity state when day changes
+    setActivityResponse('');
+    setActivitySubmitted(false);
+    setShowActivitySection(false);
   }, [startSection, weekNumber]);
+
+  // Get current day number (1-4)
+  const currentDay = currentSection + 1;
+  const currentDayName = DAY_NAMES[currentSection] || 'Day ' + currentDay;
 
   // Lesson content for different weeks
   const getLessonContent = (week: number) => {
@@ -4235,6 +4254,34 @@ You've completed this program - now go build the life you want.`,
   const progressPercentage = ((currentSection + 1) / totalSections) * 100;
   const difficultyContent = getDifficultyContent(weekNumber, currentSection, trackLevel);
 
+  // Submit activity response to database
+  const submitActivityResponse = async () => {
+    if (!activityResponse.trim()) return;
+
+    setIsSubmittingActivity(true);
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        // Save activity response
+        await supabase
+          .from('activity_responses')
+          .upsert({
+            user_id: user.id,
+            week_number: weekNumber,
+            day_number: currentDay,
+            module_number: currentDay,
+            response_text: activityResponse.trim(),
+            submitted_at: new Date().toISOString(),
+          }, { onConflict: 'user_id,week_number,day_number' });
+      }
+      setActivitySubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit activity:', err);
+    } finally {
+      setIsSubmittingActivity(false);
+    }
+  };
+
   const handleNext = () => {
     // Mark current section as completed
     if (!completedSections.includes(currentSection)) {
@@ -4246,8 +4293,13 @@ You've completed this program - now go build the life you want.`,
     if (currentSection < totalSections - 1) {
       setCurrentSection(currentSection + 1);
     } else {
-      // Lesson completed
-      onComplete(true);
+      // At the last section - show activity if not already shown
+      if (!showActivitySection) {
+        setShowActivitySection(true);
+      } else if (activitySubmitted) {
+        // Activity submitted - complete the module/day
+        onComplete(true);
+      }
     }
   };
 
@@ -4273,17 +4325,17 @@ You've completed this program - now go build the life you want.`,
 
   return (
     <div className="w-full space-y-6 pb-6 md:pb-0">
-      {/* Header */}
+      {/* Header - Shows Week and Day */}
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="text-white/60 hover:text-white transition-colors">
           <ArrowLeft size={24} />
         </button>
         <div className="text-center">
-          <div className="text-white font-bold">Week {weekNumber}</div>
-          <div className="text-white/60 text-sm">{weekTitle}</div>
+          <div className="text-white font-bold">Week {weekNumber} • Day {currentDay}</div>
+          <div className="text-white/60 text-sm">{currentDayName} – {weekTitle}</div>
         </div>
         <div className="text-white/60 text-sm">
-          {currentSection + 1}/{totalSections}
+          {showActivitySection ? 'Activity' : `${currentSection + 1}/${totalSections}`}
         </div>
       </div>
 
@@ -4373,23 +4425,84 @@ You've completed this program - now go build the life you want.`,
         </div>
       </GlassCard>
 
+      {/* Activity Section - Shows after completing all lesson content */}
+      {showActivitySection && (
+        <GlassCard className="p-6 border-2 border-[#9B59B6]/30 bg-[#9B59B6]/5">
+          <div className="flex items-center gap-3 mb-4">
+            <MessageSquare size={20} className="text-[#9B59B6]" />
+            <div>
+              <h3 className="text-white font-bold">Activity / Discussion</h3>
+              <span className="text-white/40 text-xs">Required to complete this module</span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="text-white/80 text-sm leading-relaxed mb-4">
+              {currentSectionData?.keyPoints ? (
+                <>Reflect on today's lesson and answer the following: What's the most important thing you learned, and how will you apply it to your own financial life?</>
+              ) : (
+                <>Share your thoughts on today's module. What did you learn and how can you use it?</>
+              )}
+            </p>
+
+            {!activitySubmitted ? (
+              <>
+                <textarea
+                  value={activityResponse}
+                  onChange={(e) => setActivityResponse(e.target.value)}
+                  placeholder="Write your response here... (minimum 50 characters)"
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 text-sm resize-none focus:outline-none focus:border-[#9B59B6]/50"
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
+                    {activityResponse.length}/50 characters minimum
+                  </span>
+                  <Button3D
+                    onClick={submitActivityResponse}
+                    disabled={activityResponse.length < 50 || isSubmittingActivity}
+                    variant="primary"
+                    className="px-6"
+                  >
+                    <Send size={16} className="mr-2" />
+                    {isSubmittingActivity ? 'Submitting...' : 'Submit Response'}
+                  </Button3D>
+                </div>
+              </>
+            ) : (
+              <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-[#50D890] font-bold mb-2">
+                  <CheckCircle size={20} />
+                  Activity Submitted!
+                </div>
+                <p className="text-white/60 text-sm">
+                  Your response has been saved and will be reviewed. Click "Complete Module" to finish Day {currentDay}.
+                </p>
+              </div>
+            )}
+          </div>
+        </GlassCard>
+      )}
+
       {/* Navigation */}
       <div className="flex gap-3">
         <Button3D
           onClick={handlePrevious}
-          disabled={currentSection === 0}
+          disabled={currentSection === 0 || showActivitySection}
           variant="secondary"
           className="flex-1"
         >
-          Previous
+          {showActivitySection ? 'Activity Required' : 'Previous'}
         </Button3D>
 
         <Button3D
           onClick={handleNext}
+          disabled={showActivitySection && !activitySubmitted}
           variant="primary"
           className="flex-1"
         >
-          {isLastSection ? 'Complete Lesson' : 'Next Section'}
+          {showActivitySection
+            ? (activitySubmitted ? 'Complete Module' : 'Submit Activity First')
+            : (isLastSection ? 'Continue to Activity' : 'Next Section')}
         </Button3D>
       </div>
     </div>

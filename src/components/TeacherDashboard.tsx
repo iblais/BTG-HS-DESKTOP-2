@@ -563,59 +563,147 @@ export function TeacherDashboard({ teacher, onLogout }: TeacherDashboardProps) {
               />
             </div>
 
-            {/* Students Table */}
+            {/* Students Table - Enhanced with module/activity/quiz visibility */}
             <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/[0.06]">
                     <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Student</th>
-                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Progress</th>
-                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Avg Score</th>
-                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Last Active</th>
+                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Current Week</th>
+                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Modules (4)</th>
+                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Activities</th>
+                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Quiz</th>
+                    <th className="text-left px-4 py-3 text-white/40 text-sm font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredStudents.map((student) => (
-                    <tr
-                      key={student.student_id}
-                      className="border-b border-white/[0.04] hover:bg-white/[0.02]"
-                    >
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-white font-medium">{student.student_name}</p>
-                          <p className="text-white/40 text-sm">{student.student_email}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-[#4A5FFF] rounded-full"
-                              style={{ width: `${student.completion_percentage}%` }}
-                            />
+                  {filteredStudents.map((student) => {
+                    // Determine if student is stuck (no activity in 3+ days)
+                    const isStuck = student.last_activity
+                      ? (Date.now() - new Date(student.last_activity).getTime()) > 3 * 24 * 60 * 60 * 1000
+                      : true;
+
+                    return (
+                      <tr
+                        key={student.student_id}
+                        className={cn(
+                          "border-b border-white/[0.04] hover:bg-white/[0.02]",
+                          isStuck && "bg-red-500/5"
+                        )}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {isStuck && (
+                              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                            )}
+                            <div>
+                              <p className="text-white font-medium">{student.student_name}</p>
+                              <p className="text-white/40 text-sm">{student.student_email}</p>
+                            </div>
                           </div>
-                          <span className="text-white/60 text-sm">
-                            {student.completion_percentage}%
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-medium">Week {student.current_week}</span>
+                            <span className="text-white/40 text-sm">Day {student.current_day}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {/* Module completion dots: Days 1-4 */}
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4].map((day) => {
+                              // Approximate module completion from percentage
+                              const dayComplete = student.completion_percentage >= (day * 20);
+                              return (
+                                <div
+                                  key={day}
+                                  className={cn(
+                                    "w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center",
+                                    dayComplete
+                                      ? "bg-[#50D890]/20 text-[#50D890]"
+                                      : "bg-white/[0.06] text-white/30"
+                                  )}
+                                >
+                                  {day}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={cn(
+                            "text-sm",
+                            student.assignments_submitted >= 4 ? "text-[#50D890]" : "text-white/60"
+                          )}>
+                            {student.assignments_submitted}/4 submitted
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-white/60">
-                          {Math.round(student.average_score * 100)}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-white/40 text-sm">
-                          {student.last_activity
-                            ? new Date(student.last_activity).toLocaleDateString()
-                            : 'Never'
-                          }
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                          {student.assignments_graded > 0 && (
+                            <div className="text-xs text-white/40 mt-1">
+                              Avg: {Math.round(student.average_score * 100)}%
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {student.quizzes_passed > 0 ? (
+                              <>
+                                <CheckCircle2 className="w-4 h-4 text-[#50D890]" />
+                                <span className="text-[#50D890] text-sm">
+                                  {Math.round(student.average_quiz_score)}%
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-white/40 text-sm">
+                                Not taken
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {isStuck ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs font-medium">
+                              <AlertCircle className="w-3 h-3" />
+                              Stuck
+                            </span>
+                          ) : student.completion_percentage >= 100 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#50D890]/20 text-[#50D890] rounded text-xs font-medium">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Complete
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#4A5FFF]/20 text-[#4A5FFF] rounded text-xs font-medium">
+                              <Clock className="w-3 h-3" />
+                              In Progress
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
+
+              {/* Summary for stuck students */}
+              {filteredStudents.filter(s => {
+                const isStuck = s.last_activity
+                  ? (Date.now() - new Date(s.last_activity).getTime()) > 3 * 24 * 60 * 60 * 1000
+                  : true;
+                return isStuck;
+              }).length > 0 && (
+                <div className="px-4 py-3 bg-red-500/5 border-t border-red-500/20">
+                  <div className="flex items-center gap-2 text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>
+                      {filteredStudents.filter(s => {
+                        const isStuck = s.last_activity
+                          ? (Date.now() - new Date(s.last_activity).getTime()) > 3 * 24 * 60 * 60 * 1000
+                          : true;
+                        return isStuck;
+                      }).length} student(s) haven't been active in 3+ days
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -401,6 +401,11 @@ export async function submitQuizAttempt(
 
 /**
  * Build complete week content structure for display
+ *
+ * CORRECT STRUCTURE:
+ * - Days 1-4: One module per day, each with required activity at end
+ * - Day 5 (Friday): Weekly quiz ONLY (no modules)
+ * - Quiz unlocks ONLY after all 4 modules + activities complete
  */
 export async function buildWeekContent(
   userId: string,
@@ -409,43 +414,64 @@ export async function buildWeekContent(
   trackLevel: TrackLevel,
   language: Language = 'en'
 ): Promise<WeekContent | null> {
-  // Get all modules for the week
+  // Get all modules for the week (should be exactly 4, one per day)
   const modules = await getWeekModules(programId, weekNumber, trackLevel, language);
   if (modules.length === 0) return null;
 
   // Get progress for all modules
   const progressMap = await getWeekProgress(userId, programId, weekNumber);
 
-  // Build day content
+  // Build day content for Days 1-4 (module days)
   const days: DayContent[] = [];
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
+
   for (let day = 1; day <= 4; day++) {
+    // Each day should have exactly 1 module
     const dayModules = modules.filter((m) => m.day_number === day);
-    const dayProgress = dayModules.map((m) => progressMap.get(m.id));
-    const completedCount = dayProgress.filter((p) => p?.completed_at).length;
+    const dayModule = dayModules[0]; // Get the single module for this day
+    const progress = dayModule ? progressMap.get(dayModule.id) : null;
+
+    // Module is complete only if lesson read AND activity submitted
+    const isComplete = progress ? (progress.lesson_read && progress.activity_completed) : false;
 
     days.push({
       day_number: day as DayNumber,
-      day_name: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'][day - 1] as 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday',
+      day_name: dayNames[day - 1],
       modules: dayModules,
-      is_complete: completedCount === dayModules.length && dayModules.length > 0,
-      modules_completed: completedCount,
-      total_modules: dayModules.length,
+      is_complete: isComplete,
+      modules_completed: isComplete ? 1 : 0,
+      total_modules: 1, // Exactly 1 module per day
+      activity_submitted: progress?.activity_completed || false,
     });
   }
 
-  // Check quiz status
-  const quizAvailable = days.every((d) => d.is_complete);
+  // Day 5 (Friday) - Quiz day, no modules
+  const allModulesComplete = days.every((d) => d.is_complete);
   const attempts = await getQuizAttempts(userId, programId, weekNumber);
   const lastAttempt = attempts[attempts.length - 1];
-  const quizCompleted = lastAttempt?.passed === true;
+  const quizPassed = lastAttempt?.passed === true;
+
+  // Add Day 5 (Friday - Quiz)
+  days.push({
+    day_number: 5 as DayNumber,
+    day_name: 'Friday',
+    modules: [], // No modules on quiz day
+    is_complete: quizPassed,
+    modules_completed: quizPassed ? 1 : 0,
+    total_modules: 1, // The quiz counts as the "module" for Day 5
+    activity_submitted: false, // N/A for quiz day
+  });
 
   return {
     week_number: weekNumber,
     week_title: `Week ${weekNumber}`,
     days,
-    quiz_available: quizAvailable,
-    quiz_completed: quizCompleted,
+    // Quiz available ONLY after all 4 module days complete (with activities)
+    quiz_available: allModulesComplete,
+    quiz_completed: quizPassed,
     quiz_score: lastAttempt?.score || null,
+    quiz_attempts: attempts.length,
+    quiz_passed: quizPassed,
   };
 }
 

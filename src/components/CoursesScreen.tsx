@@ -5,10 +5,9 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle, Award, Calendar, Lock
+  FileText, Award, Calendar, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useFeatureFlag } from '@/lib/featureFlags';
 import {
   week1Image, week2Image, week3Image, week4Image,
   week5Image, week6Image, week7Image, week8Image,
@@ -72,8 +71,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [startSection, setStartSection] = useState<number>(0);
 
-  // Feature flag: When enabled, quizzes are only on Fridays (after completing Days 1-4)
-  const fridayQuizOnly = useFeatureFlag('fridayQuizOnly');
+  // Quiz is ALWAYS on Friday only (Day 5) - this is the correct structure
+  // Days 1-4: One module per day with activity
+  // Day 5: Weekly quiz (unlocks after completing all 4 modules)
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
@@ -269,7 +269,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       number: num,
       title: info.title,
       description: info.description,
-      modules: 5,
+      modules: 4, // 4 modules (Days 1-4) + Friday quiz (Day 5)
       duration: '45 min',
       status: getWeekStatus(num),
       progress: getWeekProgress(num),
@@ -538,7 +538,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                 <div className="flex items-center gap-3 text-[var(--text-tertiary)]">
                   <span className="flex items-center gap-1">
                     <BookOpen className="w-3.5 h-3.5" />
-                    {week.modules} lessons
+                    4 modules + quiz
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
@@ -594,66 +594,123 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     </button>
                   </div>
 
-                  {/* Modules - Clickable */}
+                  {/* Week Structure: Days 1-4 (Modules) + Day 5 (Quiz) */}
                   <div className="space-y-3 mb-6">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <div
-                        key={i}
-                        onClick={() => handleStartLesson(week.number, i)}
-                        className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 transition-all cursor-pointer active:scale-[0.98]"
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-lg flex items-center justify-center",
-                          i < Math.floor(week.progress / 20) ? "bg-[#50D890]/20" : "bg-white/5"
-                        )}>
-                          {i < Math.floor(week.progress / 20) ? (
-                            <CheckCircle className="w-5 h-5 text-[#50D890]" />
-                          ) : (
-                            <Play className="w-5 h-5 text-white/40" />
+                    {/* Days 1-4: One module per day */}
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday'].map((dayName, i) => {
+                      const dayNumber = i + 1;
+                      // Each day = 20% of progress (4 days = 80%)
+                      const dayComplete = week.progress >= (dayNumber * 20);
+                      const isCurrentDay = week.progress >= ((dayNumber - 1) * 20) && week.progress < (dayNumber * 20);
+                      const isLocked = dayNumber > 1 && week.progress < ((dayNumber - 1) * 20);
+
+                      return (
+                        <div
+                          key={dayNumber}
+                          onClick={() => !isLocked && handleStartLesson(week.number, i)}
+                          className={cn(
+                            "flex items-center gap-4 p-4 rounded-xl transition-all",
+                            isLocked
+                              ? "bg-white/[0.02] border border-white/[0.04] opacity-50 cursor-not-allowed"
+                              : "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 cursor-pointer active:scale-[0.98]"
                           )}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center",
+                            dayComplete ? "bg-[#50D890]/20" :
+                            isCurrentDay ? "bg-[#4A5FFF]/20" :
+                            "bg-white/5"
+                          )}>
+                            {dayComplete ? (
+                              <CheckCircle className="w-5 h-5 text-[#50D890]" />
+                            ) : isLocked ? (
+                              <Lock className="w-5 h-5 text-white/30" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white/40" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-medium">Day {dayNumber} – {dayName}</p>
+                            <p className="text-white/40 text-sm">
+                              {dayComplete ? 'Module + Activity Complete' :
+                               isCurrentDay ? 'Continue module' :
+                               isLocked ? 'Complete previous day first' :
+                               'Start module'}
+                            </p>
+                          </div>
+                          {!isLocked && <ChevronRight className="w-5 h-5 text-white/30" />}
                         </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium">Module {i + 1}</p>
-                          <p className="text-white/40 text-sm">Tap to start</p>
+                      );
+                    })}
+
+                    {/* Day 5: Friday Quiz */}
+                    {(() => {
+                      const allModulesComplete = week.progress >= 80;
+                      const quizComplete = week.progress >= 100;
+
+                      return (
+                        <div
+                          onClick={() => allModulesComplete && !quizComplete && handleStartQuiz(week.number)}
+                          className={cn(
+                            "flex items-center gap-4 p-4 rounded-xl transition-all",
+                            !allModulesComplete
+                              ? "bg-white/[0.02] border border-white/[0.04] opacity-50 cursor-not-allowed"
+                              : quizComplete
+                              ? "bg-[#50D890]/10 border border-[#50D890]/30"
+                              : "bg-[#9B59B6]/10 border border-[#9B59B6]/30 hover:bg-[#9B59B6]/20 cursor-pointer active:scale-[0.98]"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center",
+                            quizComplete ? "bg-[#50D890]/20" :
+                            allModulesComplete ? "bg-[#9B59B6]/20" :
+                            "bg-white/5"
+                          )}>
+                            {quizComplete ? (
+                              <CheckCircle className="w-5 h-5 text-[#50D890]" />
+                            ) : !allModulesComplete ? (
+                              <Lock className="w-5 h-5 text-white/30" />
+                            ) : (
+                              <Calendar className="w-5 h-5 text-[#9B59B6]" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-medium">Day 5 – Friday Quiz</p>
+                            <p className="text-white/40 text-sm">
+                              {quizComplete ? 'Quiz passed!' :
+                               allModulesComplete ? '10 questions from this week' :
+                               'Complete Days 1-4 first'}
+                            </p>
+                          </div>
+                          {allModulesComplete && !quizComplete && <ChevronRight className="w-5 h-5 text-[#9B59B6]" />}
                         </div>
-                        <ChevronRight className="w-5 h-5 text-white/30" />
-                      </div>
-                    ))}
+                      );
+                    })()}
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action Button - Context-aware */}
                   <div className="flex gap-3">
-                    <button
-                      onClick={() => handleStartLesson(week.number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      <FileText className="w-5 h-5" />
-                      {week.progress > 0 && week.progress < 100 ? 'Continue Lesson' : 'Start Lesson'}
-                    </button>
-                    {fridayQuizOnly ? (
-                      /* New structure: Quiz only available after completing Days 1-4 (lesson progress >= 80%) */
+                    {week.progress < 80 ? (
                       <button
-                        onClick={() => week.progress >= 80 && handleStartQuiz(week.number)}
-                        disabled={week.progress < 80}
-                        className={cn(
-                          "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-colors",
-                          week.progress >= 80
-                            ? "border border-[#4A5FFF]/50 text-[#4A5FFF] hover:bg-[#4A5FFF]/10"
-                            : "border border-white/[0.06] text-white/30 cursor-not-allowed"
-                        )}
+                        onClick={() => handleStartLesson(week.number, Math.floor(week.progress / 20))}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-semibold hover:opacity-90 transition-opacity"
                       >
-                        <Calendar className="w-5 h-5" />
-                        {week.progress >= 80 ? 'Friday Quiz' : 'Complete Days 1-4'}
+                        <FileText className="w-5 h-5" />
+                        {week.progress > 0 ? 'Continue Day ' + (Math.floor(week.progress / 20) + 1) : 'Start Day 1'}
                       </button>
-                    ) : (
-                      /* Legacy: Quiz always available */
+                    ) : week.progress < 100 ? (
                       <button
                         onClick={() => handleStartQuiz(week.number)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] text-white font-semibold hover:opacity-90 transition-opacity"
                       >
-                        <HelpCircle className="w-5 h-5" />
-                        Take Quiz
+                        <Calendar className="w-5 h-5" />
+                        Take Friday Quiz
                       </button>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#50D890]/20 border border-[#50D890]/30 text-[#50D890] font-semibold">
+                        <CheckCircle className="w-5 h-5" />
+                        Week Complete!
+                      </div>
                     )}
                   </div>
                 </div>

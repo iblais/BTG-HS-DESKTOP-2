@@ -16,7 +16,13 @@ export type GradeScore = 'full' | 'half' | 'none';
 
 export type Language = 'en' | 'es';
 
-export type DayNumber = 1 | 2 | 3 | 4;
+// CORRECT STRUCTURE: 5 days per week
+// Days 1-4: One module per day with activity at end
+// Day 5: Weekly quiz ONLY (no module content)
+export type DayNumber = 1 | 2 | 3 | 4 | 5;
+
+// One module per day (Days 1-4 only)
+// Day 5 has no module, just the quiz
 export type ModuleNumber = 1 | 2 | 3 | 4;
 
 // ============================================
@@ -90,8 +96,45 @@ export interface ModuleProgress {
 }
 
 // Helper to check if module is complete
+// CORRECT LOGIC: Module is complete ONLY after:
+// 1. Lesson content read
+// 2. Activity/discussion submitted
 export function isModuleComplete(progress: ModuleProgress): boolean {
   return progress.lesson_read && progress.activity_completed;
+}
+
+// ============================================
+// ACTIVITY RESPONSE TYPES
+// ============================================
+// Each module (Days 1-4) MUST end with an activity/discussion
+// Student must submit a response to complete the module
+
+export interface ActivityResponse {
+  id: string;
+  user_id: string;
+  enrollment_id: string | null;
+  module_id: string;
+
+  // The activity prompt from the module
+  activity_prompt: string;
+
+  // Student's response
+  response_text: string;
+  submitted_at: string;
+
+  // AI Grading (optional, can be graded later)
+  ai_score: GradeScore | null;
+  ai_feedback: string | null;
+  ai_graded_at: string | null;
+
+  // Teacher Review
+  teacher_score: GradeScore | null;
+  teacher_feedback: string | null;
+  teacher_reviewed_at: string | null;
+  teacher_id: string | null;
+
+  created_at: string;
+  updated_at: string;
 }
 
 // ============================================
@@ -247,28 +290,42 @@ export interface QuizQuestionV2 {
 
 export interface DayContent {
   day_number: DayNumber;
-  day_name: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday';
+  day_name: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday';
+  // For Days 1-4: contains exactly 1 module
+  // For Day 5 (Friday): empty array (quiz only)
   modules: Module[];
   is_complete: boolean;
+  // For Days 1-4: 0 or 1 (one module per day)
+  // For Day 5: based on quiz completion
   modules_completed: number;
   total_modules: number;
+  // Activity submission status (required for module completion)
+  activity_submitted?: boolean;
 }
 
 export interface WeekContent {
   week_number: number;
   week_title: string;
+  // Days 1-4 contain modules, Day 5 is quiz only
   days: DayContent[];
-  quiz_available: boolean; // True if all 4 days complete
+  // Quiz (Day 5) is available ONLY after all 4 module days complete
+  // Each module day requires: lesson + activity submission
+  quiz_available: boolean;
   quiz_completed: boolean;
   quiz_score: number | null;
+  quiz_attempts: number;
+  quiz_passed: boolean;
 }
 
 // Day number to name mapping
+// Days 1-4: Module days (one module + activity each)
+// Day 5: Quiz day (Friday)
 export const DAY_NAMES: Record<DayNumber, string> = {
   1: 'Monday',
   2: 'Tuesday',
   3: 'Wednesday',
   4: 'Thursday',
+  5: 'Friday',
 };
 
 // ============================================
@@ -372,4 +429,96 @@ export function mapLegacySectionToModule(
     day: Math.min(day, 4) as DayNumber,
     module: Math.min(module, 4) as ModuleNumber,
   };
+}
+
+// ============================================
+// PROGRESSION / UNLOCKING SYSTEM
+// ============================================
+
+/**
+ * CORRECT PROGRESSION RULES:
+ * - Day 2 unlocks ONLY after Day 1 module + activity complete
+ * - Day 3 unlocks ONLY after Day 2 complete
+ * - Day 4 unlocks ONLY after Day 3 complete
+ * - Day 5 (Quiz) unlocks ONLY after Day 4 complete
+ * - Next week unlocks ONLY after quiz passed
+ */
+
+export interface DayProgress {
+  day_number: DayNumber;
+  lesson_completed: boolean;
+  activity_submitted: boolean;
+  is_complete: boolean; // Both lesson and activity done
+}
+
+export interface WeekProgress {
+  week_number: number;
+  days: DayProgress[];
+  quiz_available: boolean;
+  quiz_passed: boolean;
+  quiz_attempts: number;
+  quiz_best_score: number | null;
+  week_complete: boolean; // All 4 days + quiz passed
+}
+
+export interface TeacherOverride {
+  id: string;
+  student_id: string;
+  override_type: 'unlock_day' | 'unlock_quiz' | 'unlock_week' | 'skip_activity';
+  week_number: number;
+  day_number?: DayNumber;
+  reason: string;
+  teacher_id: string;
+  created_at: string;
+}
+
+// Check if a day is unlocked
+export function isDayUnlocked(
+  dayNumber: DayNumber,
+  weekProgress: WeekProgress,
+  previousWeekComplete: boolean,
+  overrides?: TeacherOverride[]
+): boolean {
+  // Check for teacher override first
+  if (overrides?.some(o =>
+    o.override_type === 'unlock_day' &&
+    o.week_number === weekProgress.week_number &&
+    o.day_number === dayNumber
+  )) {
+    return true;
+  }
+
+  // Day 1 is unlocked if previous week is complete (or it's week 1)
+  if (dayNumber === 1) {
+    return previousWeekComplete || weekProgress.week_number === 1;
+  }
+
+  // Day 5 (quiz) is unlocked if all module days (1-4) are complete
+  if (dayNumber === 5) {
+    const allModuleDaysComplete = weekProgress.days
+      .filter(d => d.day_number <= 4)
+      .every(d => d.is_complete);
+    return allModuleDaysComplete;
+  }
+
+  // Days 2-4: Previous day must be complete
+  const previousDay = weekProgress.days.find(d => d.day_number === dayNumber - 1);
+  return previousDay?.is_complete ?? false;
+}
+
+// Check if next week is unlocked
+export function isNextWeekUnlocked(
+  weekProgress: WeekProgress,
+  overrides?: TeacherOverride[]
+): boolean {
+  // Check for teacher override
+  if (overrides?.some(o =>
+    o.override_type === 'unlock_week' &&
+    o.week_number === weekProgress.week_number + 1
+  )) {
+    return true;
+  }
+
+  // Next week unlocks only after quiz passed
+  return weekProgress.quiz_passed;
 }

@@ -1,7 +1,11 @@
 /**
  * DayView Component
- * Displays the 4 modules for a specific day within a week
- * Part of the new 5-day × 4-module structure
+ * Displays a single module for a specific day (Days 1-4)
+ *
+ * CORRECT STRUCTURE:
+ * - Days 1-4: One module per day with activity at end
+ * - Day 5 (Friday): Quiz only (no modules)
+ * - 4 modules total per week (one per day)
  */
 
 import { useState } from 'react';
@@ -44,6 +48,7 @@ const DAY_NAMES: Record<DayNumber, string> = {
   2: 'Tuesday',
   3: 'Wednesday',
   4: 'Thursday',
+  5: 'Friday',
 };
 
 // ============================================

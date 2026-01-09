@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, XCircle, Trophy, RotateCcw, Target } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Trophy, RotateCcw, Calendar } from 'lucide-react';
 import { logo } from '@/assets';
 
 interface QuizQuestion {
@@ -18,6 +18,17 @@ interface QuizScreenProps {
   onComplete: (score: number, passed: boolean) => void;
 }
 
+/**
+ * QuizScreen - Friday Quiz (Day 5)
+ *
+ * CORRECT STRUCTURE:
+ * - This quiz is ONLY for Day 5 (Friday)
+ * - Questions are derived from the 4 modules completed Days 1-4
+ * - 10 questions total
+ * - 70% required to pass
+ * - Unlimited retakes allowed
+ * - Passing unlocks the next week
+ */
 export function QuizScreen({
   weekNumber,
   weekTitle,
@@ -30,6 +41,7 @@ export function QuizScreen({
   const [showResults, setShowResults] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
   const [quizStarted, setQuizStarted] = useState(false);
+  const [attemptNumber, setAttemptNumber] = useState(1);
 
   // Quiz questions data - organized by week
   const quizData: { [key: number]: QuizQuestion[] } = {
@@ -2561,6 +2573,7 @@ export function QuizScreen({
     setShowResults(false);
     setTimeRemaining(600);
     setQuizStarted(false);
+    setAttemptNumber(prev => prev + 1);
   };
 
   const handleComplete = () => {
@@ -2584,12 +2597,16 @@ export function QuizScreen({
 
         {/* Quiz Introduction */}
         <div className="glass-card rounded-xl p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] rounded-full flex items-center justify-center mx-auto mb-4 btn-3d">
-            <Target className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] rounded-full flex items-center justify-center mx-auto mb-4 btn-3d">
+            <Calendar className="w-8 h-8 text-white" />
           </div>
 
-          <h1 className="text-white font-bold text-2xl mb-2">Quiz Time!</h1>
-          <h2 className="text-[#4A5FFF] font-bold text-lg mb-4">{weekTitle}</h2>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#9B59B6]/20 border border-[#9B59B6]/30 rounded-full text-[#9B59B6] text-xs font-bold mb-3">
+            <Calendar className="w-3 h-3" />
+            Day 5 – Friday
+          </div>
+          <h1 className="text-white font-bold text-2xl mb-2">Weekly Quiz</h1>
+          <h2 className="text-[#9B59B6] font-bold text-lg mb-4">Week {weekNumber}: {weekTitle}</h2>
 
           <div className="space-y-3 text-left">
             <div className="flex items-center space-x-3">
@@ -2611,11 +2628,17 @@ export function QuizScreen({
           </div>
         </div>
 
+        {attemptNumber > 1 && (
+          <div className="text-white/60 text-sm mb-3">
+            Attempt #{attemptNumber}
+          </div>
+        )}
+
         <button
           onClick={handleStartQuiz}
-          className="w-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
+          className="w-full bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
         >
-          Start Quiz
+          {attemptNumber > 1 ? 'Retake Quiz' : 'Start Quiz'}
         </button>
       </div>
     );
