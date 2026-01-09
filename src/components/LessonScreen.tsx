@@ -5905,31 +5905,24 @@ You've completed this program - now go build the life you want.`,
 
       {/* Section Content */}
       <GlassCard className="p-6">
-        {/* VIDEO CONTAINER - Always at TOP of every module */}
-        <div className="mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-[#1a1f42] to-[#0d1225] border border-white/10">
-          {currentSectionData.video_url ? (
-            /* Video player when URL exists */
-            <div className="aspect-video w-full">
-              <iframe
-                src={currentSectionData.video_url}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title={`${currentSectionData.title} - Lesson Video`}
-              />
-            </div>
-          ) : (
-            /* Placeholder when no video */
-            <div className="aspect-video w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4A5FFF]/10 to-[#00BFFF]/10">
-              <div className="w-16 h-16 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center mb-4 border-2 border-[#4A5FFF]/30">
-                <Play size={28} className="text-[#4A5FFF] ml-1" />
-              </div>
-              <h4 className="text-white font-bold text-lg mb-1">Lesson Video</h4>
-              <p className="text-white/50 text-sm text-center max-w-xs px-4">
-                Video coming soon. Teacher may present lesson using the content below.
-              </p>
+        {/* VIDEO CONTAINER - Always at TOP of every module - UNCONDITIONAL RENDER */}
+        <div className="mb-6 rounded-xl overflow-hidden bg-gradient-to-br from-[#1a1f42] to-[#0d1225] border-2 border-[#4A5FFF]/50">
+          {/* DEV DEBUG LABEL */}
+          {import.meta.env.DEV && (
+            <div className="bg-red-500 text-white text-xs font-bold py-1 px-2 text-center">
+              DEBUG: VIDEO CONTAINER ACTIVE (LessonScreen.tsx)
             </div>
           )}
+          {/* Placeholder - ALWAYS rendered since no videos exist yet */}
+          <div className="aspect-video w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#4A5FFF]/10 to-[#00BFFF]/10">
+            <div className="w-16 h-16 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center mb-4 border-2 border-[#4A5FFF]/30">
+              <Play size={28} className="text-[#4A5FFF] ml-1" />
+            </div>
+            <h4 className="text-white font-bold text-lg mb-1">Lesson Video</h4>
+            <p className="text-white/50 text-sm text-center max-w-xs px-4">
+              Video coming soon. Teacher may present lesson using the content below.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 mb-4">
