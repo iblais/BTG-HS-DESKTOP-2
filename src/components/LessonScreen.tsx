@@ -68,7 +68,12 @@ Here's the big picture: You want MORE money coming in than going out. That's lit
               "Your scholarship counts as income too",
               "Save receipts and records for tax season",
               "Always look for ways to make more money"
-            ]
+            ],
+            activity: {
+              title: "Income Tracker Activity",
+              prompt: "List ALL your current sources of income. Include everything - jobs, allowance, scholarships, side hustles, gifts, etc. For each source, write how much you typically receive and how often (weekly, monthly, one-time). Then calculate your total monthly income.",
+              minLength: 100
+            }
           },
           {
             title: "Types of Expenses",
@@ -94,7 +99,12 @@ Why does this matter? Because fixed expenses are locked in - you can't really ch
               "Variable = you control this, cuts can happen here",
               "Track what you spend for a month to see patterns",
               "Buy what you NEED first, then wants if there's money left"
-            ]
+            ],
+            activity: {
+              title: "Expense Categorization Activity",
+              prompt: "Think about everything you spent money on in the last week. Create two lists: FIXED expenses (things that cost the same every month) and VARIABLE expenses (things that change). Which category is bigger? Which expenses could you cut if you needed to save money?",
+              minLength: 100
+            }
           },
           {
             title: "The Power of Saving",
@@ -120,7 +130,12 @@ Try the 50/30/20 rule (it's pretty simple):
               "Set up automatic transfers so you don't forget",
               "Keep your emergency money in a separate account",
               "Pick a specific goal - like 'save $500 by June'"
-            ]
+            ],
+            activity: {
+              title: "Savings Goal Activity",
+              prompt: "Set a specific savings goal for the next 3 months. What do you want to save for? How much money do you need? Break it down - how much do you need to save per week to reach that goal? What's one expense you could cut to make room for this savings?",
+              minLength: 100
+            }
           },
           {
             title: "Creating Your First Budget",
@@ -145,7 +160,12 @@ This is the secret sauce: pay yourself FIRST. Before you buy anything fun, move 
               "Be honest about what you actually spend",
               "Check your budget every month and fix what's not working",
               "Hit a savings goal? Celebrate! You earned it"
-            ]
+            ],
+            activity: {
+              title: "Budget Creation Activity",
+              prompt: "Create your first monthly budget using the 50/30/20 rule. List your monthly income, then divide it: 50% for needs, 30% for wants, 20% for savings. What specific expenses go in each category? Does your current spending match this, or do you need to make adjustments?",
+              minLength: 150
+            }
           }
         ]
       },
@@ -178,7 +198,12 @@ IMPORTANT: Before you start, make sure it doesn't interfere with your studies or
               "Check any scholarship or financial aid rules first",
               "Start small, see what works, then do more",
               "Pick stuff that fits around your class schedule"
-            ]
+            ],
+            activity: {
+              title: "Side Hustle Brainstorm",
+              prompt: "List 3 skills or interests you have that could make money. For each one, describe how you could turn it into a side hustle, how much you could realistically charge, and how many hours per week you could dedicate to it without hurting your grades.",
+              minLength: 100
+            }
           },
           {
             title: "Goal Setting and Income Planning",
@@ -202,7 +227,12 @@ See? Specific, measurable, achievable, relevant, and has a deadline. That's how 
               "Big goal? Break it into smaller chunks",
               "Have short-term goals (next month) AND long-term (next year)",
               "Check your progress every month and adjust if needed"
-            ]
+            ],
+            activity: {
+              title: "SMART Goal Creation",
+              prompt: "Write ONE financial SMART goal for the next 3 months. Make it Specific, Measurable, Achievable, Relevant, and Time-bound. Then break it down: What do you need to do each week to reach this goal? What obstacles might get in the way, and how will you overcome them?",
+              minLength: 120
+            }
           },
           {
             title: "Building Multiple Income Streams",
@@ -231,7 +261,43 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Start with what you already know how to do",
               "Add new streams slowly - don't overwhelm yourself",
               "Keep track of how much each stream brings in"
-            ]
+            ],
+            activity: {
+              title: "Income Stream Analysis",
+              prompt: "Map out your current income sources (even if it's just one). For each, list how much you earn and how reliable it is. Then brainstorm ONE additional income stream you could realistically start in the next month. What would it take to get started?",
+              minLength: 100
+            }
+          },
+          {
+            title: "Taking Action on Your Income Goals",
+            type: "interactive",
+            duration: "6 min",
+            content: `Alright, you've learned about side hustles, setting goals, and having multiple income streams. Now it's time to actually DO something about it. Knowledge without action is worthless.
+
+**Your action plan:**
+1. Pick ONE side hustle idea from what we covered
+2. Research it for 30 minutes this week - what do you need to start?
+3. Set a SMART goal around it
+4. Take your first step within 48 hours
+
+**Common excuses (and why they're BS):**
+• "I don't have time" - You have the same 24 hours as everyone else. It's about priorities.
+• "I don't know how" - Google exists. YouTube tutorials exist. You can learn anything.
+• "I'll start next week" - No you won't. Start today, even if it's just one small step.
+• "What if I fail?" - So what? You learn and try again. Failure is just feedback.
+
+**The real secret:** Most people never take action. If you actually DO something, you're already ahead of 90% of people who just think about it.`,
+            keyPoints: [
+              "Action beats planning every time",
+              "Start before you feel ready",
+              "Small steps add up to big results",
+              "Done is better than perfect"
+            ],
+            activity: {
+              title: "48-Hour Action Commitment",
+              prompt: "What is ONE specific action you will take in the next 48 hours to increase your income? Be specific - not 'look into tutoring' but 'post on my school's Facebook group offering math tutoring for $20/hour'. Write your commitment and explain why this action will move you toward your income goal.",
+              minLength: 100
+            }
           }
         ]
       },
@@ -261,7 +327,12 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Interest = extra money you pay for borrowing (it's how they make money)",
               "How you pay stuff back is THE most important thing",
               "Different types of credit work in different ways"
-            ]
+            ],
+            activity: {
+              title: "Credit Knowledge Check",
+              prompt: "In your own words, explain what credit is and why it matters for your future. Give 2 specific examples of how having good credit could help you in the next 5 years (think: apartment, car, phone plan, etc.).",
+              minLength: 100
+            }
           },
           {
             title: "Your Credit Score Explained",
@@ -287,7 +358,12 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Never use more than 30% of your credit limit",
               "Keep your old credit cards - don't close them",
               "Check your score regularly (it's free)"
-            ]
+            ],
+            activity: {
+              title: "Credit Score Factors",
+              prompt: "List the 5 factors that affect your credit score in order of importance. For each one, explain ONE specific action you could take to positively impact that factor. Which factor do you think will be easiest for you to manage? Why?",
+              minLength: 120
+            }
           },
           {
             title: "Building Credit as a Student",
@@ -313,7 +389,43 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Pay the FULL balance on time every month - no exceptions",
               "Use less than 30% of whatever your limit is",
               "Check your credit regularly to catch any problems"
-            ]
+            ],
+            activity: {
+              title: "Credit Building Plan",
+              prompt: "Which credit-building option from this lesson makes the most sense for your current situation (student card, secured card, authorized user, or credit builder loan)? Explain why, and describe the specific steps you would need to take to get started.",
+              minLength: 100
+            }
+          },
+          {
+            title: "Credit Utilization in Practice",
+            type: "reading",
+            duration: "5 min",
+            content: `Let's get real specific about credit utilization, because this trips people up all the time.
+
+**The 30% Rule Explained:**
+If you have a credit card with a $1,000 limit, you should never have more than $300 on it at any time. That's 30%.
+
+**Why does this matter so much?**
+Maxing out your card makes lenders nervous. Even if you pay it off every month, if your balance is high when they check, it looks bad.
+
+**Pro tip: The lower the better**
+• Under 30% = Good
+• Under 10% = Excellent
+• 0% = Not great actually (shows you're not using credit)
+
+**Real example:**
+You have a $500 limit card. You spend $400 on textbooks. Your utilization is 80% - that's bad even if you plan to pay it off. Better to pay off $300 immediately, then pay the remaining $100 when the bill comes.`,
+            keyPoints: [
+              "Keep your balance under 30% of your limit at ALL times",
+              "Lower is better - aim for under 10% if possible",
+              "Pay down large purchases immediately, don't wait for the bill",
+              "Having multiple cards with low balances is better than one maxed out card"
+            ],
+            activity: {
+              title: "Utilization Calculator",
+              prompt: "If you had a credit card with a $500 limit, what's the maximum you should ever have on it at once? Now calculate: if you spent $75 on gas and $125 on groceries this month, what would your utilization percentage be? Is that good or bad? Explain your math.",
+              minLength: 80
+            }
           }
         ]
       },
@@ -4283,6 +4395,13 @@ You've completed this program - now go build the life you want.`,
   };
 
   const handleNext = () => {
+    // Check if current section has an activity that needs to be submitted
+    const hasActivity = currentSectionData?.activity;
+    if (hasActivity && !activitySubmitted) {
+      // Activity not submitted yet - don't allow proceeding
+      return;
+    }
+
     // Mark current section as completed
     if (!completedSections.includes(currentSection)) {
       setCompletedSections([...completedSections, currentSection]);
@@ -4291,15 +4410,13 @@ You've completed this program - now go build the life you want.`,
     }
 
     if (currentSection < totalSections - 1) {
+      // Move to next section, reset activity state
       setCurrentSection(currentSection + 1);
+      setActivityResponse('');
+      setActivitySubmitted(false);
     } else {
-      // At the last section - show activity if not already shown
-      if (!showActivitySection) {
-        setShowActivitySection(true);
-      } else if (activitySubmitted) {
-        // Activity submitted - complete the module/day
-        onComplete(true);
-      }
+      // All sections completed - complete the module/day
+      onComplete(true);
     }
   };
 
@@ -4402,7 +4519,7 @@ You've completed this program - now go build the life you want.`,
         )}
 
         {/* Key Points */}
-        <div className="bg-[#4A5FFF]/10 border border-[#4A5FFF]/20 rounded-lg p-4">
+        <div className="bg-[#4A5FFF]/10 border border-[#4A5FFF]/20 rounded-lg p-4 mb-6">
           <h4 className="text-[#4A5FFF] font-bold text-sm mb-3 flex items-center gap-2">
             <CheckCircle size={16} />
             Key Takeaways
@@ -4423,10 +4540,62 @@ You've completed this program - now go build the life you want.`,
             ))}
           </ul>
         </div>
+
+        {/* Activity Section - INSIDE the module, after key points */}
+        {currentSectionData.activity && (
+          <div className="bg-[#9B59B6]/10 border-2 border-[#9B59B6]/30 rounded-lg p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <MessageSquare size={20} className="text-[#9B59B6]" />
+              <div>
+                <h3 className="text-white font-bold">{currentSectionData.activity.title}</h3>
+                <span className="text-white/40 text-xs">Complete this activity to finish the module</span>
+              </div>
+            </div>
+
+            <p className="text-white/80 text-sm leading-relaxed mb-4">
+              {currentSectionData.activity.prompt}
+            </p>
+
+            {!activitySubmitted ? (
+              <>
+                <textarea
+                  value={activityResponse}
+                  onChange={(e) => setActivityResponse(e.target.value)}
+                  placeholder="Write your response here..."
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 text-sm resize-none focus:outline-none focus:border-[#9B59B6]/50 mb-3"
+                />
+                <div className="flex justify-between items-center">
+                  <span className={`text-xs ${activityResponse.length >= (currentSectionData.activity.minLength || 50) ? 'text-[#50D890]' : 'text-white/40'}`}>
+                    {activityResponse.length}/{currentSectionData.activity.minLength || 50} characters minimum
+                  </span>
+                  <Button3D
+                    onClick={submitActivityResponse}
+                    disabled={activityResponse.length < (currentSectionData.activity.minLength || 50) || isSubmittingActivity}
+                    variant="primary"
+                    className="px-6"
+                  >
+                    <Send size={16} className="mr-2" />
+                    {isSubmittingActivity ? 'Submitting...' : 'Submit'}
+                  </Button3D>
+                </div>
+              </>
+            ) : (
+              <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-[#50D890] font-bold mb-2">
+                  <CheckCircle size={20} />
+                  Activity Submitted!
+                </div>
+                <p className="text-white/60 text-sm">
+                  Great job! Your response has been saved. Click "Next" to continue.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </GlassCard>
 
-      {/* Activity Section - Shows after completing all lesson content */}
-      {showActivitySection && (
+      {/* OLD Activity Section - REMOVED, now integrated above */}
+      {showActivitySection && !currentSectionData.activity && (
         <GlassCard className="p-6 border-2 border-[#9B59B6]/30 bg-[#9B59B6]/5">
           <div className="flex items-center gap-3 mb-4">
             <MessageSquare size={20} className="text-[#9B59B6]" />
@@ -4438,11 +4607,7 @@ You've completed this program - now go build the life you want.`,
 
           <div className="mb-4">
             <p className="text-white/80 text-sm leading-relaxed mb-4">
-              {currentSectionData?.keyPoints ? (
-                <>Reflect on today's lesson and answer the following: What's the most important thing you learned, and how will you apply it to your own financial life?</>
-              ) : (
-                <>Share your thoughts on today's module. What did you learn and how can you use it?</>
-              )}
+              Reflect on today's lesson and answer the following: What's the most important thing you learned, and how will you apply it to your own financial life?
             </p>
 
             {!activitySubmitted ? (
@@ -4487,22 +4652,24 @@ You've completed this program - now go build the life you want.`,
       <div className="flex gap-3">
         <Button3D
           onClick={handlePrevious}
-          disabled={currentSection === 0 || showActivitySection}
+          disabled={currentSection === 0}
           variant="secondary"
           className="flex-1"
         >
-          {showActivitySection ? 'Activity Required' : 'Previous'}
+          Previous
         </Button3D>
 
         <Button3D
           onClick={handleNext}
-          disabled={showActivitySection && !activitySubmitted}
+          disabled={currentSectionData?.activity && !activitySubmitted}
           variant="primary"
           className="flex-1"
         >
-          {showActivitySection
-            ? (activitySubmitted ? 'Complete Module' : 'Submit Activity First')
-            : (isLastSection ? 'Continue to Activity' : 'Next Section')}
+          {currentSectionData?.activity && !activitySubmitted
+            ? 'Submit Activity First'
+            : isLastSection
+            ? 'Complete Module'
+            : 'Next'}
         </Button3D>
       </div>
     </div>
