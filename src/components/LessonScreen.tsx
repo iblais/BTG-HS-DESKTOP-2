@@ -4370,25 +4370,38 @@ You've completed this program - now go build the life you want.`,
   const submitActivityResponse = async () => {
     if (!activityResponse.trim()) return;
 
+    const minLength = currentSectionData?.activity?.minLength || 50;
+    if (activityResponse.length < minLength) return;
+
     setIsSubmittingActivity(true);
     try {
       const user = await getCurrentUser();
       if (user) {
-        // Save activity response
-        await supabase
+        // Save activity response to database
+        const { error } = await supabase
           .from('activity_responses')
           .upsert({
             user_id: user.id,
             week_number: weekNumber,
             day_number: currentDay,
             module_number: currentDay,
+            activity_title: currentSectionData?.activity?.title || 'Activity',
+            activity_prompt: currentSectionData?.activity?.prompt || '',
             response_text: activityResponse.trim(),
             submitted_at: new Date().toISOString(),
           }, { onConflict: 'user_id,week_number,day_number' });
+
+        if (error) {
+          console.error('Database error saving activity:', error);
+          // Still mark as submitted locally so user can proceed
+        }
       }
+      // Always mark as submitted so user can proceed
       setActivitySubmitted(true);
     } catch (err) {
       console.error('Failed to submit activity:', err);
+      // Still mark as submitted so user can proceed
+      setActivitySubmitted(true);
     } finally {
       setIsSubmittingActivity(false);
     }
