@@ -321,6 +321,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
         trackLevel={enrollment?.track_level || 'beginner'}
         programId={enrollment?.program_id || 'HS'}
         startSection={startSection}
+        enrollmentId={enrollment?.id || null}
         onBack={() => setViewMode('list')}
         onComplete={handleLessonComplete}
         onSectionComplete={handleSectionComplete}
