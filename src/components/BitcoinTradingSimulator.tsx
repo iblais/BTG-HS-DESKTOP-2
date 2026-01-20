@@ -7,6 +7,7 @@ import { GlassCard } from './ui/GlassCard';
 
 interface BitcoinTradingSimulatorProps {
   onBack: () => void;
+  onSaveProgress?: (progress: { totalProfit: number; balance: number; btcHoldings: number }) => void;
 }
 
 const DEFAULT_STATE: BitcoinSimulatorState = {
@@ -18,7 +19,7 @@ const DEFAULT_STATE: BitcoinSimulatorState = {
   totalLoss: 0,
 };
 
-export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps) {
+export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradingSimulatorProps) {
   // Initialize with default state, will load from cloud
   const [state, setState] = useState<BitcoinSimulatorState>(DEFAULT_STATE);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +95,14 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
       });
       setState(updatedState);
       setTradeAmount('');
+      // Save progress to game_scores
+      if (onSaveProgress) {
+        onSaveProgress({
+          totalProfit: updatedState.totalProfit,
+          balance: updatedState.balance,
+          btcHoldings: updatedState.btcHoldings
+        });
+      }
     } catch (error) {
       console.error('Failed to execute buy:', error);
       setError('Failed to execute trade');
@@ -143,6 +152,14 @@ export function BitcoinTradingSimulator({ onBack }: BitcoinTradingSimulatorProps
       });
       setState(updatedState);
       setTradeAmount('');
+      // Save progress to game_scores
+      if (onSaveProgress) {
+        onSaveProgress({
+          totalProfit: updatedState.totalProfit,
+          balance: updatedState.balance,
+          btcHoldings: updatedState.btcHoldings
+        });
+      }
     } catch (error) {
       console.error('Failed to execute sell:', error);
       setError('Failed to execute trade');

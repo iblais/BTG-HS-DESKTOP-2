@@ -4,6 +4,8 @@ import {
   Trophy, Star, Play, Lock, Clock, Zap, Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/auth';
 import { BudgetBuilderGame } from './BudgetBuilderGame';
 import { NeedsVsWantsChallenge } from './NeedsVsWantsChallenge';
 import { BitcoinTradingSimulator } from './BitcoinTradingSimulator';
@@ -105,8 +107,33 @@ export function GamesScreen() {
 
   const categories = [...new Set(games.map(g => g.category))];
 
-  // Handle back from game
-  const handleGameBack = () => {
+  // Save game score to database
+  const saveGameScore = async (gameType: string, score: number, completed: boolean = true, sessionData?: unknown) => {
+    try {
+      const user = await getCurrentUser();
+      if (!user) return;
+
+      await supabase
+        .from('game_scores')
+        .insert({
+          user_id: user.id,
+          game_type: gameType,
+          score: score,
+          completed: completed,
+          session_data: sessionData || null
+        });
+
+      console.log(`Game score saved: ${gameType} - ${score}`);
+    } catch (err) {
+      console.error('Failed to save game score:', err);
+    }
+  };
+
+  // Handle back from game with optional score saving
+  const handleGameBack = (gameType?: string, score?: number, sessionData?: unknown) => {
+    if (gameType && score !== undefined) {
+      saveGameScore(gameType, score, true, sessionData);
+    }
     setActiveGame(null);
   };
 
@@ -114,15 +141,30 @@ export function GamesScreen() {
   if (activeGame) {
     switch (activeGame) {
       case 'budget-builder':
-        return <BudgetBuilderGame onBack={handleGameBack} />;
+        return <BudgetBuilderGame
+          onBack={() => handleGameBack()}
+          onSaveProgress={(progress) => saveGameScore('budget-builder', progress.score || 0, true, progress)}
+        />;
       case 'needs-vs-wants':
-        return <NeedsVsWantsChallenge onBack={handleGameBack} />;
+        return <NeedsVsWantsChallenge
+          onBack={() => handleGameBack()}
+          onSaveProgress={(progress) => saveGameScore('needs-vs-wants', typeof progress === 'object' && progress !== null && 'score' in progress ? (progress as { score?: number }).score || 0 : 0, true, progress)}
+        />;
       case 'bitcoin-simulator':
-        return <BitcoinTradingSimulator onBack={handleGameBack} />;
+        return <BitcoinTradingSimulator
+          onBack={() => handleGameBack()}
+          onSaveProgress={(progress: { totalProfit?: number }) => saveGameScore('bitcoin-simulator', progress?.totalProfit || 0, true, progress)}
+        />;
       case 'banking-flashcards':
-        return <BankingTermsFlashCards onBack={handleGameBack} />;
+        return <BankingTermsFlashCards
+          onBack={() => handleGameBack()}
+          onSaveProgress={(progress: { score?: number }) => saveGameScore('banking-flashcards', progress?.score || 0, true, progress)}
+        />;
       case 'road-to-legacy':
-        return <RoadToLegacyGame onBack={handleGameBack} />;
+        return <RoadToLegacyGame
+          onBack={() => handleGameBack()}
+          onSaveProgress={(progress) => saveGameScore('road-to-legacy', progress.playerStats?.money || 0, true, progress)}
+        />;
       default:
         setActiveGame(null);
     }

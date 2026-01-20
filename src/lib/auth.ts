@@ -7,13 +7,19 @@ export interface AuthUser {
 }
 
 // Sign up with email and password
+// Note: Email verification is disabled in Supabase dashboard for instant account creation
 export async function signUp(email: string, password: string): Promise<{ user: AuthUser | null; error: string | null }> {
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        // Skip email confirmation redirect - users can start immediately
+        emailRedirectTo: undefined,
+        data: {
+          // Store signup metadata
+          signed_up_at: new Date().toISOString(),
+        }
       }
     })
 

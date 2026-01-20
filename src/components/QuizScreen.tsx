@@ -15,7 +15,7 @@ interface QuizScreenProps {
   weekTitle: string;
   programId?: string;
   onBack: () => void;
-  onComplete: (score: number, passed: boolean) => void;
+  onComplete: (score: number, passed: boolean, answers: number[], timeTaken: number) => void;
 }
 
 export function QuizScreen({
@@ -2566,7 +2566,8 @@ export function QuizScreen({
   const handleComplete = () => {
     const score = calculateScore();
     const { passed } = getGradeInfo(score);
-    onComplete(score, passed);
+    const timeTaken = 600 - timeRemaining; // Calculate time taken in seconds
+    onComplete(score, passed, selectedAnswers, timeTaken);
   };
 
   // Pre-quiz screen

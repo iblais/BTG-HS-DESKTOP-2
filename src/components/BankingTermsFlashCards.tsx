@@ -21,6 +21,7 @@ type GameMode = 'intro' | 'study' | 'quiz' | 'results';
 
 interface BankingTermsFlashCardsProps {
   onBack: () => void;
+  onSaveProgress?: (progress: { score: number; cardsCompleted: number }) => void;
 }
 
 // Flashcard data organized by difficulty
@@ -93,7 +94,7 @@ const difficultyConfig = {
   },
 };
 
-export default function BankingTermsFlashCards({ onBack }: BankingTermsFlashCardsProps) {
+export default function BankingTermsFlashCards({ onBack, onSaveProgress }: BankingTermsFlashCardsProps) {
   const [gameMode, setGameMode] = useState<GameMode>('intro');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -200,6 +201,10 @@ export default function BankingTermsFlashCards({ onBack }: BankingTermsFlashCard
       setShowFeedback(false);
     } else {
       setGameMode('results');
+      // Save progress when quiz is complete
+      if (onSaveProgress) {
+        onSaveProgress({ score: quizAnswers.filter(a => a === true).length, cardsCompleted: currentQuizIndex + 1 });
+      }
     }
   };
 

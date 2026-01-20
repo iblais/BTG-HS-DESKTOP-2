@@ -161,23 +161,19 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       try {
         const user = await getCurrentUser();
         if (user) {
-          const existingProgress = courseProgress.find(p => p.week_number === activeWeek);
-          if (existingProgress) {
-            await supabase
-              .from('course_progress')
-              .update({ score: 50 })
-              .eq('user_id', user.id)
-              .eq('week_number', activeWeek);
-          } else {
-            await supabase
-              .from('course_progress')
-              .insert({
-                user_id: user.id,
-                week_number: activeWeek,
-                score: 50,
-                completed: false
-              });
-          }
+          const enrollmentId = enrollment?.id || null;
+
+          await supabase
+            .from('course_progress')
+            .upsert({
+              user_id: user.id,
+              enrollment_id: enrollmentId,
+              week_number: activeWeek,
+              score: 50,
+              completed: false,
+              lesson_completed: true
+            }, { onConflict: 'user_id,week_number' });
+
           await loadProgress();
         }
       } catch (err) {
@@ -187,26 +183,53 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     setViewMode('list');
   };
 
-  const handleQuizComplete = async (score: number, passed: boolean) => {
-    if (passed) {
-      // Update progress in database
-      try {
-        const user = await getCurrentUser();
-        if (user) {
-          const percentage = Math.round((score / 10) * 100);
+  const handleQuizComplete = async (score: number, passed: boolean, answers: number[] = [], timeTaken: number = 0) => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        const percentage = Math.round((score / 10) * 100);
+        const enrollmentId = enrollment?.id || null;
+
+        // Always save quiz attempt to quiz_attempts table (pass or fail)
+        const answersObject: Record<number, number> = {};
+        answers.forEach((answer, index) => {
+          answersObject[index] = answer;
+        });
+
+        await supabase
+          .from('quiz_attempts')
+          .insert({
+            user_id: user.id,
+            enrollment_id: enrollmentId,
+            week_number: activeWeek,
+            score: score,
+            total_questions: 10,
+            passed: passed,
+            time_taken_seconds: timeTaken,
+            answers: answersObject,
+            completed_at: new Date().toISOString()
+          });
+
+        // Update course_progress if passed
+        if (passed) {
           await supabase
             .from('course_progress')
             .upsert({
               user_id: user.id,
+              enrollment_id: enrollmentId,
               week_number: activeWeek,
               score: percentage,
-              completed: true
+              completed: true,
+              quiz_completed: true,
+              best_quiz_score: percentage,
+              completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,week_number' });
-          await loadProgress();
         }
-      } catch (err) {
-        console.error('Failed to save quiz result:', err);
+
+        await loadProgress();
       }
+    } catch (err) {
+      console.error('Failed to save quiz result:', err);
     }
     setViewMode('list');
   };
@@ -219,17 +242,36 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
         const user = await getCurrentUser();
         if (!user) return;
 
+        const enrollmentId = enrollment?.id || null;
+
         // Calculate progress percentage based on sections completed
         const progressPercent = Math.round(((sectionIndex + 1) / totalSections) * 50);
 
+        // Save to course_progress for overall tracking
         await supabase
           .from('course_progress')
           .upsert({
             user_id: user.id,
+            enrollment_id: enrollmentId,
             week_number: activeWeek,
             score: progressPercent,
-            completed: false
+            completed: false,
+            lesson_completed: sectionIndex + 1 >= totalSections
           }, { onConflict: 'user_id,week_number' });
+
+        // Save to lesson_progress for detailed section tracking
+        if (enrollmentId) {
+          await supabase
+            .from('lesson_progress')
+            .upsert({
+              user_id: user.id,
+              enrollment_id: enrollmentId,
+              week_number: activeWeek,
+              section_index: sectionIndex,
+              completed: true,
+              completed_at: new Date().toISOString()
+            }, { onConflict: 'user_id,week_number,section_index' });
+        }
       } catch (err) {
         console.error('Failed to save section progress:', err);
       }

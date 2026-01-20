@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPrograms, createEnrollment, type Program } from '@/lib/enrollment';
 import { type ProgramId, type TrackLevel, type Language } from '@/lib/supabase';
-import { GraduationCap, BookOpen, TrendingUp, Globe, Target, Sparkles, Loader2, ChevronRight, Check } from 'lucide-react';
+import { GraduationCap, BookOpen, TrendingUp, Target, Sparkles, Loader2, ChevronRight, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 
@@ -12,9 +12,9 @@ interface ProgramSelectScreenProps {
 
 export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramSelectScreenProps) {
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
-  const [trackLevel, setTrackLevel] = useState<TrackLevel>('beginner');
-  const [language, setLanguage] = useState<Language>('en');
+  const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>('HS');
+  const [trackLevel] = useState<TrackLevel>('beginner');
+  const [language] = useState<Language>('en');
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,12 +54,6 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
       setEnrolling(false);
     }
   };
-
-  const trackLevels: { id: TrackLevel; label: string; description: string }[] = [
-    { id: 'beginner', label: 'Beginner', description: 'New to financial concepts' },
-    { id: 'intermediate', label: 'Intermediate', description: 'Some prior knowledge' },
-    { id: 'advanced', label: 'Advanced', description: 'Ready for deep dives' },
-  ];
 
   if (loading) {
     return (
@@ -220,77 +214,6 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
               </div>
             </div>
 
-            {/* Track Level Selection */}
-            {selectedProgram && (
-              <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h2 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-sm">2</span>
-                  Choose Your Level
-                </h2>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {trackLevels.map((level) => (
-                    <button
-                      key={level.id}
-                      onClick={() => setTrackLevel(level.id)}
-                      className={cn(
-                        "p-4 rounded-xl border text-center transition-all duration-300",
-                        trackLevel === level.id
-                          ? "border-[#4A5FFF] bg-[#4A5FFF]/20 shadow-lg shadow-[#4A5FFF]/10"
-                          : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12]"
-                      )}
-                    >
-                      <p className={cn(
-                        "font-semibold mb-1",
-                        trackLevel === level.id ? "text-white" : "text-white/70"
-                      )}>
-                        {level.label}
-                      </p>
-                      <p className="text-white/40 text-xs">{level.description}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Language Selection */}
-            {selectedProgram && (
-              <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
-                <h2 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-sm">3</span>
-                  Language Preference
-                </h2>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { id: 'en' as Language, label: 'English', flag: '🇺🇸' },
-                    { id: 'es' as Language, label: 'Español', flag: '🇪🇸' },
-                  ].map((lang) => (
-                    <button
-                      key={lang.id}
-                      onClick={() => setLanguage(lang.id)}
-                      className={cn(
-                        "p-4 rounded-xl border flex items-center justify-center gap-3 transition-all duration-300",
-                        language === lang.id
-                          ? "border-[#4A5FFF] bg-[#4A5FFF]/20 shadow-lg shadow-[#4A5FFF]/10"
-                          : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12]"
-                      )}
-                    >
-                      <Globe className={cn(
-                        "w-5 h-5",
-                        language === lang.id ? "text-[#4A5FFF]" : "text-white/40"
-                      )} />
-                      <span className={cn(
-                        "font-medium",
-                        language === lang.id ? "text-white" : "text-white/70"
-                      )}>
-                        {lang.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Enroll Button */}
             {selectedProgram && (
