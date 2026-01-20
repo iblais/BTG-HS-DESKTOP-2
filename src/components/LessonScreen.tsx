@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen } from 'lucide-react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
 import { Button3D } from './ui/Button3D';
-import { supabase } from '@/lib/supabase';
-import { getCurrentUser } from '@/lib/auth';
 
 interface LessonScreenProps {
   weekNumber: number;
@@ -13,21 +11,14 @@ interface LessonScreenProps {
   trackLevel?: string;
   programId?: string;
   startSection?: number;
-  enrollmentId?: string | null;
   onBack: () => void;
   onComplete: (completed: boolean) => void;
   onSectionComplete?: (sectionIndex: number, totalSections: number) => void;
 }
 
-export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', programId = 'HS', startSection = 0, enrollmentId = null, onBack, onComplete, onSectionComplete }: LessonScreenProps) {
+export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', programId = 'HS', startSection = 0, onBack, onComplete, onSectionComplete }: LessonScreenProps) {
   const [currentSection, setCurrentSection] = useState(startSection);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
-
-  // Activity submission state
-  const [activityResponse, setActivityResponse] = useState('');
-  const [submittedActivities, setSubmittedActivities] = useState<Record<number, boolean>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [activityError, setActivityError] = useState<string | null>(null);
 
   // Sync currentSection when startSection prop changes
   useEffect(() => {
@@ -111,8 +102,7 @@ Earned income does not just give you money. It gives you confidence. You realize
 The goal is not just to make money.
 The goal is to respect money.`
               }
-            ],
-            activityQuestion: "Think about your current sources of income (job, allowance, side hustle, etc.). Describe one source of income you have or could create, and explain whether it's earned or unearned income. How does knowing the difference change how you might spend that money?"
+            ]
           },
           {
             title: "The Power of Saving",
@@ -191,8 +181,7 @@ Saving money is not fear-based. It is confidence-based. It is saying, "I am read
 
 And that mindset will take you further than any paycheck ever will.`
               }
-            ],
-            activityQuestion: "Using the 50/30/20 rule discussed in this lesson, imagine you received $100. How would you split it up? Write out exactly where each dollar would go and explain why you made those choices."
+            ]
           },
           {
             title: "Types of Expenses",
@@ -279,8 +268,7 @@ Money doesn't disappear.
 It leaks.
 And once you learn how to plug the leaks, everything changes.`
               }
-            ],
-            activityQuestion: "List 3 fixed expenses and 3 variable expenses you currently have (or would have if you were living on your own). For each variable expense, suggest one way you could reduce it without completely giving it up."
+            ]
           },
           {
             title: "Creating Your First Budget",
@@ -374,8 +362,7 @@ When you control your money, you control your options. You stop feeling broke ev
 Budgeting is how regular people stop struggling.
 And struggling is optional once you learn the system.`
               }
-            ],
-            activityQuestion: "Create a simple monthly budget for yourself using real or estimated numbers. Include: (1) Your total monthly income, (2) At least 3 fixed expenses, (3) At least 3 variable expenses, (4) How much you plan to save. Then explain one adjustment you could make if you needed to save more money."
+            ]
           }
         ]
       },
@@ -4506,59 +4493,6 @@ You've completed this program - now go build the life you want.`,
     }
   };
 
-  // Submit activity response
-  const handleActivitySubmit = async () => {
-    if (!activityResponse.trim()) {
-      setActivityError('Please write a response before submitting.');
-      return;
-    }
-
-    setSubmitting(true);
-    setActivityError(null);
-
-    try {
-      const user = await getCurrentUser();
-      if (!user) {
-        setActivityError('You must be logged in to submit.');
-        setSubmitting(false);
-        return;
-      }
-
-      // Save to activity_submissions table
-      const { error } = await supabase.from('activity_submissions').insert({
-        user_id: user.id,
-        enrollment_id: enrollmentId,
-        week_number: weekNumber,
-        section_index: currentSection,
-        module_title: currentSectionData.title,
-        activity_question: currentSectionData.activityQuestion,
-        response_text: activityResponse.trim(),
-        submitted_at: new Date().toISOString()
-      });
-
-      if (error) {
-        console.error('Failed to save activity:', error);
-        setActivityError('Failed to save your response. Please try again.');
-        setSubmitting(false);
-        return;
-      }
-
-      // Mark this section's activity as submitted
-      setSubmittedActivities(prev => ({ ...prev, [currentSection]: true }));
-      setActivityResponse('');
-      setSubmitting(false);
-    } catch (err) {
-      console.error('Activity submission error:', err);
-      setActivityError('An error occurred. Please try again.');
-      setSubmitting(false);
-    }
-  };
-
-  // Check if current section has an activity and if it's been submitted
-  const hasActivity = !!currentSectionData.activityQuestion;
-  const activitySubmitted = submittedActivities[currentSection] === true;
-  const canProceed = !hasActivity || activitySubmitted;
-
   const getSectionIcon = (type: string) => {
     switch (type) {
       case 'video':
@@ -4726,74 +4660,6 @@ You've completed this program - now go build the life you want.`,
         </GlassCard>
       )}
 
-      {/* Activity Section - Required for module completion */}
-      {hasActivity && (
-        <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-              <BookOpen size={20} className="text-[#4A5FFF]" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold">Activity</h3>
-              <span className="text-white/40 text-xs">Required to complete this module</span>
-            </div>
-            {activitySubmitted && (
-              <div className="ml-auto flex items-center gap-2 text-[#50D890]">
-                <CheckCircle size={18} />
-                <span className="text-sm font-medium">Submitted</span>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white/5 rounded-lg p-4 mb-4">
-            <p className="text-white/90 text-sm leading-relaxed">
-              {currentSectionData.activityQuestion}
-            </p>
-          </div>
-
-          {!activitySubmitted ? (
-            <>
-              <textarea
-                value={activityResponse}
-                onChange={(e) => {
-                  setActivityResponse(e.target.value);
-                  setActivityError(null);
-                }}
-                placeholder="Write your response here..."
-                className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
-              />
-              {activityError && (
-                <p className="text-red-400 text-sm mt-2">{activityError}</p>
-              )}
-              <Button3D
-                onClick={handleActivitySubmit}
-                disabled={submitting || !activityResponse.trim()}
-                variant="primary"
-                className="mt-4 w-full"
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
-                    Submitting...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Send size={16} />
-                    Submit Response
-                  </span>
-                )}
-              </Button3D>
-            </>
-          ) : (
-            <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
-              <p className="text-[#50D890] text-sm">
-                Your response has been submitted. You can now proceed to the next section.
-              </p>
-            </div>
-          )}
-        </GlassCard>
-      )}
-
       {/* Navigation */}
       <div className="flex gap-3">
         <Button3D
@@ -4807,17 +4673,10 @@ You've completed this program - now go build the life you want.`,
 
         <Button3D
           onClick={handleNext}
-          disabled={!canProceed}
           variant="primary"
           className="flex-1"
         >
-          {!canProceed ? (
-            'Complete Activity First'
-          ) : isLastSection ? (
-            'Complete Lesson'
-          ) : (
-            'Next Section'
-          )}
+          {isLastSection ? 'Complete Lesson' : 'Next Section'}
         </Button3D>
       </div>
     </div>
