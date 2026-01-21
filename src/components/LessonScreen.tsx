@@ -4758,13 +4758,14 @@ You've completed this program - now go build the life you want.`,
         </div>
       </GlassCard>
 
-      {/* Teacher Resources - Collapsible Articles */}
-      {currentSectionData.articles && currentSectionData.articles.length > 0 && (
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <BookOpen size={18} className="text-amber-400" />
-            <h4 className="text-amber-400 font-bold text-sm">Teacher Resources</h4>
-          </div>
+      {/* Additional Resources - Always rendered */}
+      <GlassCard className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <ExternalLink size={18} className="text-amber-400" />
+          <h4 className="text-amber-400 font-bold text-sm">Additional Resources</h4>
+        </div>
+
+        {currentSectionData.articles && currentSectionData.articles.length > 0 ? (
           <Accordion.Root type="multiple" className="space-y-2">
             {currentSectionData.articles.map((article: { title: string; content: string }, index: number) => (
               <Accordion.Item
@@ -4791,8 +4792,19 @@ You've completed this program - now go build the life you want.`,
               </Accordion.Item>
             ))}
           </Accordion.Root>
-        </GlassCard>
-      )}
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <ExternalLink size={16} className="text-white/30" />
+              <span className="text-white/40 text-sm">Reference 1 (Coming Soon)</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <ExternalLink size={16} className="text-white/30" />
+              <span className="text-white/40 text-sm">Reference 2 (Coming Soon)</span>
+            </div>
+          </div>
+        )}
+      </GlassCard>
 
       {/* Activity Section - Always rendered */}
       <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
