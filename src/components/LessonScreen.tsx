@@ -34,6 +34,40 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
     setCurrentSection(startSection);
   }, [startSection, weekNumber]);
 
+  // Load previously submitted activities from database
+  useEffect(() => {
+    const loadSubmittedActivities = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('activity_responses')
+          .select('day_number')
+          .eq('user_id', user.id)
+          .eq('week_number', weekNumber);
+
+        if (error) {
+          console.error('Failed to load submitted activities:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const submitted: Record<number, boolean> = {};
+          data.forEach((item: { day_number: number }) => {
+            // Convert day_number (1-indexed) back to section index (0-indexed)
+            submitted[item.day_number - 1] = true;
+          });
+          setSubmittedActivities(submitted);
+        }
+      } catch (err) {
+        console.error('Error loading submitted activities:', err);
+      }
+    };
+
+    loadSubmittedActivities();
+  }, [weekNumber]);
+
   // Lesson content for different weeks
   const getLessonContent = (week: number) => {
     const lessonMap: Record<number, any> = {
@@ -4529,13 +4563,14 @@ You've completed this program - now go build the life you want.`,
         return;
       }
 
-      // Save to activity_submissions table
-      const { error } = await supabase.from('activity_submissions').insert({
+      // Save to activity_responses table
+      const { error } = await supabase.from('activity_responses').insert({
         user_id: user.id,
         enrollment_id: enrollmentId,
         week_number: weekNumber,
-        section_index: currentSection,
-        module_title: currentSectionData?.title || `Section ${currentSection + 1}`,
+        day_number: currentSection + 1,  // Days are 1-indexed (1-5)
+        module_number: currentSection + 1,  // Module = Day for our structure
+        module_title: currentSectionData?.title || `Module ${currentSection + 1}`,
         activity_question: currentSectionData?.activityQuestion || '',
         response_text: activityResponse.trim(),
         submitted_at: new Date().toISOString()
