@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2, Lock, Play, ExternalLink } from 'lucide-react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
@@ -33,6 +33,40 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
   useEffect(() => {
     setCurrentSection(startSection);
   }, [startSection, weekNumber]);
+
+  // Load previously submitted activities from database
+  useEffect(() => {
+    const loadSubmittedActivities = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('activity_responses')
+          .select('day_number')
+          .eq('user_id', user.id)
+          .eq('week_number', weekNumber);
+
+        if (error) {
+          console.error('Failed to load submitted activities:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const submitted: Record<number, boolean> = {};
+          data.forEach((item: { day_number: number }) => {
+            // Convert day_number (1-indexed) back to section index (0-indexed)
+            submitted[item.day_number - 1] = true;
+          });
+          setSubmittedActivities(submitted);
+        }
+      } catch (err) {
+        console.error('Error loading submitted activities:', err);
+      }
+    };
+
+    loadSubmittedActivities();
+  }, [weekNumber]);
 
   // Lesson content for different weeks
   const getLessonContent = (week: number) => {
@@ -4473,8 +4507,8 @@ You've completed this program - now go build the life you want.`,
     if (!sectionContent) return null;
 
     return {
-      additionalContent: level === 'advanced' ? sectionContent.advanced : sectionContent.intermediate,
-      extraPoints: sectionContent.extraPoints || []
+      additionalContent: level === 'advanced' ? sectionContent.advanced : null,
+      extraPoints: level === 'advanced' ? (sectionContent.extraPoints || []) : []
     };
   };
 
@@ -4529,13 +4563,14 @@ You've completed this program - now go build the life you want.`,
         return;
       }
 
-      // Save to activity_submissions table
-      const { error } = await supabase.from('activity_submissions').insert({
+      // Save to activity_responses table
+      const { error } = await supabase.from('activity_responses').insert({
         user_id: user.id,
         enrollment_id: enrollmentId,
         week_number: weekNumber,
-        section_index: currentSection,
-        module_title: currentSectionData?.title || `Section ${currentSection + 1}`,
+        day_number: currentSection + 1,  // Days are 1-indexed (1-5)
+        module_number: currentSection + 1,  // Module = Day for our structure
+        module_title: currentSectionData?.title || `Module ${currentSection + 1}`,
         activity_question: currentSectionData?.activityQuestion || '',
         response_text: activityResponse.trim(),
         submitted_at: new Date().toISOString()
@@ -4578,6 +4613,15 @@ You've completed this program - now go build the life you want.`,
 
   const isLastSection = currentSection === totalSections - 1;
 
+  // Check if a section is unlocked
+  // Section 0 is always unlocked
+  // Section N (N > 0) is unlocked if section N-1's activity has been submitted
+  const isSectionUnlocked = (sectionIndex: number): boolean => {
+    if (sectionIndex === 0) return true;
+    // Previous section must have its activity submitted
+    return submittedActivities[sectionIndex - 1] === true;
+  };
+
   return (
     <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
@@ -4601,20 +4645,29 @@ You've completed this program - now go build the life you want.`,
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
         {lessonData.sections.map((section: any, index: number) => {
           const IconComponent = getSectionIcon(section.type);
+          const isUnlocked = isSectionUnlocked(index);
+          const isCompleted = submittedActivities[index] === true;
           return (
             <button
               key={index}
-              onClick={() => setCurrentSection(index)}
+              onClick={() => isUnlocked && setCurrentSection(index)}
+              disabled={!isUnlocked}
               className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentSection === index
+                !isUnlocked
+                  ? 'bg-white/5 text-white/30 border border-white/10 cursor-not-allowed opacity-50'
+                  : currentSection === index
                   ? 'bg-[#4A5FFF]/20 text-[#4A5FFF] border border-[#4A5FFF]/30'
-                  : completedSections.includes(index)
+                  : isCompleted
                   ? 'bg-[#50D890]/20 text-[#50D890] border border-[#50D890]/30'
                   : 'bg-white/5 text-white/60 border border-white/10'
               }`}
             >
               <div className="flex items-center gap-1">
-                <IconComponent size={12} />
+                {!isUnlocked ? (
+                  <Lock size={12} />
+                ) : (
+                  <IconComponent size={12} />
+                )}
                 <span>{index + 1}</span>
               </div>
             </button>
@@ -4635,9 +4688,14 @@ You've completed this program - now go build the life you want.`,
           </div>
         </div>
 
-        {/* Video Player - YouTube Embed */}
-        {currentSectionData.videoUrl && (
-          <div className="mb-6 rounded-xl overflow-hidden bg-black/50">
+        {/* VIDEO SECTION - ALWAYS VISIBLE */}
+        <div className="mb-6 p-4 bg-red-500 rounded-xl text-white font-bold text-center">
+          🎬 VIDEO PLACEHOLDER SHOULD BE HERE 🎬
+        </div>
+
+        {/* Video Player - YouTube Embed or Placeholder */}
+        <div className="mb-6 rounded-xl overflow-hidden border border-white/10">
+          {currentSectionData.videoUrl ? (
             <iframe
               key={currentSectionData.videoUrl}
               className="w-full aspect-video"
@@ -4647,8 +4705,18 @@ You've completed this program - now go build the life you want.`,
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
-          </div>
-        )}
+          ) : (
+            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#4A5FFF]/30 to-[#00BFFF]/30 border-2 border-[#4A5FFF]">
+              <div className="text-center">
+                <div className="w-20 h-20 rounded-full bg-[#4A5FFF]/40 flex items-center justify-center mx-auto mb-4">
+                  <Play size={40} className="text-white ml-1" />
+                </div>
+                <p className="text-white font-bold text-lg">📹 LESSON VIDEO</p>
+                <p className="text-white/80 text-sm mt-1">Video Coming Soon</p>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="mb-6">
           <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
@@ -4662,7 +4730,7 @@ You've completed this program - now go build the life you want.`,
             <div className="flex items-center gap-2 mb-3">
               <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
               <span className="text-purple-400 font-bold text-xs uppercase">
-                {trackLevel === 'advanced' ? 'Advanced' : 'Intermediate'} Content
+                Advanced Content
               </span>
             </div>
             <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
@@ -4695,13 +4763,14 @@ You've completed this program - now go build the life you want.`,
         </div>
       </GlassCard>
 
-      {/* Teacher Resources - Collapsible Articles */}
-      {currentSectionData.articles && currentSectionData.articles.length > 0 && (
-        <GlassCard className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <BookOpen size={18} className="text-amber-400" />
-            <h4 className="text-amber-400 font-bold text-sm">Teacher Resources</h4>
-          </div>
+      {/* Additional Resources - Always rendered */}
+      <GlassCard className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <ExternalLink size={18} className="text-amber-400" />
+          <h4 className="text-amber-400 font-bold text-sm">Additional Resources</h4>
+        </div>
+
+        {currentSectionData.articles && currentSectionData.articles.length > 0 ? (
           <Accordion.Root type="multiple" className="space-y-2">
             {currentSectionData.articles.map((article: { title: string; content: string }, index: number) => (
               <Accordion.Item
@@ -4728,81 +4797,103 @@ You've completed this program - now go build the life you want.`,
               </Accordion.Item>
             ))}
           </Accordion.Root>
-        </GlassCard>
-      )}
-
-      {/* Activity Section - Required for module completion */}
-      {hasActivity && (
-        <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-              <BookOpen size={20} className="text-[#4A5FFF]" />
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 p-4 bg-amber-500/20 border-2 border-amber-500 rounded-lg">
+              <ExternalLink size={20} className="text-amber-400" />
+              <span className="text-white font-medium">📚 Reference 1 (Coming Soon)</span>
             </div>
-            <div>
-              <h3 className="text-white font-bold">Activity</h3>
-              <span className="text-white/40 text-xs">Required to complete this module</span>
+            <div className="flex items-center gap-3 p-4 bg-amber-500/20 border-2 border-amber-500 rounded-lg">
+              <ExternalLink size={20} className="text-amber-400" />
+              <span className="text-white font-medium">📚 Reference 2 (Coming Soon)</span>
             </div>
-            {activitySubmitted && (
-              <div className="ml-auto flex items-center gap-2 text-[#50D890]">
-                <CheckCircle size={18} />
-                <span className="text-sm font-medium">Submitted</span>
-              </div>
-            )}
           </div>
+        )}
+      </GlassCard>
 
-          <div className="bg-white/5 rounded-lg p-4 mb-4">
-            <p className="text-white/90 text-sm leading-relaxed">
-              {currentSectionData?.activityQuestion}
-            </p>
+      {/* Activity Section - Always rendered */}
+      <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
+            <BookOpen size={20} className="text-[#4A5FFF]" />
           </div>
-
-          {!activitySubmitted ? (
-            <>
-              <textarea
-                value={activityResponse}
-                onChange={(e) => {
-                  setActivityResponse(e.target.value);
-                  setActivityError(null);
-                }}
-                placeholder="Write your response here (minimum 50 characters)..."
-                className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
-              />
-              <div className="flex justify-between items-center mt-2">
-                <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
-                  {activityResponse.length}/50 characters minimum
-                </span>
-              </div>
-              {activityError && (
-                <p className="text-red-400 text-sm mt-2">{activityError}</p>
-              )}
-              <Button3D
-                onClick={handleActivitySubmit}
-                disabled={submitting || activityResponse.length < 50}
-                variant="primary"
-                className="mt-4 w-full"
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
-                    Submitting...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Send size={16} />
-                    Submit Response
-                  </span>
-                )}
-              </Button3D>
-            </>
-          ) : (
-            <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
-              <p className="text-[#50D890] text-sm">
-                Your response has been submitted. You can now proceed to the next section.
-              </p>
+          <div>
+            <h3 className="text-white font-bold">Activity</h3>
+            <span className="text-white/40 text-xs">
+              {hasActivity ? 'Required to complete this module' : 'Activity coming soon'}
+            </span>
+          </div>
+          {hasActivity && activitySubmitted && (
+            <div className="ml-auto flex items-center gap-2 text-[#50D890]">
+              <CheckCircle size={18} />
+              <span className="text-sm font-medium">Submitted</span>
             </div>
           )}
-        </GlassCard>
-      )}
+        </div>
+
+        {hasActivity ? (
+          <>
+            <div className="bg-white/5 rounded-lg p-4 mb-4">
+              <p className="text-white/90 text-sm leading-relaxed">
+                {currentSectionData?.activityQuestion}
+              </p>
+            </div>
+
+            {!activitySubmitted ? (
+              <>
+                <textarea
+                  value={activityResponse}
+                  onChange={(e) => {
+                    setActivityResponse(e.target.value);
+                    setActivityError(null);
+                  }}
+                  placeholder="Write your response here (minimum 50 characters)..."
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
+                    {activityResponse.length}/50 characters minimum
+                  </span>
+                </div>
+                {activityError && (
+                  <p className="text-red-400 text-sm mt-2">{activityError}</p>
+                )}
+                <Button3D
+                  onClick={handleActivitySubmit}
+                  disabled={submitting || activityResponse.length < 50}
+                  variant="primary"
+                  className="mt-4 w-full"
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 size={16} className="animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Send size={16} />
+                      Submit Response
+                    </span>
+                  )}
+                </Button3D>
+              </>
+            ) : (
+              <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
+                <p className="text-[#50D890] text-sm">
+                  Your response has been submitted. You can now proceed to the next section.
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="bg-[#4A5FFF]/20 rounded-lg p-8 text-center border-2 border-[#4A5FFF]">
+            <BookOpen size={48} className="mx-auto mb-4 text-[#4A5FFF]" />
+            <p className="text-white font-bold text-lg">✍️ WRITTEN ACTIVITY</p>
+            <p className="text-white/80 text-sm mt-2">Activity content is being prepared</p>
+            <p className="text-white/60 text-xs mt-1">Check back soon for your activity assignment</p>
+          </div>
+        )}
+      </GlassCard>
 
       {/* Navigation */}
       <div className="flex gap-3">

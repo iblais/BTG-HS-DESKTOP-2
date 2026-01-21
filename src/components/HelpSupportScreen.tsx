@@ -27,7 +27,7 @@ const faqs: FAQItem[] = [
   {
     category: "Getting Started",
     question: "How do I change my difficulty level?",
-    answer: "You can change your difficulty level (Beginner, Intermediate, Advanced) in the Courses section. The difficulty determines the depth of content and complexity of quiz questions."
+    answer: "You can choose between Beginner and Advanced difficulty levels in the Courses section. The difficulty determines the depth of content and complexity of quiz questions."
   },
   {
     category: "Courses & Progress",

@@ -17,7 +17,7 @@ export interface OfflineUserSession {
 export interface OfflineEnrollment {
   id: string;
   programId: 'HS' | 'COLLEGE';
-  trackLevel: 'beginner' | 'intermediate' | 'advanced';
+  trackLevel: 'beginner' | 'advanced';
   language: 'en' | 'es';
   enrolledAt: string;
 }

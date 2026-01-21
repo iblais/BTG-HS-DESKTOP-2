@@ -5,7 +5,7 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle, Award
+  FileText, HelpCircle, Award, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -70,18 +70,24 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [startSection, setStartSection] = useState<number>(0);
+  // Track which modules have activities completed per week: { weekNumber: [day1Complete, day2Complete, ...] }
+  const [weekActivities, setWeekActivities] = useState<Record<number, boolean[]>>({});
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
   useEffect(() => {
     loadProgress();
+    loadActivityProgress();
   }, []);
 
   const loadProgress = async () => {
     try {
       setLoading(true);
       const user = await getCurrentUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data } = await supabase
         .from('course_progress')
@@ -95,6 +101,57 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Load activity completions to determine quiz lock status
+  const loadActivityProgress = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('activity_responses')
+        .select('week_number, day_number')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Failed to load activity progress:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const activities: Record<number, boolean[]> = {};
+        data.forEach((item: { week_number: number; day_number: number }) => {
+          if (!activities[item.week_number]) {
+            activities[item.week_number] = [false, false, false, false, false];
+          }
+          // day_number is 1-indexed, array is 0-indexed
+          if (item.day_number >= 1 && item.day_number <= 5) {
+            activities[item.week_number][item.day_number - 1] = true;
+          }
+        });
+        setWeekActivities(activities);
+      }
+    } catch (err) {
+      console.error('Error loading activity progress:', err);
+    }
+  };
+
+  // Check if quiz is unlocked for a week (all 5 modules completed)
+  const isQuizUnlocked = (weekNum: number): boolean => {
+    const activities = weekActivities[weekNum];
+    if (!activities) return false;
+    // All 5 modules must have activities completed
+    return activities.every(completed => completed === true);
+  };
+
+  // Get count of completed modules for a week
+  const getCompletedModuleCount = (weekNum: number): number => {
+    const activities = weekActivities[weekNum];
+    if (!activities) return 0;
+    return activities.filter(completed => completed === true).length;
   };
 
   // High School week titles (18 weeks)
@@ -283,8 +340,15 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     if (progress?.completed) return 'completed';
     if (progress) return 'in_progress';
 
-    // All courses are unlocked - students can access any course at any time
-    return 'available';
+    // Week 1 is always available by default
+    if (weekNum === 1) return 'available';
+
+    // For other weeks, check if previous week's quiz is passed
+    const prevProgress = courseProgress.find(p => p.week_number === weekNum - 1);
+    if (prevProgress?.completed) return 'available';
+
+    // Otherwise, week is locked
+    return 'locked';
   };
 
   const getWeekProgress = (weekNum: number): number => {
@@ -469,12 +533,17 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             key={week.number}
             onClick={() => week.status !== 'locked' && setSelectedWeek(week.number)}
             className={cn(
-              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group",
+              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group",
+              week.status === 'locked'
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] opacity-60 cursor-not-allowed"
+                : "cursor-pointer",
               week.status === 'completed'
                 ? "bg-gradient-to-br from-[var(--success)]/10 to-[var(--bg-elevated)] border-2 border-[var(--success)]/30"
                 : week.status === 'in_progress'
                 ? "bg-gradient-to-br from-[var(--primary-500)]/10 to-[var(--bg-elevated)] border-2 border-[var(--primary-500)]/30"
-                : "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--primary-500)]/30"
+                : week.status === 'available'
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--primary-500)]/30"
+                : ""
             )}
           >
             {/* Course Image */}
@@ -495,10 +564,14 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90"
+                    : week.status === 'locked'
+                    ? "bg-black/70"
                     : "bg-black/50"
                 )}>
                   {week.status === 'completed' ? (
                     <CheckCircle className="w-5 h-5 text-white" />
+                  ) : week.status === 'locked' ? (
+                    <Lock className="w-5 h-5 text-white/60" />
                   ) : (
                     <span className="text-lg font-black text-white">{week.number}</span>
                   )}
@@ -513,12 +586,16 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90 text-white"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90 text-white"
+                    : week.status === 'locked'
+                    ? "bg-black/70 text-white/60"
                     : "bg-black/50 text-white/80"
                 )}>
                   {week.status === 'completed' && <CheckCircle className="w-3 h-3" />}
                   {week.status === 'in_progress' && <Zap className="w-3 h-3" />}
+                  {week.status === 'locked' && <Lock className="w-3 h-3" />}
                   {week.status === 'completed' ? 'Complete' :
-                   week.status === 'in_progress' ? 'In Progress' : 'Ready'}
+                   week.status === 'in_progress' ? 'In Progress' :
+                   week.status === 'locked' ? 'Locked' : 'Ready'}
                 </div>
               </div>
 
@@ -613,31 +690,49 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     </button>
                   </div>
 
-                  {/* Modules - Clickable */}
+                  {/* Modules - Clickable with locking */}
                   <div className="space-y-3 mb-6">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <div
-                        key={i}
-                        onClick={() => handleStartLesson(week.number, i)}
-                        className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 transition-all cursor-pointer active:scale-[0.98]"
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-lg flex items-center justify-center",
-                          i < Math.floor(week.progress / 20) ? "bg-[#50D890]/20" : "bg-white/5"
-                        )}>
-                          {i < Math.floor(week.progress / 20) ? (
-                            <CheckCircle className="w-5 h-5 text-[#50D890]" />
-                          ) : (
-                            <Play className="w-5 h-5 text-white/40" />
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const activities = weekActivities[week.number] || [false, false, false, false, false];
+                      const isModuleComplete = activities[i] === true;
+                      // Module is unlocked if it's the first module OR the previous module is complete
+                      const isModuleUnlocked = i === 0 || activities[i - 1] === true;
+
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => isModuleUnlocked && handleStartLesson(week.number, i)}
+                          className={cn(
+                            "flex items-center gap-4 p-4 rounded-xl transition-all",
+                            isModuleUnlocked
+                              ? "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 cursor-pointer active:scale-[0.98]"
+                              : "bg-white/[0.02] border border-white/[0.03] cursor-not-allowed opacity-50"
                           )}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center",
+                            isModuleComplete ? "bg-[#50D890]/20" : !isModuleUnlocked ? "bg-white/5" : "bg-white/5"
+                          )}>
+                            {isModuleComplete ? (
+                              <CheckCircle className="w-5 h-5 text-[#50D890]" />
+                            ) : !isModuleUnlocked ? (
+                              <Lock className="w-5 h-5 text-white/30" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white/40" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={cn("font-medium", isModuleUnlocked ? "text-white" : "text-white/50")}>
+                              Module {i + 1}
+                            </p>
+                            <p className="text-white/40 text-sm">
+                              {isModuleComplete ? 'Completed' : !isModuleUnlocked ? 'Complete previous module' : 'Tap to start'}
+                            </p>
+                          </div>
+                          <ChevronRight className={cn("w-5 h-5", isModuleUnlocked ? "text-white/30" : "text-white/20")} />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium">Module {i + 1}</p>
-                          <p className="text-white/40 text-sm">Tap to start</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/30" />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Action Buttons */}
@@ -650,11 +745,25 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                       {week.progress > 0 && week.progress < 100 ? 'Continue Lesson' : 'Start Lesson'}
                     </button>
                     <button
-                      onClick={() => handleStartQuiz(week.number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors"
+                      onClick={() => isQuizUnlocked(week.number) && handleStartQuiz(week.number)}
+                      disabled={!isQuizUnlocked(week.number)}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-colors ${
+                        isQuizUnlocked(week.number)
+                          ? 'border-white/[0.1] text-white hover:bg-white/[0.05]'
+                          : 'border-white/[0.05] text-white/40 cursor-not-allowed'
+                      }`}
                     >
-                      <HelpCircle className="w-5 h-5" />
-                      Take Quiz
+                      {isQuizUnlocked(week.number) ? (
+                        <>
+                          <HelpCircle className="w-5 h-5" />
+                          Take Quiz
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-5 h-5" />
+                          <span className="text-xs">Complete all modules ({getCompletedModuleCount(week.number)}/5)</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
