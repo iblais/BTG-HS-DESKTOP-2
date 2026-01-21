@@ -76,8 +76,18 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
   useEffect(() => {
-    loadProgress();
-    loadActivityProgress();
+    // Set a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000); // Max 5 seconds loading
+
+    Promise.all([loadProgress(), loadActivityProgress()])
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+
+    return () => clearTimeout(timeout);
   }, []);
 
   const loadProgress = async () => {
