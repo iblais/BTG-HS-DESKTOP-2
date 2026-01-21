@@ -84,7 +84,10 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     try {
       setLoading(true);
       const user = await getCurrentUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data } = await supabase
         .from('course_progress')
@@ -104,7 +107,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const loadActivityProgress = async () => {
     try {
       const user = await getCurrentUser();
-      if (!user) return;
+      if (!user) {
+        return;
+      }
 
       const { data, error } = await supabase
         .from('activity_responses')
