@@ -496,6 +496,39 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Add new streams slowly - don't overwhelm yourself",
               "Keep track of how much each stream brings in"
             ]
+          },
+          {
+            title: "Tracking Your Income & Progress",
+            type: "reading",
+            duration: "6 min",
+            content: `You can't improve what you don't measure. If you want to grow your income, you need to know exactly where your money is coming from and how much you're making.
+
+**Why track your income?**
+• See patterns - maybe you make more on certain days or times
+• Find opportunities - notice which activities pay best for your time
+• Stay motivated - watching your income grow feels good
+• Plan better - know what to expect each week/month
+
+**Simple ways to track:**
+• Use a notes app on your phone - just jot down what you earned and from where
+• Create a simple spreadsheet - date, source, amount
+• Use a budgeting app that tracks income
+• Keep a small notebook dedicated to money tracking
+
+**What to track:**
+• Date you received the money
+• Where it came from (job, side hustle, gift, etc.)
+• Amount (before and after any deductions)
+• Hours worked (so you can calculate your hourly rate)
+
+**Review weekly:**
+Set aside 10 minutes every Sunday to look at what you earned that week. Ask yourself: What worked? What didn't? What can I do more of next week?`,
+            keyPoints: [
+              "Track every dollar that comes in - no amount is too small",
+              "Calculate your actual hourly rate for different activities",
+              "Review your income weekly to spot patterns",
+              "Use the data to make smarter decisions about your time"
+            ]
           }
         ]
       },
@@ -577,6 +610,38 @@ Don't try to do everything at once. Start with ONE extra income stream. Get good
               "Pay the FULL balance on time every month - no exceptions",
               "Use less than 30% of whatever your limit is",
               "Check your credit regularly to catch any problems"
+            ]
+          },
+          {
+            title: "Credit Myths vs Facts",
+            type: "reading",
+            duration: "5 min",
+            content: `There's a LOT of bad information out there about credit. Let's clear up some common myths so you don't make decisions based on lies.
+
+**MYTH: Checking your own credit hurts your score**
+FACT: Nope! When YOU check your own credit, it's called a "soft inquiry" and has ZERO impact on your score. Check it as often as you want.
+
+**MYTH: You need to carry a balance to build credit**
+FACT: This is 100% FALSE and costs people tons of money in interest. Pay your balance in FULL every month. You still build credit.
+
+**MYTH: Closing old credit cards helps your score**
+FACT: Usually the opposite! Closing old cards can hurt your score because it reduces your total available credit and shortens your credit history.
+
+**MYTH: Your income affects your credit score**
+FACT: Your income is NOT part of your credit score at all. A broke person can have excellent credit, and a rich person can have terrible credit.
+
+**MYTH: All debt is bad for your credit**
+FACT: Having some debt and paying it responsibly actually HELPS your score. It shows you can handle credit responsibly.
+
+**MYTH: You only have one credit score**
+FACT: You have many! Different bureaus (Experian, TransUnion, Equifax) may have slightly different scores, and there are different scoring models (FICO, VantageScore).
+
+**The truth:** Good credit comes from simple habits - pay on time, keep balances low, and be patient. Don't overcomplicate it.`,
+            keyPoints: [
+              "Checking your own credit score never hurts it",
+              "You do NOT need to carry a balance to build credit",
+              "Closing old credit cards usually hurts, not helps",
+              "Income has nothing to do with your credit score"
             ]
           }
         ]
@@ -674,6 +739,44 @@ Errors happen. Identity theft happens. Check your report at least once a year fo
               "Pull your free credit report yearly from annualcreditreport.com",
               "If you're struggling, communicate with creditors before missing payments"
             ]
+          },
+          {
+            title: "Your Credit Action Plan",
+            type: "interactive",
+            duration: "6 min",
+            content: `Time to make this real. Let's create your personal credit action plan based on where you are right now.
+
+**If you have NO credit history:**
+1. This week: Ask a parent about becoming an authorized user on their card
+2. This month: Research student credit cards (Discover Student, Capital One Journey)
+3. Apply for ONE starter card and use it for small purchases only
+4. Set up autopay for the full balance immediately
+
+**If you have SOME credit history:**
+1. Check your current score using Credit Karma or your bank's free tool
+2. Review your credit report for any errors
+3. Make sure you're using less than 30% of your available credit
+4. Set up payment reminders if you don't have autopay
+
+**If you made MISTAKES with credit:**
+1. Don't panic - credit can be rebuilt
+2. Get current on any past-due accounts first
+3. Consider a secured credit card to start rebuilding
+4. Be patient - negative marks fade over time (7 years for most things)
+
+**Monthly credit habits to build:**
+• Check your credit score (1st of each month)
+• Review your statements for errors or fraud
+• Pay your balance in full before the due date
+• Keep track of your credit utilization percentage
+
+**The 6-month goal:** Have at least one credit account in good standing with on-time payments and low utilization.`,
+            keyPoints: [
+              "Start with ONE credit card and master it before adding more",
+              "Set up autopay immediately to never miss a payment",
+              "Check your credit score monthly to track progress",
+              "If you've made mistakes, focus on getting current and being patient"
+            ]
           }
         ]
       },
@@ -738,6 +841,90 @@ Errors happen. Identity theft happens. Check your report at least once a year fo
               "Always compare rates from multiple lenders",
               "Read the fine print - all of it",
               "Federal student loans first, private loans last"
+            ]
+          },
+          {
+            title: "Understanding Interest Rates",
+            type: "reading",
+            duration: "6 min",
+            content: `Interest rates can make or break your financial future. Understanding them is crucial.
+
+**What is interest?**
+Interest is the cost of borrowing money. When you borrow, you pay back MORE than you borrowed. When you save, you EARN more than you deposited.
+
+**APR vs APY:**
+• APR (Annual Percentage Rate) - what you PAY on loans/credit cards
+• APY (Annual Percentage Yield) - what you EARN on savings
+• Both account for compound interest, but they work in opposite directions
+
+**How compound interest works:**
+• Interest earns interest (when saving) or charges interest (when owing)
+• A $1,000 credit card balance at 20% APR can become $1,200+ in a year if you only pay minimums
+• A $1,000 savings at 5% APY becomes $1,050 in a year without doing anything
+
+**The Rule of 72:**
+Divide 72 by the interest rate to see how long it takes money to double.
+• 72 ÷ 6% = 12 years for savings to double
+• 72 ÷ 24% = 3 years for credit card debt to double!
+
+**Interest rates to know:**
+• Credit cards: 15-25% APR (HIGH - avoid carrying balances)
+• Car loans: 4-10% APR (medium)
+• Student loans: 4-8% APR (relatively low)
+• Savings accounts: 4-5% APY (get a high-yield account!)
+• Mortgage: 6-8% APR (low, but large amounts)`,
+            keyPoints: [
+              "Interest works FOR you when saving, AGAINST you when borrowing",
+              "Credit card interest rates are extremely high - pay in full",
+              "Use the Rule of 72 to understand how fast money grows or debt accumulates",
+              "Always compare APR when borrowing and APY when saving"
+            ]
+          },
+          {
+            title: "Getting Out of Debt",
+            type: "reading",
+            duration: "6 min",
+            content: `Already in debt? Here's how to dig yourself out strategically.
+
+**Step 1: Face the truth**
+• List ALL your debts: who you owe, how much, interest rate, minimum payment
+• Total it up - this number might hurt, but you need to know it
+• Don't hide from it - ignoring debt makes it worse
+
+**Step 2: Stop the bleeding**
+• Stop using credit cards immediately
+• Cut unnecessary expenses temporarily
+• Find ways to increase income (even small amounts help)
+
+**Two popular payoff strategies:**
+
+**Debt Avalanche (mathematically best):**
+• Pay minimums on all debts
+• Put extra money toward the HIGHEST interest rate debt
+• Once that's paid, move to the next highest
+• Saves the most money on interest
+
+**Debt Snowball (psychologically motivating):**
+• Pay minimums on all debts
+• Put extra money toward the SMALLEST balance
+• Once that's paid, move to the next smallest
+• Quick wins keep you motivated
+
+**Step 3: Negotiate**
+• Call creditors and ask for lower interest rates
+• Ask about hardship programs if you're struggling
+• Look into balance transfer cards (0% APR for 12-18 months)
+• Consider debt consolidation loans
+
+**Step 4: Prevent relapse**
+• Build an emergency fund so you don't need credit for surprises
+• Create a budget that includes debt payments
+• Celebrate milestones (without spending money!)`,
+            keyPoints: [
+              "Make a complete list of all debts before creating a payoff plan",
+              "Choose avalanche (save money) or snowball (stay motivated) method",
+              "Negotiate with creditors - they often have options you don't know about",
+              "Build an emergency fund while paying off debt to avoid new debt"
             ]
           }
         ]
@@ -832,6 +1019,50 @@ Errors happen. Identity theft happens. Check your report at least once a year fo
               "Review your statement every month",
               "Report anything suspicious immediately"
             ]
+          },
+          {
+            title: "Digital Banking & Money Apps",
+            type: "reading",
+            duration: "5 min",
+            content: `Welcome to the future of banking - it's all on your phone now.
+
+**Banking Apps to Know:**
+• Your bank's official app - manage accounts, deposit checks, transfer money
+• Venmo/Cash App/Zelle - send money to friends instantly
+• PayPal - online purchases and receiving payments
+
+**Payment Apps Best Practices:**
+• Only send money to people you know and trust
+• Double-check usernames before sending (scammers create lookalike accounts)
+• Keep app balances low - transfer to your bank regularly
+• Turn on notifications for every transaction
+
+**Digital Wallet Setup:**
+• Apple Pay, Google Pay, Samsung Pay
+• More secure than swiping your card (uses tokenization)
+• Set up with your debit and credit cards
+• Can also store loyalty cards and tickets
+
+**Protecting Your Digital Money:**
+• Use Face ID/fingerprint when available
+• Never share screenshots of your banking app
+• Log out of banking apps on shared devices
+• Use different passwords for each financial app
+• Enable login notifications
+
+**Watch out for:**
+• Fake "bank" texts or calls asking for info
+• Apps that look like your bank's app but aren't
+• Public WiFi when checking banking apps
+• Friends asking for money via text (could be a hacked account)
+
+**Pro tip:** Set up automatic savings transfers in your banking app - even $5/week adds up to $260/year!`,
+            keyPoints: [
+              "Use your bank's official app for secure account management",
+              "Digital wallets (Apple Pay, etc.) are more secure than physical cards",
+              "Enable notifications for all financial transactions",
+              "Never share banking information over text or email"
+            ]
           }
         ]
       },
@@ -900,6 +1131,98 @@ Review weekly at first, then monthly once you get the hang of it`,
               "Don't forget irregular expenses (car repairs, gifts)",
               "Review and adjust your budget monthly"
             ]
+          },
+          {
+            title: "Budgeting Tools & Apps",
+            type: "reading",
+            duration: "5 min",
+            content: `You don't need fancy tools to budget, but they can make it easier.
+
+**Free Budgeting Apps:**
+
+**YNAB (You Need A Budget)**
+• Best for: People who want to be hands-on
+• Philosophy: Give every dollar a job
+• Cost: Free trial, then paid (but worth it for serious budgeters)
+
+**Mint (by Intuit)**
+• Best for: Beginners who want automatic tracking
+• Connects to all your accounts
+• Shows spending categories automatically
+• 100% free
+
+**EveryDollar**
+• Best for: Fans of Dave Ramsey's methods
+• Simple and clean design
+• Free version is manual entry, paid version connects to banks
+
+**Simple Spreadsheet Method:**
+• Google Sheets or Excel
+• Free and completely customizable
+• Many free templates available online
+• Full control over your categories
+
+**The Envelope Method (Old School but Works):**
+• Cash in labeled envelopes for each category
+• When an envelope is empty, you're done spending in that category
+• Great for people who overspend with cards
+• Can also do this digitally with separate savings accounts
+
+**Choose based on your style:**
+• Visual learner? Mint shows pretty charts
+• Need accountability? YNAB makes you assign every dollar
+• Like simplicity? Spreadsheet or envelope method
+• Hate tracking? At minimum, track just your problem spending categories`,
+            keyPoints: [
+              "Try different apps to find what works for your style",
+              "Any budgeting method is better than no method",
+              "The envelope system works great for controlling overspending",
+              "Spreadsheets give you complete control and customization"
+            ]
+          },
+          {
+            title: "Common Budgeting Mistakes",
+            type: "reading",
+            duration: "5 min",
+            content: `Most budgets fail. Here's why and how to avoid the same mistakes.
+
+**Mistake 1: Being too restrictive**
+• Problem: Zero fun money means you'll give up
+• Fix: Build in a "blow money" category for guilt-free spending
+
+**Mistake 2: Not tracking small purchases**
+• Problem: $5 here, $10 there adds up fast
+• Fix: Track EVERYTHING for at least one month to see the truth
+
+**Mistake 3: Forgetting irregular expenses**
+• Problem: Car registration, holiday gifts, annual subscriptions
+• Fix: List all yearly expenses, divide by 12, save monthly
+
+**Mistake 4: Not having an emergency buffer**
+• Problem: One unexpected expense ruins the whole budget
+• Fix: Build a $500-1000 buffer before anything else
+
+**Mistake 5: Giving up after one bad month**
+• Problem: One overspend and you quit entirely
+• Fix: Treat it like a diet - one bad meal doesn't mean stop trying
+
+**Mistake 6: Not paying yourself first**
+• Problem: Saving "what's left" means saving nothing
+• Fix: Automate savings BEFORE you can spend it
+
+**Mistake 7: Using averages instead of actuals**
+• Problem: You think you spend $200 on food but it's really $400
+• Fix: Track real spending for 2-3 months before making a budget
+
+**Mistake 8: Not involving partners/roommates**
+• Problem: Shared expenses get messy
+• Fix: Have regular money conversations, use apps like Splitwise`,
+            keyPoints: [
+              "Include fun money so you don't feel deprived and quit",
+              "Track every purchase for a full month to find hidden spending",
+              "Plan for irregular annual expenses by saving monthly",
+              "Automate savings before you have a chance to spend it"
+            ]
           }
         ]
       },
@@ -963,6 +1286,96 @@ Life changes. Your plan should too.`,
               "Include fun money - you're more likely to stick to it",
               "Build in a buffer for unexpected expenses",
               "Adjust your plan as your life changes"
+            ]
+          },
+          {
+            title: "Cutting Expenses Without Feeling Broke",
+            type: "reading",
+            duration: "6 min",
+            content: `Cutting costs doesn't mean living miserably. Here's how to spend less while still enjoying life.
+
+**Subscriptions audit:**
+• List every subscription you have (Netflix, Spotify, gym, apps)
+• Cancel what you haven't used in 30 days
+• Share family plans when possible (Spotify Family, Netflix)
+• Use free alternatives (library apps for audiobooks, free Spotify tier)
+
+**Food costs (usually the biggest budget leak):**
+• Meal prep on Sundays - cook once, eat all week
+• Pack lunch instead of buying - saves $50-100/week
+• Use grocery pickup to avoid impulse buys
+• Student discounts at restaurants (always ask!)
+
+**Transportation savings:**
+• Carpool when possible
+• Use student transit passes
+• Combine trips to save gas
+• Consider biking for short distances
+
+**Entertainment hacks:**
+• Student discounts EVERYWHERE (movies, museums, software)
+• Free campus events
+• Library cards give free access to streaming services, ebooks
+• Host game nights instead of going out
+
+**Shopping smarter:**
+• Wait 24-48 hours before non-essential purchases
+• Use browser extensions like Honey for automatic coupons
+• Buy used textbooks, sell them after
+• Shop end-of-season sales
+
+**The "No-Spend Challenge":**
+Try one week per month where you only spend on absolute necessities. You'll be surprised how little you actually need.`,
+            keyPoints: [
+              "Audit and cancel unused subscriptions monthly",
+              "Meal prepping saves the most money for most people",
+              "Always ask about student discounts - they're everywhere",
+              "Wait 24-48 hours before impulse purchases"
+            ]
+          },
+          {
+            title: "Building Your Savings Habit",
+            type: "reading",
+            duration: "5 min",
+            content: `Saving money is a skill you build over time. Here's how to make it automatic.
+
+**The Pay Yourself First Method:**
+1. Calculate your monthly savings goal
+2. Set up automatic transfer on payday
+3. Money goes to savings BEFORE you see it
+4. Live on what's left
+
+**Where to keep your savings:**
+• Emergency fund: High-yield savings account (earn 4-5% APY)
+• Short-term goals: Regular savings account
+• Long-term goals: Consider CDs or investment accounts
+
+**The Savings Ladder:**
+1. First $500: Starter emergency fund
+2. Next $1,000: Full mini emergency fund
+3. Then: 1 month of expenses saved
+4. Goal: 3-6 months of expenses
+
+**Make saving feel rewarding:**
+• Name your savings accounts (not "Savings" but "Trip to Japan" or "New Car")
+• Track your progress visually
+• Celebrate milestones without spending
+• Tell a friend your goal for accountability
+
+**Savings challenges to try:**
+• 52-week challenge: Week 1 = $1, Week 2 = $2... Week 52 = $52 (total: $1,378)
+• Round-up savings: Round every purchase up to nearest dollar, save the difference
+• No-spend weeks: One week per month, no non-essential spending
+
+**When NOT to save:**
+• If you have high-interest debt (over 10%), pay that first
+• If you have no income at all, focus on earning first
+• If you're not covering basic needs, prioritize those`,
+            keyPoints: [
+              "Automate savings so it happens before you can spend it",
+              "Keep emergency savings in a high-yield savings account",
+              "Name your savings accounts with specific goals",
+              "Start small - even $5/week builds the habit"
             ]
           }
         ]
@@ -1028,6 +1441,105 @@ Life changes. Your plan should too.`,
               "Audit your social media - delete the sketchy stuff",
               "Post content that adds value",
               "Be authentic but professional"
+            ]
+          },
+          {
+            title: "Professional Communication",
+            type: "reading",
+            duration: "6 min",
+            content: `How you communicate says a lot about you. Let's level up your professional communication skills.
+
+**Email Etiquette:**
+• Clear subject line that tells them what it's about
+• Professional greeting (Hi [Name], / Dear [Name],)
+• Get to the point quickly - busy people skim
+• Use proper grammar and punctuation
+• Professional sign-off (Best regards, Thank you, etc.)
+• Proofread before sending!
+
+**Example of a professional email:**
+Subject: Question About Summer Internship Application
+
+Hi Ms. Johnson,
+
+I recently applied for the Marketing Intern position and wanted to follow up on my application status. I'm very excited about the opportunity to contribute to your team.
+
+Please let me know if you need any additional information from me.
+
+Thank you for your time,
+[Your Name]
+
+**Text/DM Communication:**
+• Match the other person's formality level
+• Still use proper spelling (no "u" for "you" in professional contexts)
+• Keep it brief and clear
+• Save complex discussions for email or calls
+
+**Phone & Video Calls:**
+• Find a quiet place with good lighting
+• Have your camera on for video calls
+• Dress appropriately (at least from the waist up!)
+• Mute yourself when not speaking
+• Be on time - early is even better
+
+**In-Person Professionalism:**
+• Eye contact shows confidence
+• Firm handshake (practice this!)
+• Put your phone away
+• Active listening - nod, respond, ask follow-up questions`,
+            keyPoints: [
+              "Always proofread emails before sending",
+              "Match your communication style to the situation",
+              "Be early to calls and meetings",
+              "Eye contact and active listening make a strong impression"
+            ]
+          },
+          {
+            title: "Dressing for Success",
+            type: "reading",
+            duration: "5 min",
+            content: `First impressions matter. Here's how to dress for different situations.
+
+**Understanding Dress Codes:**
+
+**Business Formal:**
+• Men: Suit and tie, dress shoes
+• Women: Suit, professional dress, closed-toe shoes
+• When: Interviews at banks, law firms, formal events
+
+**Business Casual:**
+• Men: Dress pants/khakis, collared shirt, dress shoes
+• Women: Dress pants, blouse, professional shoes
+• When: Most office settings, networking events
+
+**Smart Casual:**
+• Men: Nice jeans/chinos, polo or button-up, clean shoes
+• Women: Nice jeans, casual blouse, neat shoes
+• When: Casual workplace, some interviews, campus events
+
+**Building a professional wardrobe on a budget:**
+• Thrift stores often have great professional clothes
+• Invest in 2-3 quality basics that mix and match
+• Neutral colors (black, navy, gray, white) work with everything
+• One good pair of dress shoes goes a long way
+
+**Grooming matters too:**
+• Clean, neat appearance
+• Hair styled appropriately
+• Minimal cologne/perfume
+• Clean nails and shoes
+• Iron your clothes!
+
+**When in doubt:**
+• It's better to be slightly overdressed than underdressed
+• Look at the company's website/social media for clues
+• Ask the recruiter what the dress code is
+• Clean and wrinkle-free always wins`,
+            keyPoints: [
+              "Know the difference between business formal and business casual",
+              "Build a capsule wardrobe of professional basics",
+              "When unsure, dress one level up from expected",
+              "Grooming and cleanliness matter as much as clothes"
             ]
           }
         ]
@@ -1106,6 +1618,97 @@ Life changes. Your plan should too.`,
               "Follow up politely if you don't hear back",
               "Rejection is normal - keep going"
             ]
+          },
+          {
+            title: "Acing the Interview",
+            type: "reading",
+            duration: "7 min",
+            content: `The interview is your chance to shine. Here's how to nail it.
+
+**Before the interview:**
+• Research the company, their mission, recent news
+• Prepare 2-3 questions to ask THEM
+• Practice common questions out loud
+• Know your resume inside and out
+• Plan your outfit the night before
+• Know exactly where you're going and how long it takes
+
+**Common interview questions:**
+• "Tell me about yourself" (2-minute career summary, not life story)
+• "Why do you want this job?" (specific reasons about this company)
+• "What's your greatest weakness?" (real weakness + how you're improving)
+• "Where do you see yourself in 5 years?" (growth-oriented answer)
+• "Why should we hire you?" (connect your skills to their needs)
+
+**The STAR Method for behavioral questions:**
+• Situation: Set up the context
+• Task: What was your responsibility?
+• Action: What did YOU do?
+• Result: What happened? Use numbers if possible
+
+**Example: "Tell me about a time you showed leadership"**
+"In my group project (Situation), I noticed we were falling behind schedule (Task). I created a shared timeline and scheduled daily check-ins (Action). We finished two days early and got an A (Result)."
+
+**During the interview:**
+• Arrive 10-15 minutes early
+• Firm handshake, eye contact, smile
+• Listen carefully before answering
+• Ask clarifying questions if needed
+• Show enthusiasm without being fake`,
+            keyPoints: [
+              "Research the company thoroughly before every interview",
+              "Practice the STAR method for behavioral questions",
+              "Prepare thoughtful questions to ask them",
+              "Arrive early, dress appropriately, bring copies of your resume"
+            ]
+          },
+          {
+            title: "Negotiating Your Offer",
+            type: "reading",
+            duration: "5 min",
+            content: `Most people don't negotiate - that's a mistake. Here's how to do it right.
+
+**When to negotiate:**
+• After receiving a written offer
+• NOT in the first interview
+• When you have leverage (other offers, unique skills)
+
+**What's negotiable:**
+• Salary (the obvious one)
+• Start date
+• Remote work options
+• Vacation days
+• Signing bonus
+• Professional development budget
+• Title
+
+**How to negotiate:**
+1. Express excitement about the offer first
+2. Ask for time to review (24-48 hours is normal)
+3. Do your research - know what the role pays
+4. Make a specific ask, not a vague "more money"
+5. Explain WHY you're worth more (skills, experience)
+
+**Script for negotiating salary:**
+"Thank you so much for this offer - I'm very excited about joining the team. Based on my research and experience in [specific skill], I was hoping we could discuss the salary. I was thinking something closer to [X amount]. Is there flexibility there?"
+
+**If they say no:**
+• Ask about other benefits
+• Ask about performance review timeline
+• Get the offer in writing anyway
+• Decide if it still works for you
+
+**Remember:**
+• The worst they can say is no
+• Negotiating won't make them rescind the offer
+• You're worth advocating for
+• This sets the base for all future raises`,
+            keyPoints: [
+              "Always negotiate - the worst they can say is no",
+              "Research salary ranges before negotiating",
+              "Negotiate after receiving a written offer, not before",
+              "Consider total compensation, not just salary"
+            ]
           }
         ]
       },
@@ -1179,6 +1782,95 @@ Life changes. Your plan should too.`,
               "Always come with solutions, not just problems",
               "Your reputation follows you - protect it"
             ]
+          },
+          {
+            title: "Time Management & Productivity",
+            type: "reading",
+            duration: "6 min",
+            content: `Managing your time is managing your life. Here's how successful people do it.
+
+**The Eisenhower Matrix:**
+Categorize tasks by urgency and importance:
+• Urgent + Important: Do first
+• Not Urgent + Important: Schedule for later
+• Urgent + Not Important: Delegate if possible
+• Not Urgent + Not Important: Eliminate
+
+**Time blocking:**
+• Schedule specific times for specific tasks
+• Include breaks and buffer time
+• Batch similar tasks together
+• Protect your most productive hours
+
+**Beating procrastination:**
+• Break big tasks into tiny first steps
+• "Just 5 minutes" gets you started
+• Remove distractions (phone in another room)
+• Use the Pomodoro Technique (25 min work, 5 min break)
+
+**Tools that help:**
+• Calendar apps for scheduling
+• To-do apps (Todoist, Things, even Notes)
+• Focus apps (Forest, Freedom)
+• Time tracking (Toggl, RescueTime)
+
+**Energy management:**
+• Know when you're most alert (morning or night person?)
+• Do hard tasks during peak energy
+• Take real breaks - not social media
+• Sleep, exercise, and eat well - they affect focus`,
+            keyPoints: [
+              "Use the Eisenhower Matrix to prioritize tasks",
+              "Time blocking prevents task switching and distraction",
+              "Start with just 5 minutes to beat procrastination",
+              "Protect your peak energy hours for important work"
+            ]
+          },
+          {
+            title: "Building Good Habits for Success",
+            type: "reading",
+            duration: "5 min",
+            content: `Success is the result of daily habits, not one-time actions.
+
+**How habits work:**
+• Cue: What triggers the behavior
+• Routine: The behavior itself
+• Reward: What you get from it
+
+**Building good habits:**
+1. Make it obvious (leave your gym bag by the door)
+2. Make it attractive (reward yourself after)
+3. Make it easy (start tiny - 2 minutes)
+4. Make it satisfying (track your progress)
+
+**Breaking bad habits:**
+1. Make it invisible (delete social media apps)
+2. Make it unattractive (think about consequences)
+3. Make it difficult (add friction)
+4. Make it unsatisfying (accountability partner)
+
+**Habits successful people share:**
+• Wake up at a consistent time
+• Exercise regularly (even 15 minutes)
+• Read or learn something daily
+• Plan tomorrow before sleeping
+• Review goals weekly
+
+**The 1% rule:**
+Getting 1% better every day = 37x better in a year
+Small improvements compound into massive results
+
+**Habit stacking:**
+Attach a new habit to an existing one:
+• "After I pour my coffee, I will review my goals"
+• "After I brush my teeth, I will read for 5 minutes"
+• "After I get home from school, I will review my budget"`,
+            keyPoints: [
+              "Habits are cue → routine → reward loops",
+              "Start tiny and build up - consistency beats intensity",
+              "Stack new habits onto existing routines",
+              "Small daily improvements compound into massive results"
+            ]
           }
         ]
       },
@@ -1249,6 +1941,105 @@ Life changes. Your plan should too.`,
               "Focus on giving, not just getting",
               "Follow up within 24 hours of meeting someone",
               "Keep relationships warm with regular contact"
+            ]
+          },
+          {
+            title: "Finding and Working with Mentors",
+            type: "reading",
+            duration: "6 min",
+            content: `A good mentor can accelerate your success by years. Here's how to find one.
+
+**What a mentor does:**
+• Shares experience and advice
+• Opens doors and makes introductions
+• Provides honest feedback
+• Helps you avoid common mistakes
+• Believes in your potential
+
+**Where to find mentors:**
+• Professors you connect with
+• Managers at your job/internship
+• Alumni from your school
+• Professional associations
+• LinkedIn connections
+• Family friends in your field
+
+**How to ask someone to mentor you:**
+Don't say: "Will you be my mentor?" (too formal, too much commitment)
+Do say: "I really admire your career in [field]. Would you be open to grabbing coffee so I can ask you a few questions about [specific topic]?"
+
+**Being a good mentee:**
+• Come prepared with specific questions
+• Take action on their advice
+• Report back on results
+• Respect their time
+• Express genuine gratitude
+• Eventually, help others the same way
+
+**Types of mentor relationships:**
+• Formal mentor: Regular scheduled meetings
+• Informal mentor: Occasional guidance as needed
+• Peer mentor: Someone at your level you learn with
+• Board of advisors: Multiple mentors for different areas
+
+**Remember:**
+• You can have multiple mentors for different areas of life
+• Mentorship can be informal - not everything needs a label
+• Great mentors were once where you are now`,
+            keyPoints: [
+              "Ask for specific advice, not a formal mentorship",
+              "Show you value their time by being prepared",
+              "Take action on advice and report back results",
+              "You can have multiple mentors for different areas"
+            ]
+          },
+          {
+            title: "Building Your Professional Network",
+            type: "interactive",
+            duration: "6 min",
+            content: `Let's create an action plan for building your network.
+
+**Map your current network:**
+• Family members and their connections
+• Friends and their parents
+• Professors and teachers
+• Current and former coworkers
+• Classmates (especially upperclassmen)
+• Club and organization members
+• Coaches and advisors
+
+**Set networking goals:**
+• Meet 1 new person in your field per month
+• Attend 1 networking event per quarter
+• Reconnect with 2 old contacts per month
+• Have 1 informational interview per month
+
+**Your networking action items:**
+
+This week:
+• Update your LinkedIn profile with a professional photo
+• Connect with 5 people you already know
+• Join 1 professional group related to your interests
+
+This month:
+• Reach out to 1 person you admire for an informational interview
+• Attend 1 campus or virtual networking event
+• Share something valuable on LinkedIn
+
+This semester:
+• Build relationships with 3 professors in your field
+• Connect with 10 alumni working in your target industry
+• Find a potential mentor and start building that relationship
+
+**Keep track:**
+• Spreadsheet of contacts with notes
+• Set reminders to follow up
+• Document what you discussed and next steps`,
+            keyPoints: [
+              "Map your existing network - it's bigger than you think",
+              "Set specific, measurable networking goals",
+              "Start with your LinkedIn profile and existing connections",
+              "Track contacts and set follow-up reminders"
             ]
           }
         ]
@@ -1327,6 +2118,102 @@ Life changes. Your plan should too.`,
               "Invest in skills that transfer across careers",
               "Relationships matter more than you think"
             ]
+          },
+          {
+            title: "Side Hustles That Actually Work",
+            type: "reading",
+            duration: "6 min",
+            content: `Not ready for a full business? Start with a side hustle.
+
+**Low-barrier side hustles for students:**
+
+**Service-based (sell your time/skills):**
+• Tutoring - in-person or online ($15-50/hour)
+• Freelance writing/editing ($20-100/article)
+• Social media management ($200-500/month per client)
+• Graphic design (logos, flyers, social posts)
+• Photography (events, portraits, product shots)
+• Pet sitting/dog walking ($15-25/walk)
+• Cleaning or organizing services
+
+**Product-based (sell stuff):**
+• Reselling (thrift flipping, sneakers, electronics)
+• Print-on-demand (t-shirts, mugs without inventory)
+• Digital products (templates, presets, planners)
+• Handmade crafts (Etsy)
+
+**Platform-based (use existing apps):**
+• DoorDash, Uber Eats delivery
+• Instacart shopping
+• TaskRabbit gigs
+• Fiverr services
+
+**Choosing your hustle:**
+• Match it to skills you already have
+• Consider time vs money tradeoff
+• Start with lowest barrier to entry
+• Test multiple ideas, double down on winners
+
+**Scaling your side hustle:**
+• Raise prices as demand increases
+• Create systems to save time
+• Outsource tasks you don't enjoy
+• Turn it into a real business when ready`,
+            keyPoints: [
+              "Start with skills you already have",
+              "Service businesses have the lowest startup costs",
+              "Test ideas before going all-in",
+              "Your side hustle can become your main hustle"
+            ]
+          },
+          {
+            title: "5-Year Career Vision",
+            type: "interactive",
+            duration: "7 min",
+            content: `Let's create your 5-year vision and work backward.
+
+**Imagine yourself 5 years from now:**
+• Where are you living?
+• What job title do you have?
+• What does a typical day look like?
+• What income level have you reached?
+• What have you accomplished?
+• Who are you surrounded by?
+
+**Now work backward:**
+
+**Year 5: Your goal**
+Write it down: "In 5 years, I will be..."
+
+**Year 4: What needs to be true?**
+• What position leads to year 5?
+• What experience do you need?
+
+**Year 3: Building momentum**
+• What skills should be developed?
+• What network should exist?
+
+**Year 2: Foundation building**
+• What education/training needed?
+• What entry-level experience?
+
+**Year 1 (this year): First steps**
+• What can you do THIS MONTH?
+• What can you do THIS SEMESTER?
+
+**Making it real:**
+• Write your vision somewhere you'll see it daily
+• Share it with a trusted person for accountability
+• Review and adjust quarterly
+• Celebrate progress along the way
+
+**Remember:** Plans will change - that's okay. The direction matters more than the exact destination.`,
+            keyPoints: [
+              "Start with the end in mind and work backward",
+              "Break 5-year goals into yearly, monthly, weekly actions",
+              "Write your vision and review it regularly",
+              "Plans will change - stay flexible while staying focused"
+            ]
           }
         ]
       },
@@ -1400,6 +2287,98 @@ Life changes. Your plan should too.`,
               "Start small - you don't need huge funding",
               "Your plan will change as you learn"
             ]
+          },
+          {
+            title: "Marketing Your Business",
+            type: "reading",
+            duration: "6 min",
+            content: `Great products don't sell themselves. Here's how to get customers.
+
+**Marketing basics:**
+• Marketing = getting the right message to the right people
+• Sales = converting interested people into paying customers
+• Both are essential - you need them to survive
+
+**Free marketing strategies:**
+• Social media (Instagram, TikTok, LinkedIn)
+• Content marketing (blog posts, YouTube videos)
+• Word of mouth (happy customers refer others)
+• Partnerships (collaborate with complementary businesses)
+• SEO (showing up in Google searches)
+
+**Paid marketing options:**
+• Social media ads (start with $5-10/day)
+• Google ads
+• Influencer partnerships
+• Local advertising
+
+**Building your marketing plan:**
+1. Define your target customer clearly
+2. Find where they hang out (online and offline)
+3. Create content that helps them
+4. Have a clear call to action
+5. Track what works and do more of it
+
+**Social media tips:**
+• Pick 1-2 platforms and master them
+• Consistency beats perfection
+• Engage with your audience, don't just post
+• Show behind-the-scenes
+• Use stories and short videos`,
+            keyPoints: [
+              "Marketing is about being where your customers are",
+              "Start with free marketing before spending money",
+              "Consistency and engagement matter more than perfection",
+              "Track results and double down on what works"
+            ]
+          },
+          {
+            title: "Managing Business Finances",
+            type: "reading",
+            duration: "6 min",
+            content: `Business finances are different from personal finances. Here's what you need to know.
+
+**Keep business and personal separate:**
+• Open a separate business bank account
+• Get a business credit card
+• Track every business expense
+• This makes taxes SO much easier
+
+**Understanding basic financials:**
+• Revenue: Money coming in
+• Expenses: Money going out
+• Profit: Revenue minus expenses
+• Cash flow: Timing of money in vs out
+
+**Pricing your product/service:**
+• Know your costs (materials, time, overhead)
+• Research competitor pricing
+• Don't undervalue yourself
+• Price for profit, not just survival
+
+**Tracking your money:**
+• Use simple accounting software (Wave is free)
+• Record every transaction
+• Review weekly at minimum
+• Understand where money comes from and goes
+
+**Taxes for side hustles:**
+• You must report all income
+• Save 25-30% for taxes
+• Track all business expenses (they're deductible)
+• Consider quarterly estimated payments
+• Keep receipts for everything
+
+**When to get help:**
+• Hire a bookkeeper when it takes too much time
+• Get an accountant for tax planning
+• Consider a business lawyer for contracts`,
+            keyPoints: [
+              "Keep business and personal finances completely separate",
+              "Track every dollar in and out from day one",
+              "Save 25-30% of business income for taxes",
+              "Price for profit - know your true costs"
+            ]
           }
         ]
       },
@@ -1470,6 +2449,95 @@ Life changes. Your plan should too.`,
               "You don't have to act on every piece of feedback",
               "Follow up with connections made at the showcase",
               "This is just the beginning of your journey"
+            ]
+          },
+          {
+            title: "Public Speaking Confidence",
+            type: "reading",
+            duration: "5 min",
+            content: `Public speaking is the #1 fear for most people. Here's how to overcome it.
+
+**Understanding nerves:**
+• Everyone gets nervous - even pros
+• Nervousness means you care
+• Your audience wants you to succeed
+• The feeling usually fades after the first minute
+
+**Before you speak:**
+• Practice out loud, not just in your head
+• Record yourself and watch it back
+• Practice in front of friends or family
+• Visualize success, not failure
+• Prepare for technical difficulties
+
+**Physical techniques:**
+• Deep breathing (4 in, hold 4, out 4)
+• Power poses before presenting
+• Move around - don't stand frozen
+• Make eye contact with friendly faces
+• Speak slower than feels natural
+
+**Content tips:**
+• Start with a hook - story, question, surprising fact
+• Use the rule of 3 (3 main points)
+• Include stories and examples
+• End with a clear call to action
+• Have backup for "what if I forget?"
+
+**Handling Q&A:**
+• Repeat the question so everyone hears
+• "That's a great question" buys thinking time
+• It's okay to say "I don't know, but I'll find out"
+• Keep answers concise`,
+            keyPoints: [
+              "Nerves are normal - even professionals feel them",
+              "Practice out loud multiple times before presenting",
+              "Deep breathing and power poses reduce anxiety",
+              "Start with a hook and end with a clear call to action"
+            ]
+          },
+          {
+            title: "Reflecting on Your Progress",
+            type: "interactive",
+            duration: "6 min",
+            content: `You've come a long way. Let's reflect on your growth.
+
+**Look back at where you started:**
+• What did you know about money before this program?
+• What were your biggest fears or confusion?
+• What habits did you have around money?
+
+**Celebrate your wins:**
+• What's the most important thing you learned?
+• What new habits have you built?
+• What's one decision you made differently because of this program?
+• What are you most proud of?
+
+**Acknowledge challenges:**
+• What was the hardest concept to understand?
+• What habit is still difficult for you?
+• What would you do differently if starting over?
+
+**Share your story:**
+• How would you explain what you learned to a friend?
+• What advice would you give to someone starting this program?
+• How has your mindset about money changed?
+
+**Looking forward:**
+• What's your biggest financial goal for the next year?
+• What habit will have the biggest impact?
+• Who can you teach or help with financial literacy?
+
+**Remember:**
+• Learning is ongoing - this isn't the end
+• Mistakes are part of the journey
+• Small actions compound into big results
+• You have the knowledge - now apply it`,
+            keyPoints: [
+              "Reflection solidifies learning and identifies growth",
+              "Celebrate wins - even small ones matter",
+              "Your journey can help others just starting out",
+              "This is the beginning, not the end"
             ]
           }
         ]
@@ -1575,6 +2643,53 @@ Have 3-5 income streams so if one fails, you're not broke. Financial security co
               "Passive income requires active work upfront",
               "Aim for 3-5 diverse income streams long-term"
             ]
+          },
+          {
+            title: "Protecting Your Wealth",
+            type: "reading",
+            duration: "6 min",
+            content: `Building wealth is one thing. Protecting it is another. Here's how to safeguard what you've built.
+
+**Insurance basics:**
+• Health insurance: Don't skip it - one medical bill can wipe you out
+• Auto insurance: Required by law, protects you from lawsuits
+• Renter's insurance: Cheap protection for your stuff
+• Life insurance: Necessary once you have dependents
+• Disability insurance: Protects your income if you can't work
+
+**Emergency fund reminder:**
+• 3-6 months of expenses in a high-yield savings account
+• This is your first line of defense
+• Don't invest your emergency fund
+
+**Protecting your identity:**
+• Use unique passwords for every financial account
+• Enable two-factor authentication everywhere
+• Monitor your credit reports regularly
+• Freeze your credit if you're not applying for anything
+• Shred sensitive documents
+
+**Estate planning (yes, even young):**
+• Create a basic will (free templates online)
+• Set up beneficiaries on all accounts
+• Keep important documents organized
+• Tell someone where to find everything
+
+**Common wealth destroyers:**
+• Lifestyle inflation (earning more, spending more)
+• Risky investments (get-rich-quick schemes)
+• Cosigning loans for others
+• Divorce without a prenup
+• Not having insurance
+
+**The mindset:**
+Protecting wealth is about being defensive. Play good defense so one bad event doesn't undo years of hard work.`,
+            keyPoints: [
+              "Insurance protects you from catastrophic financial events",
+              "Keep 3-6 months expenses in an emergency fund",
+              "Protect your identity with strong passwords and credit monitoring",
+              "Avoid lifestyle inflation as your income grows"
+            ]
           }
         ]
       },
@@ -1677,6 +2792,62 @@ You have the knowledge. You have the tools. Now you just need to execute. Start 
               "Never stop learning about personal finance",
               "Teach others what you've learned - it reinforces your knowledge"
             ]
+          },
+          {
+            title: "Creating Your Financial Plan",
+            type: "interactive",
+            duration: "8 min",
+            content: `Let's put it all together into a personalized financial plan.
+
+**Your Financial Snapshot:**
+Take 5 minutes to write down:
+• Current monthly income: $____
+• Current monthly expenses: $____
+• Current savings: $____
+• Current debt: $____
+• Credit score (if known): ____
+
+**Your 90-Day Action Plan:**
+
+**Month 1 - Foundation:**
+• Create/update your budget
+• Set up automatic savings ($__/month)
+• Review all subscriptions, cancel unused ones
+• Check your credit report for free
+
+**Month 2 - Growth:**
+• Increase savings by 10% if possible
+• Open a high-yield savings account
+• Build emergency fund to $500
+• Apply for first credit card if you don't have one
+
+**Month 3 - Momentum:**
+• Review and adjust budget based on actuals
+• Set up additional automatic investments
+• Network with 5 people in your field
+• Identify one income-growing opportunity
+
+**Your 1-Year Goals:**
+• Emergency fund: $______
+• Total savings: $______
+• Credit score: ______
+• Debt payoff: $______
+• Income goal: $______
+
+**Review Schedule:**
+• Weekly: 10-minute spending check
+• Monthly: Full budget review and adjustment
+• Quarterly: Goal progress review
+• Yearly: Complete financial assessment
+
+**Accountability:**
+Share these goals with someone who will hold you accountable. Check in monthly.`,
+            keyPoints: [
+              "Create a written financial snapshot of where you are today",
+              "Set specific 90-day action items with deadlines",
+              "Review your plan weekly, monthly, and quarterly",
+              "Find an accountability partner to share goals with"
+            ]
           }
         ]
       },
@@ -1752,6 +2923,52 @@ You have the knowledge. You have the tools. Now you just need to execute. Start 
               "Small consistent actions beat big occasional ones",
               "Share what you've learned with others",
               "Your financial journey is just beginning"
+            ]
+          },
+          {
+            title: "Paying It Forward",
+            type: "reading",
+            duration: "5 min",
+            content: `The best way to cement your knowledge is to share it. Here's how to help others.
+
+**Why teach what you've learned:**
+• Teaching reinforces your own understanding
+• You can help friends and family avoid mistakes
+• Financial literacy is a gift that keeps giving
+• You become a leader in your community
+
+**Ways to share your knowledge:**
+• Help a younger sibling or cousin understand money
+• Offer to review a friend's budget
+• Share helpful articles on social media
+• Mentor someone just starting their financial journey
+• Start a money conversation with your family
+
+**Having money conversations:**
+• Start with your own story - what you've learned
+• Ask questions instead of lecturing
+• Share resources that helped you
+• Be patient - money mindsets take time to change
+• Don't judge - everyone starts somewhere
+
+**Creating ripple effects:**
+When you teach one person about budgeting, they might teach two others. Those two teach four more. Your impact multiplies far beyond what you can see.
+
+**Your challenge:**
+Within the next 30 days, teach at least ONE person ONE thing you learned in this program. It could be:
+• How to start a budget
+• The importance of emergency funds
+• How credit scores work
+• The basics of investing
+• How to track spending
+
+**Remember:**
+You don't have to be an expert to help someone who's just starting. You just need to be one step ahead.`,
+            keyPoints: [
+              "Teaching others reinforces your own learning",
+              "Start money conversations with friends and family",
+              "Challenge yourself to teach at least one person one concept",
+              "Your knowledge can create ripple effects that help many people"
             ]
           },
           {
