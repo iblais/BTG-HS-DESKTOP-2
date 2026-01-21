@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git stash:*)",
+      "Bash(git tag:*)",
+      "Bash(git checkout:*)",
+      "Bash(cd /Volumes/Macbook/Z - Business/Mike Wash/BTG-Desktop && npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix\\(structure\\): Correct week structure to 4 modules + Friday quiz\n\nBREAKING STRUCTURE CHANGE:\n- 1 Week = 5 Days\n- Days 1-4: ONE module per day \\(not 4 per day\\)\n- Day 5 \\(Friday\\): Weekly quiz ONLY\n\nKey changes:\n- types.ts: Added DayNumber 1-5, ActivityResponse, progression helpers\n- modules.ts: buildWeekContent now shows correct 5-day structure\n- CoursesScreen: Week modal shows Day 1-4 modules + Day 5 quiz\n- LessonScreen: Added required activity submission at end of modules\n- QuizScreen: Enhanced with \"Friday Quiz\" branding, attempt tracking\n- TeacherDashboard: Added module/activity/quiz visibility, stuck indicators\n\nProgression rules:\n- Day 2 unlocks after Day 1 module + activity complete\n- Day 5 quiz unlocks after all 4 modules complete\n- Next week unlocks after quiz passed\n\nNo data migration needed - logic changes only.\nRollback tag: rollback-pre-week-structure\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(cd:*)",
+      "Bash(git push -u origin claude/fix-week-structure-4-modules-plus-friday-quiz)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel inspect btg-desktop-pd9a4ur74-ernest-blais-projects.vercel.app)",
+      "WebFetch(domain:btg-desktop.vercel.app)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(activities\\): Add activities INSIDE each module for weeks 1-3\n\nActivities are now:\n- Shown INSIDE the module content \\(after Key Takeaways\\)\n- Required to submit before clicking Next\n- Each has a specific prompt related to the lesson content\n- Minimum character requirements to ensure thoughtful responses\n\nStructure per module:\n1. Lesson content\n2. Key Takeaways\n3. Activity \\(with prompt + text area + submit\\)\n4. Next button \\(disabled until activity submitted\\)\n\nWeeks 1-3 have full activities. More weeks to follow.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(vercel:*)",
+      "Bash(git commit:*)",
+      "Bash(cd /Volumes/Macbook/Z\\\\ -\\\\ Business/Mike\\\\ Wash/BTG-Desktop && npm run build:*)",
+      "Bash(npm run build:*)"
+    ]
+  }
+}

@@ -4688,11 +4688,6 @@ You've completed this program - now go build the life you want.`,
           </div>
         </div>
 
-        {/* VIDEO SECTION - ALWAYS VISIBLE */}
-        <div className="mb-6 p-4 bg-red-500 rounded-xl text-white font-bold text-center">
-          🎬 VIDEO PLACEHOLDER SHOULD BE HERE 🎬
-        </div>
-
         {/* Video Player - YouTube Embed or Placeholder */}
         <div className="mb-6 rounded-xl overflow-hidden border border-white/10">
           {currentSectionData.videoUrl ? (
@@ -4706,13 +4701,13 @@ You've completed this program - now go build the life you want.`,
               allowFullScreen
             />
           ) : (
-            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#4A5FFF]/30 to-[#00BFFF]/30 border-2 border-[#4A5FFF]">
+            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#1a1f3e] to-[#0d1025] border border-white/20 rounded-xl">
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-[#4A5FFF]/40 flex items-center justify-center mx-auto mb-4">
-                  <Play size={40} className="text-white ml-1" />
+                <div className="w-16 h-16 rounded-full bg-[#4A5FFF]/30 flex items-center justify-center mx-auto mb-3">
+                  <Play size={32} className="text-[#4A5FFF]" />
                 </div>
-                <p className="text-white font-bold text-lg">📹 LESSON VIDEO</p>
-                <p className="text-white/80 text-sm mt-1">Video Coming Soon</p>
+                <p className="text-white font-semibold">Lesson Video</p>
+                <p className="text-white/60 text-sm mt-1">Coming Soon</p>
               </div>
             </div>
           )}
@@ -4799,13 +4794,13 @@ You've completed this program - now go build the life you want.`,
           </Accordion.Root>
         ) : (
           <div className="space-y-2">
-            <div className="flex items-center gap-3 p-4 bg-amber-500/20 border-2 border-amber-500 rounded-lg">
-              <ExternalLink size={20} className="text-amber-400" />
-              <span className="text-white font-medium">📚 Reference 1 (Coming Soon)</span>
+            <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <ExternalLink size={16} className="text-amber-400/70" />
+              <span className="text-white/70 text-sm">Teacher Resource 1 - Coming Soon</span>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-amber-500/20 border-2 border-amber-500 rounded-lg">
-              <ExternalLink size={20} className="text-amber-400" />
-              <span className="text-white font-medium">📚 Reference 2 (Coming Soon)</span>
+            <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+              <ExternalLink size={16} className="text-amber-400/70" />
+              <span className="text-white/70 text-sm">Teacher Resource 2 - Coming Soon</span>
             </div>
           </div>
         )}
@@ -4886,11 +4881,10 @@ You've completed this program - now go build the life you want.`,
             )}
           </>
         ) : (
-          <div className="bg-[#4A5FFF]/20 rounded-lg p-8 text-center border-2 border-[#4A5FFF]">
-            <BookOpen size={48} className="mx-auto mb-4 text-[#4A5FFF]" />
-            <p className="text-white font-bold text-lg">✍️ WRITTEN ACTIVITY</p>
-            <p className="text-white/80 text-sm mt-2">Activity content is being prepared</p>
-            <p className="text-white/60 text-xs mt-1">Check back soon for your activity assignment</p>
+          <div className="bg-white/5 rounded-lg p-6 text-center border border-white/10">
+            <BookOpen size={32} className="mx-auto mb-3 text-[#4A5FFF]/60" />
+            <p className="text-white/80 font-medium">Written Activity</p>
+            <p className="text-white/50 text-sm mt-1">Coming Soon</p>
           </div>
         )}
       </GlassCard>

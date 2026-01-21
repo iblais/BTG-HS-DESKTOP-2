@@ -531,12 +531,12 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
         {weeks.map((week) => (
           <div
             key={week.number}
-            onClick={() => week.status !== 'locked' && setSelectedWeek(week.number)}
+            onClick={() => setSelectedWeek(week.number)}
             className={cn(
-              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group",
+              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
               week.status === 'locked'
-                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] opacity-60 cursor-not-allowed"
-                : "cursor-pointer",
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)]"
+                : "",
               week.status === 'completed'
                 ? "bg-gradient-to-br from-[var(--success)]/10 to-[var(--bg-elevated)] border-2 border-[var(--success)]/30"
                 : week.status === 'in_progress'
