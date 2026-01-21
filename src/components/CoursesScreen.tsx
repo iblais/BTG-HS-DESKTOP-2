@@ -5,7 +5,7 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle, Award
+  FileText, HelpCircle, Award, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -283,8 +283,15 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     if (progress?.completed) return 'completed';
     if (progress) return 'in_progress';
 
-    // All courses are unlocked - students can access any course at any time
-    return 'available';
+    // Week 1 is always available by default
+    if (weekNum === 1) return 'available';
+
+    // For other weeks, check if previous week's quiz is passed
+    const prevProgress = courseProgress.find(p => p.week_number === weekNum - 1);
+    if (prevProgress?.completed) return 'available';
+
+    // Otherwise, week is locked
+    return 'locked';
   };
 
   const getWeekProgress = (weekNum: number): number => {
@@ -469,12 +476,17 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             key={week.number}
             onClick={() => week.status !== 'locked' && setSelectedWeek(week.number)}
             className={cn(
-              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer group",
+              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group",
+              week.status === 'locked'
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] opacity-60 cursor-not-allowed"
+                : "cursor-pointer",
               week.status === 'completed'
                 ? "bg-gradient-to-br from-[var(--success)]/10 to-[var(--bg-elevated)] border-2 border-[var(--success)]/30"
                 : week.status === 'in_progress'
                 ? "bg-gradient-to-br from-[var(--primary-500)]/10 to-[var(--bg-elevated)] border-2 border-[var(--primary-500)]/30"
-                : "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--primary-500)]/30"
+                : week.status === 'available'
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--primary-500)]/30"
+                : ""
             )}
           >
             {/* Course Image */}
@@ -495,10 +507,14 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90"
+                    : week.status === 'locked'
+                    ? "bg-black/70"
                     : "bg-black/50"
                 )}>
                   {week.status === 'completed' ? (
                     <CheckCircle className="w-5 h-5 text-white" />
+                  ) : week.status === 'locked' ? (
+                    <Lock className="w-5 h-5 text-white/60" />
                   ) : (
                     <span className="text-lg font-black text-white">{week.number}</span>
                   )}
@@ -513,12 +529,16 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     ? "bg-[var(--success)]/90 text-white"
                     : week.status === 'in_progress'
                     ? "bg-[var(--primary-500)]/90 text-white"
+                    : week.status === 'locked'
+                    ? "bg-black/70 text-white/60"
                     : "bg-black/50 text-white/80"
                 )}>
                   {week.status === 'completed' && <CheckCircle className="w-3 h-3" />}
                   {week.status === 'in_progress' && <Zap className="w-3 h-3" />}
+                  {week.status === 'locked' && <Lock className="w-3 h-3" />}
                   {week.status === 'completed' ? 'Complete' :
-                   week.status === 'in_progress' ? 'In Progress' : 'Ready'}
+                   week.status === 'in_progress' ? 'In Progress' :
+                   week.status === 'locked' ? 'Locked' : 'Ready'}
                 </div>
               </div>
 
