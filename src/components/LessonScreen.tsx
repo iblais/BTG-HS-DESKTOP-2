@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2, Lock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2, Lock, Play, ExternalLink } from 'lucide-react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
@@ -4703,7 +4703,10 @@ You've completed this program - now go build the life you want.`,
           ) : (
             <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#1a1f3e] to-[#0d1025]">
               <div className="text-center">
-                <Video size={48} className="mx-auto mb-3 text-white/20" />
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
+                  <Play size={32} className="text-white/40 ml-1" />
+                </div>
+                <p className="text-white/60 font-medium">Lesson Video</p>
                 <p className="text-white/40 text-sm">Video coming soon</p>
               </div>
             </div>
