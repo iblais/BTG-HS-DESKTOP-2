@@ -70,11 +70,14 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [startSection, setStartSection] = useState<number>(0);
+  // Track which modules have activities completed per week: { weekNumber: [day1Complete, day2Complete, ...] }
+  const [weekActivities, setWeekActivities] = useState<Record<number, boolean[]>>({});
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
   useEffect(() => {
     loadProgress();
+    loadActivityProgress();
   }, []);
 
   const loadProgress = async () => {
@@ -95,6 +98,55 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Load activity completions to determine quiz lock status
+  const loadActivityProgress = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('activity_responses')
+        .select('week_number, day_number')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Failed to load activity progress:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const activities: Record<number, boolean[]> = {};
+        data.forEach((item: { week_number: number; day_number: number }) => {
+          if (!activities[item.week_number]) {
+            activities[item.week_number] = [false, false, false, false, false];
+          }
+          // day_number is 1-indexed, array is 0-indexed
+          if (item.day_number >= 1 && item.day_number <= 5) {
+            activities[item.week_number][item.day_number - 1] = true;
+          }
+        });
+        setWeekActivities(activities);
+      }
+    } catch (err) {
+      console.error('Error loading activity progress:', err);
+    }
+  };
+
+  // Check if quiz is unlocked for a week (all 5 modules completed)
+  const isQuizUnlocked = (weekNum: number): boolean => {
+    const activities = weekActivities[weekNum];
+    if (!activities) return false;
+    // All 5 modules must have activities completed
+    return activities.every(completed => completed === true);
+  };
+
+  // Get count of completed modules for a week
+  const getCompletedModuleCount = (weekNum: number): number => {
+    const activities = weekActivities[weekNum];
+    if (!activities) return 0;
+    return activities.filter(completed => completed === true).length;
   };
 
   // High School week titles (18 weeks)
@@ -633,31 +685,49 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     </button>
                   </div>
 
-                  {/* Modules - Clickable */}
+                  {/* Modules - Clickable with locking */}
                   <div className="space-y-3 mb-6">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <div
-                        key={i}
-                        onClick={() => handleStartLesson(week.number, i)}
-                        className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 transition-all cursor-pointer active:scale-[0.98]"
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-lg flex items-center justify-center",
-                          i < Math.floor(week.progress / 20) ? "bg-[#50D890]/20" : "bg-white/5"
-                        )}>
-                          {i < Math.floor(week.progress / 20) ? (
-                            <CheckCircle className="w-5 h-5 text-[#50D890]" />
-                          ) : (
-                            <Play className="w-5 h-5 text-white/40" />
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const activities = weekActivities[week.number] || [false, false, false, false, false];
+                      const isModuleComplete = activities[i] === true;
+                      // Module is unlocked if it's the first module OR the previous module is complete
+                      const isModuleUnlocked = i === 0 || activities[i - 1] === true;
+
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => isModuleUnlocked && handleStartLesson(week.number, i)}
+                          className={cn(
+                            "flex items-center gap-4 p-4 rounded-xl transition-all",
+                            isModuleUnlocked
+                              ? "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 cursor-pointer active:scale-[0.98]"
+                              : "bg-white/[0.02] border border-white/[0.03] cursor-not-allowed opacity-50"
                           )}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center",
+                            isModuleComplete ? "bg-[#50D890]/20" : !isModuleUnlocked ? "bg-white/5" : "bg-white/5"
+                          )}>
+                            {isModuleComplete ? (
+                              <CheckCircle className="w-5 h-5 text-[#50D890]" />
+                            ) : !isModuleUnlocked ? (
+                              <Lock className="w-5 h-5 text-white/30" />
+                            ) : (
+                              <Play className="w-5 h-5 text-white/40" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className={cn("font-medium", isModuleUnlocked ? "text-white" : "text-white/50")}>
+                              Module {i + 1}
+                            </p>
+                            <p className="text-white/40 text-sm">
+                              {isModuleComplete ? 'Completed' : !isModuleUnlocked ? 'Complete previous module' : 'Tap to start'}
+                            </p>
+                          </div>
+                          <ChevronRight className={cn("w-5 h-5", isModuleUnlocked ? "text-white/30" : "text-white/20")} />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-white font-medium">Module {i + 1}</p>
-                          <p className="text-white/40 text-sm">Tap to start</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/30" />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Action Buttons */}
@@ -670,11 +740,25 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                       {week.progress > 0 && week.progress < 100 ? 'Continue Lesson' : 'Start Lesson'}
                     </button>
                     <button
-                      onClick={() => handleStartQuiz(week.number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors"
+                      onClick={() => isQuizUnlocked(week.number) && handleStartQuiz(week.number)}
+                      disabled={!isQuizUnlocked(week.number)}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border transition-colors ${
+                        isQuizUnlocked(week.number)
+                          ? 'border-white/[0.1] text-white hover:bg-white/[0.05]'
+                          : 'border-white/[0.05] text-white/40 cursor-not-allowed'
+                      }`}
                     >
-                      <HelpCircle className="w-5 h-5" />
-                      Take Quiz
+                      {isQuizUnlocked(week.number) ? (
+                        <>
+                          <HelpCircle className="w-5 h-5" />
+                          Take Quiz
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-5 h-5" />
+                          <span className="text-xs">Complete all modules ({getCompletedModuleCount(week.number)}/5)</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

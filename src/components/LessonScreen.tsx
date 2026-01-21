@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2, Lock } from 'lucide-react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
@@ -4613,6 +4613,15 @@ You've completed this program - now go build the life you want.`,
 
   const isLastSection = currentSection === totalSections - 1;
 
+  // Check if a section is unlocked
+  // Section 0 is always unlocked
+  // Section N (N > 0) is unlocked if section N-1's activity has been submitted
+  const isSectionUnlocked = (sectionIndex: number): boolean => {
+    if (sectionIndex === 0) return true;
+    // Previous section must have its activity submitted
+    return submittedActivities[sectionIndex - 1] === true;
+  };
+
   return (
     <div className="w-full space-y-6 pb-6 md:pb-0">
       {/* Header */}
@@ -4636,20 +4645,29 @@ You've completed this program - now go build the life you want.`,
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
         {lessonData.sections.map((section: any, index: number) => {
           const IconComponent = getSectionIcon(section.type);
+          const isUnlocked = isSectionUnlocked(index);
+          const isCompleted = submittedActivities[index] === true;
           return (
             <button
               key={index}
-              onClick={() => setCurrentSection(index)}
+              onClick={() => isUnlocked && setCurrentSection(index)}
+              disabled={!isUnlocked}
               className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                currentSection === index
+                !isUnlocked
+                  ? 'bg-white/5 text-white/30 border border-white/10 cursor-not-allowed opacity-50'
+                  : currentSection === index
                   ? 'bg-[#4A5FFF]/20 text-[#4A5FFF] border border-[#4A5FFF]/30'
-                  : completedSections.includes(index)
+                  : isCompleted
                   ? 'bg-[#50D890]/20 text-[#50D890] border border-[#50D890]/30'
                   : 'bg-white/5 text-white/60 border border-white/10'
               }`}
             >
               <div className="flex items-center gap-1">
-                <IconComponent size={12} />
+                {!isUnlocked ? (
+                  <Lock size={12} />
+                ) : (
+                  <IconComponent size={12} />
+                )}
                 <span>{index + 1}</span>
               </div>
             </button>
