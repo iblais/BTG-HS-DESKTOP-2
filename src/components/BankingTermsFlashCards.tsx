@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight, Check, X, Trophy, Star, Zap, BookOpen, GraduationCap, Award } from 'lucide-react';
+import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight, Check, X, Trophy, Star, Zap, BookOpen, Award } from 'lucide-react';
 
 // Types
 interface FlashCard {
