@@ -11,7 +11,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Program Types
 export type ProgramId = 'HS' | 'COLLEGE';
-export type TrackLevel = 'beginner' | 'intermediate' | 'advanced';
+export type TrackLevel = 'beginner' | 'advanced';
 export type Language = 'en' | 'es';
 
 // Database Types

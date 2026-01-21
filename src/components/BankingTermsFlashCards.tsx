@@ -16,7 +16,7 @@ interface QuizQuestion {
   correctAnswer: string;
 }
 
-type Difficulty = 'easy' | 'medium' | 'hard';
+type Difficulty = 'easy' | 'hard';
 type GameMode = 'intro' | 'study' | 'quiz' | 'results';
 
 interface BankingTermsFlashCardsProps {
@@ -40,7 +40,8 @@ const flashcardsByDifficulty: Record<Difficulty, FlashCard[]> = {
     { id: 11, term: 'Budget', definition: 'A plan for how you will spend and save your money.', category: 'Financial Planning', example: 'Allocating $200 for food, $100 for transportation.' },
     { id: 12, term: 'Bank Statement', definition: 'A monthly summary of all transactions in your account.', category: 'Banking Tools', example: 'Reviewing your deposits and withdrawals for March.' },
   ],
-  medium: [
+  hard: [
+    // Former medium-level terms (now part of advanced)
     { id: 13, term: 'APY', definition: 'Annual Percentage Yield - the total interest you earn on savings in one year, including compound interest.', category: 'Interest', example: 'A savings account with 4.5% APY.' },
     { id: 14, term: 'APR', definition: 'Annual Percentage Rate - the yearly cost of borrowing money, expressed as a percentage.', category: 'Credit', example: 'A credit card with 18% APR.' },
     { id: 15, term: 'Compound Interest', definition: 'Interest calculated on both your initial deposit and previously earned interest.', category: 'Interest', example: 'Your $100 earns $5, then next year you earn interest on $105.' },
@@ -53,8 +54,7 @@ const flashcardsByDifficulty: Record<Difficulty, FlashCard[]> = {
     { id: 22, term: 'Routing Number', definition: 'A 9-digit code that identifies your bank for electronic transfers.', category: 'Banking Tools', example: 'Needed to set up direct deposit.' },
     { id: 23, term: 'Certified Check', definition: 'A check guaranteed by the bank because they verify and set aside the funds.', category: 'Transactions', example: 'Required for some large purchases like a car.' },
     { id: 24, term: 'Money Market Account', definition: 'A savings account that typically offers higher interest but may require a higher minimum balance.', category: 'Accounts', example: 'Earning 4% but needing to keep $2,500 minimum.' },
-  ],
-  hard: [
+    // Original hard-level terms
     { id: 25, term: 'Amortization', definition: 'The process of spreading loan payments over time, with early payments going mostly to interest.', category: 'Loans', example: 'A 30-year mortgage payment schedule.' },
     { id: 26, term: 'Collateral', definition: 'An asset you pledge to secure a loan, which the lender can take if you default.', category: 'Loans', example: 'Your car secures an auto loan.' },
     { id: 27, term: 'Escrow', definition: 'An account where a third party holds money until certain conditions are met.', category: 'Advanced Banking', example: 'Holding a home down payment until the sale closes.' },
@@ -77,13 +77,6 @@ const difficultyConfig = {
     color: 'from-green-500 to-emerald-600',
     quizQuestions: 8,
     icon: BookOpen,
-  },
-  medium: {
-    label: 'Intermediate',
-    description: 'Important concepts for managing money wisely',
-    color: 'from-yellow-500 to-orange-600',
-    quizQuestions: 10,
-    icon: GraduationCap,
   },
   hard: {
     label: 'Advanced',

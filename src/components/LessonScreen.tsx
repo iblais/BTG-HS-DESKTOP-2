@@ -4507,8 +4507,8 @@ You've completed this program - now go build the life you want.`,
     if (!sectionContent) return null;
 
     return {
-      additionalContent: level === 'advanced' ? sectionContent.advanced : sectionContent.intermediate,
-      extraPoints: sectionContent.extraPoints || []
+      additionalContent: level === 'advanced' ? sectionContent.advanced : null,
+      extraPoints: level === 'advanced' ? (sectionContent.extraPoints || []) : []
     };
   };
 
@@ -4697,7 +4697,7 @@ You've completed this program - now go build the life you want.`,
             <div className="flex items-center gap-2 mb-3">
               <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
               <span className="text-purple-400 font-bold text-xs uppercase">
-                {trackLevel === 'advanced' ? 'Advanced' : 'Intermediate'} Content
+                Advanced Content
               </span>
             </div>
             <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">

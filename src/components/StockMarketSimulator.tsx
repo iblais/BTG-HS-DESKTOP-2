@@ -60,7 +60,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   const [showNews, setShowNews] = useState(false);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [tradeAmount, setTradeAmount] = useState(1);
-  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+  const [difficulty, setDifficulty] = useState<'beginner' | 'advanced'>('beginner');
   const [, setPriceHistory] = useState<{ [symbol: string]: number[] }>({});
 
   useEffect(() => {
@@ -72,12 +72,10 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
     setPriceHistory(history);
   }, []);
 
-  const startGame = (selectedDifficulty: 'beginner' | 'intermediate' | 'advanced') => {
+  const startGame = (selectedDifficulty: 'beginner' | 'advanced') => {
     setDifficulty(selectedDifficulty);
 
-    let startingCash = 10000;
-    if (selectedDifficulty === 'intermediate') startingCash = 7500;
-    if (selectedDifficulty === 'advanced') startingCash = 5000;
+    const startingCash = selectedDifficulty === 'advanced' ? 5000 : 10000;
 
     setPortfolio({ cash: startingCash, holdings: {} });
     setStocks(initialStocks.map(s => ({ ...s, price: s.price, previousPrice: s.price })));
@@ -236,16 +234,6 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
           <div className="flex items-center justify-between">
             <span>Beginner</span>
             <span className="text-sm opacity-80">$10,000 starting cash</span>
-          </div>
-        </button>
-
-        <button
-          onClick={() => startGame('intermediate')}
-          className="w-full p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl text-white font-bold text-lg"
-        >
-          <div className="flex items-center justify-between">
-            <span>Intermediate</span>
-            <span className="text-sm opacity-80">$7,500 starting cash</span>
           </div>
         </button>
 
@@ -447,7 +435,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
 
   const renderResults = () => {
     const finalValue = getPortfolioValue();
-    const startingCash = difficulty === 'beginner' ? 10000 : difficulty === 'intermediate' ? 7500 : 5000;
+    const startingCash = difficulty === 'beginner' ? 10000 : 5000;
     const returnPercent = ((finalValue - startingCash) / startingCash) * 100;
     const isProfit = returnPercent >= 0;
 
