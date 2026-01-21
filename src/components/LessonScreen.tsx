@@ -4688,9 +4688,9 @@ You've completed this program - now go build the life you want.`,
           </div>
         </div>
 
-        {/* Video Player - YouTube Embed */}
-        {currentSectionData.videoUrl && (
-          <div className="mb-6 rounded-xl overflow-hidden bg-black/50">
+        {/* Video Player - YouTube Embed or Placeholder */}
+        <div className="mb-6 rounded-xl overflow-hidden bg-black/50">
+          {currentSectionData.videoUrl ? (
             <iframe
               key={currentSectionData.videoUrl}
               className="w-full aspect-video"
@@ -4700,8 +4700,15 @@ You've completed this program - now go build the life you want.`,
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
-          </div>
-        )}
+          ) : (
+            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#1a1f3e] to-[#0d1025]">
+              <div className="text-center">
+                <Video size={48} className="mx-auto mb-3 text-white/20" />
+                <p className="text-white/40 text-sm">Video coming soon</p>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="mb-6">
           <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">
