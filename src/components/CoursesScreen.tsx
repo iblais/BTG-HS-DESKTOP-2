@@ -283,8 +283,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     if (progress?.completed) return 'completed';
     if (progress) return 'in_progress';
 
-    // DEMO MODE: All courses unlocked for presentation
-    // TODO: Remove this for production
+    // All courses are unlocked - students can access any course at any time
     return 'available';
   };
 
