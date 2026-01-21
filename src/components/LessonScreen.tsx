@@ -4794,78 +4794,88 @@ You've completed this program - now go build the life you want.`,
         </GlassCard>
       )}
 
-      {/* Activity Section - Required for module completion */}
-      {hasActivity && (
-        <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-              <BookOpen size={20} className="text-[#4A5FFF]" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold">Activity</h3>
-              <span className="text-white/40 text-xs">Required to complete this module</span>
-            </div>
-            {activitySubmitted && (
-              <div className="ml-auto flex items-center gap-2 text-[#50D890]">
-                <CheckCircle size={18} />
-                <span className="text-sm font-medium">Submitted</span>
-              </div>
-            )}
+      {/* Activity Section - Always rendered */}
+      <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
+            <BookOpen size={20} className="text-[#4A5FFF]" />
           </div>
-
-          <div className="bg-white/5 rounded-lg p-4 mb-4">
-            <p className="text-white/90 text-sm leading-relaxed">
-              {currentSectionData?.activityQuestion}
-            </p>
+          <div>
+            <h3 className="text-white font-bold">Activity</h3>
+            <span className="text-white/40 text-xs">
+              {hasActivity ? 'Required to complete this module' : 'Activity coming soon'}
+            </span>
           </div>
-
-          {!activitySubmitted ? (
-            <>
-              <textarea
-                value={activityResponse}
-                onChange={(e) => {
-                  setActivityResponse(e.target.value);
-                  setActivityError(null);
-                }}
-                placeholder="Write your response here (minimum 50 characters)..."
-                className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
-              />
-              <div className="flex justify-between items-center mt-2">
-                <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
-                  {activityResponse.length}/50 characters minimum
-                </span>
-              </div>
-              {activityError && (
-                <p className="text-red-400 text-sm mt-2">{activityError}</p>
-              )}
-              <Button3D
-                onClick={handleActivitySubmit}
-                disabled={submitting || activityResponse.length < 50}
-                variant="primary"
-                className="mt-4 w-full"
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin" />
-                    Submitting...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Send size={16} />
-                    Submit Response
-                  </span>
-                )}
-              </Button3D>
-            </>
-          ) : (
-            <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
-              <p className="text-[#50D890] text-sm">
-                Your response has been submitted. You can now proceed to the next section.
-              </p>
+          {hasActivity && activitySubmitted && (
+            <div className="ml-auto flex items-center gap-2 text-[#50D890]">
+              <CheckCircle size={18} />
+              <span className="text-sm font-medium">Submitted</span>
             </div>
           )}
-        </GlassCard>
-      )}
+        </div>
+
+        {hasActivity ? (
+          <>
+            <div className="bg-white/5 rounded-lg p-4 mb-4">
+              <p className="text-white/90 text-sm leading-relaxed">
+                {currentSectionData?.activityQuestion}
+              </p>
+            </div>
+
+            {!activitySubmitted ? (
+              <>
+                <textarea
+                  value={activityResponse}
+                  onChange={(e) => {
+                    setActivityResponse(e.target.value);
+                    setActivityError(null);
+                  }}
+                  placeholder="Write your response here (minimum 50 characters)..."
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
+                    {activityResponse.length}/50 characters minimum
+                  </span>
+                </div>
+                {activityError && (
+                  <p className="text-red-400 text-sm mt-2">{activityError}</p>
+                )}
+                <Button3D
+                  onClick={handleActivitySubmit}
+                  disabled={submitting || activityResponse.length < 50}
+                  variant="primary"
+                  className="mt-4 w-full"
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 size={16} className="animate-spin" />
+                      Submitting...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Send size={16} />
+                      Submit Response
+                    </span>
+                  )}
+                </Button3D>
+              </>
+            ) : (
+              <div className="bg-[#50D890]/10 border border-[#50D890]/30 rounded-lg p-4">
+                <p className="text-[#50D890] text-sm">
+                  Your response has been submitted. You can now proceed to the next section.
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="bg-white/5 rounded-lg p-6 text-center">
+            <BookOpen size={32} className="mx-auto mb-3 text-white/20" />
+            <p className="text-white/40 text-sm">Activity content is being prepared</p>
+            <p className="text-white/30 text-xs mt-1">Check back soon for your activity assignment</p>
+          </div>
+        )}
+      </GlassCard>
 
       {/* Navigation */}
       <div className="flex gap-3">
