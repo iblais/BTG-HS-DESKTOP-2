@@ -250,7 +250,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     setViewMode('list');
   };
 
-  const handleQuizComplete = async (score: number, passed: boolean, answers: number[] = [], timeTaken: number = 0) => {
+  const handleQuizComplete = async (score: number, passed: boolean, answers: number[] = [], timeTaken: number = 0, writingResponses?: string[]) => {
     try {
       const user = await getCurrentUser();
       if (user) {
@@ -276,6 +276,29 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             answers: answersObject,
             completed_at: new Date().toISOString()
           });
+
+        // Save writing prompt responses to activity_responses table
+        if (writingResponses && writingResponses.length > 0) {
+          const writingPromptInserts = writingResponses.map((response, index) => ({
+            user_id: user.id,
+            enrollment_id: enrollmentId,
+            week_number: activeWeek,
+            day_number: 5 + index, // Use day 5+ for writing prompts (after 4 lesson modules)
+            module_number: 5 + index,
+            module_title: `Week ${activeWeek} Writing Prompt ${index + 1}`,
+            activity_question: index === 0
+              ? 'Explain how income, saving, expenses, and budgeting work together (8-10 sentences)'
+              : 'Describe financial survival mode and how to regain control (8-10 sentences)',
+            response_text: response,
+            submitted_at: new Date().toISOString()
+          }));
+
+          for (const insert of writingPromptInserts) {
+            await supabase
+              .from('activity_responses')
+              .upsert(insert, { onConflict: 'user_id,week_number,day_number' });
+          }
+        }
 
         // Update course_progress if passed
         if (passed) {
