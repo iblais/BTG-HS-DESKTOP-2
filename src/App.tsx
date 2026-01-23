@@ -185,10 +185,6 @@ function App() {
     setEnrollmentState('needs_program');
   };
 
-  const handleEnrollmentCreated = async () => {
-    if (user) await checkEnrollment(user.id);
-  };
-
   const handleOnboardingComplete = () => setEnrollmentState('ready');
 
   const handleSignOut = async () => {
