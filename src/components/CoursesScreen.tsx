@@ -149,11 +149,11 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     }
   };
 
-  // Check if quiz is unlocked for a week (all 5 modules completed)
+  // Check if quiz is unlocked for a week (all 4 modules completed)
   const isQuizUnlocked = (weekNum: number): boolean => {
     const activities = weekActivities[weekNum];
     if (!activities) return false;
-    // All 5 modules must have activities completed
+    // All 4 modules must have activities completed
     return activities.every(completed => completed === true);
   };
 
@@ -374,7 +374,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       number: num,
       title: info.title,
       description: info.description,
-      modules: 5,
+      modules: 4,
       duration: '45 min',
       status: getWeekStatus(num),
       progress: getWeekProgress(num),
@@ -702,8 +702,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
                   {/* Modules - Clickable with locking */}
                   <div className="space-y-3 mb-6">
-                    {Array.from({ length: 5 }, (_, i) => {
-                      const activities = weekActivities[week.number] || [false, false, false, false, false];
+                    {Array.from({ length: 4 }, (_, i) => {
+                      const activities = weekActivities[week.number] || [false, false, false, false];
                       const isModuleComplete = activities[i] === true;
                       // Module is unlocked if it's the first module OR the previous module is complete
                       const isModuleUnlocked = i === 0 || activities[i - 1] === true;
@@ -771,7 +771,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                       ) : (
                         <>
                           <Lock className="w-5 h-5" />
-                          <span className="text-xs">Complete all modules ({getCompletedModuleCount(week.number)}/5)</span>
+                          <span className="text-xs">Complete all modules ({getCompletedModuleCount(week.number)}/4)</span>
                         </>
                       )}
                     </button>

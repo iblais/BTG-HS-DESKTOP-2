@@ -320,12 +320,6 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
             <p className="text-white/40 text-sm mb-1">Difficulty Level</p>
             <p className="text-white font-medium capitalize">{enrollment?.track_level || 'Beginner'}</p>
           </div>
-          <div>
-            <p className="text-white/40 text-sm mb-1">Language</p>
-            <p className="text-white font-medium">
-              {enrollment?.language === 'es' ? 'Español' : 'English'}
-            </p>
-          </div>
         </div>
       </div>
 

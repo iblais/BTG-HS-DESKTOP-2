@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { type AuthUser, getCurrentUser } from '@/lib/auth';
-import { type Enrollment } from '@/lib/enrollment';
+import { type Enrollment, createEnrollment } from '@/lib/enrollment';
 import { LoginScreen } from '@/components/LoginScreen';
-import { ProgramSelectScreen } from '@/components/ProgramSelectScreen';
+// ProgramSelectScreen removed - users are now auto-enrolled
 import { OnboardingScreen } from '@/components/OnboardingScreen';
 import { DashboardScreen } from '@/components/DashboardScreen';
 import { CoursesScreen } from '@/components/CoursesScreen';
@@ -148,6 +148,26 @@ function App() {
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
+  // Auto-enroll new users in HS Beginner program (English)
+  useEffect(() => {
+    if (enrollmentState !== 'needs_program' || !user) return;
+
+    const autoEnroll = async () => {
+      try {
+        const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
+        setEnrollment(newEnrollment);
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
+      } catch (err) {
+        console.error('Auto-enrollment failed:', err);
+        // Still try to proceed with a local-only enrollment
+        setEnrollmentState('ready');
+      }
+    };
+
+    autoEnroll();
+  }, [enrollmentState, user]);
+
   // Check enrollment - LOCAL ONLY for instant loading
   const checkEnrollment = async (_userId: string) => {
     const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
@@ -213,13 +233,15 @@ function App() {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Program selection
+  // Auto-enrolling (was program selection - now handled automatically)
   if (enrollmentState === 'needs_program') {
     return (
-      <ProgramSelectScreen
-        onEnrollmentCreated={handleEnrollmentCreated}
-        userEmail={user?.email}
-      />
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <p className="text-[#9CA3AF]">Setting up your account...</p>
+        </div>
+      </div>
     );
   }
 

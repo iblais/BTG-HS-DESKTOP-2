@@ -10,6 +10,12 @@ interface QuizQuestion {
   explanation?: string;
 }
 
+interface WritingPrompt {
+  id: number;
+  prompt: string;
+  minLength: number;
+}
+
 interface QuizScreenProps {
   weekNumber: number;
   weekTitle: string;
@@ -30,6 +36,11 @@ export function QuizScreen({
   const [showResults, setShowResults] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
   const [quizStarted, setQuizStarted] = useState(false);
+
+  // Writing prompts state
+  const [showWritingPrompts, setShowWritingPrompts] = useState(false);
+  const [currentWritingPrompt, setCurrentWritingPrompt] = useState(0);
+  const [writingResponses, setWritingResponses] = useState<string[]>([]);
 
   // Quiz questions data - organized by week
   const quizData: { [key: number]: QuizQuestion[] } = {
@@ -2487,20 +2498,38 @@ export function QuizScreen({
     ]
   };
 
+  // Writing prompts data - organized by week
+  const writingPromptsData: { [key: number]: WritingPrompt[] } = {
+    1: [
+      {
+        id: 1,
+        prompt: "In 8–10 sentences, explain how income, saving, expenses, and budgeting all work together. Use at least one real-life example from a high school student's perspective to show how someone could avoid financial stress by using these tools correctly.",
+        minLength: 200
+      },
+      {
+        id: 2,
+        prompt: "In 8–10 sentences, describe a situation where someone is living in financial survival mode. Explain what changes they could make using saving, controlling expenses, and budgeting to regain control over their money.",
+        minLength: 200
+      }
+    ]
+  };
+
   const questions = programId === 'COLLEGE' ? (collegeQuizData[weekNumber] || []) : (quizData[weekNumber] || []);
   const totalQuestions = questions.length;
+  const writingPrompts = writingPromptsData[weekNumber] || [];
+  const totalWritingPrompts = writingPrompts.length;
 
   // Timer effect
   useEffect(() => {
-    if (quizStarted && !showResults && timeRemaining > 0) {
+    if (quizStarted && !showResults && !showWritingPrompts && timeRemaining > 0) {
       const timer = setTimeout(() => {
         setTimeRemaining(timeRemaining - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (timeRemaining === 0 && quizStarted) {
+    } else if (timeRemaining === 0 && quizStarted && !showWritingPrompts) {
       handleQuizComplete();
     }
-  }, [timeRemaining, quizStarted, showResults]);
+  }, [timeRemaining, quizStarted, showResults, showWritingPrompts]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -2533,7 +2562,14 @@ export function QuizScreen({
   };
 
   const handleQuizComplete = () => {
-    setShowResults(true);
+    // If there are writing prompts, show them first
+    if (totalWritingPrompts > 0) {
+      setShowWritingPrompts(true);
+      setCurrentWritingPrompt(0);
+      setWritingResponses(new Array(totalWritingPrompts).fill(''));
+    } else {
+      setShowResults(true);
+    }
   };
 
   const calculateScore = () => {
@@ -2559,8 +2595,40 @@ export function QuizScreen({
     setCurrentQuestion(0);
     setSelectedAnswers([]);
     setShowResults(false);
+    setShowWritingPrompts(false);
+    setCurrentWritingPrompt(0);
+    setWritingResponses([]);
     setTimeRemaining(600);
     setQuizStarted(false);
+  };
+
+  // Writing prompt handlers
+  const handleWritingResponseChange = (response: string) => {
+    const newResponses = [...writingResponses];
+    newResponses[currentWritingPrompt] = response;
+    setWritingResponses(newResponses);
+  };
+
+  const handleWritingNext = () => {
+    if (currentWritingPrompt < totalWritingPrompts - 1) {
+      setCurrentWritingPrompt(currentWritingPrompt + 1);
+    } else {
+      // All writing prompts completed, show results
+      setShowWritingPrompts(false);
+      setShowResults(true);
+    }
+  };
+
+  const handleWritingPrevious = () => {
+    if (currentWritingPrompt > 0) {
+      setCurrentWritingPrompt(currentWritingPrompt - 1);
+    }
+  };
+
+  const isWritingResponseValid = () => {
+    const currentResponse = writingResponses[currentWritingPrompt] || '';
+    const minLength = writingPrompts[currentWritingPrompt]?.minLength || 200;
+    return currentResponse.length >= minLength;
   };
 
   const handleComplete = () => {
@@ -2597,9 +2665,15 @@ export function QuizScreen({
               <div className="w-2 h-2 bg-[#50D890] rounded-full"></div>
               <span className="text-white/80">{totalQuestions} multiple choice questions</span>
             </div>
+            {totalWritingPrompts > 0 && (
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-[#FF9F1C] rounded-full"></div>
+                <span className="text-white/80">{totalWritingPrompts} writing prompts</span>
+              </div>
+            )}
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#FF6B35] rounded-full"></div>
-              <span className="text-white/80">10 minutes time limit</span>
+              <span className="text-white/80">10 minutes for multiple choice</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-[#4A5FFF] rounded-full"></div>
@@ -2618,6 +2692,93 @@ export function QuizScreen({
         >
           Start Quiz
         </button>
+      </div>
+    );
+  }
+
+  // Writing prompts screen
+  if (showWritingPrompts && totalWritingPrompts > 0) {
+    const currentPrompt = writingPrompts[currentWritingPrompt];
+    const currentResponse = writingResponses[currentWritingPrompt] || '';
+    const minLength = currentPrompt?.minLength || 200;
+    const progress = ((currentWritingPrompt + 1) / totalWritingPrompts) * 100;
+
+    return (
+      <div className="w-full space-y-6 pb-6 md:pb-0">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+          <div className="flex items-center space-x-3">
+            <span className="text-white/80 text-sm">Writing Prompt {currentWritingPrompt + 1}/{totalWritingPrompts}</span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-white/10 rounded-full h-2">
+          <div
+            className="h-2 rounded-full bg-gradient-to-r from-[#FF9F1C] to-[#FF6B35] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* Writing Prompt */}
+        <div className="glass-card rounded-xl p-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-[#FF9F1C] to-[#FF6B35] rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">{currentWritingPrompt + 1}</span>
+            </div>
+            <h3 className="text-white font-bold">Writing Prompt</h3>
+          </div>
+
+          <p className="text-white/90 text-sm leading-relaxed mb-6">{currentPrompt?.prompt}</p>
+
+          <textarea
+            value={currentResponse}
+            onChange={(e) => handleWritingResponseChange(e.target.value)}
+            placeholder="Write your response here (minimum 200 characters)..."
+            className="w-full h-48 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#FF9F1C]/50 transition-colors"
+          />
+
+          <div className="flex justify-between items-center mt-3">
+            <span className={`text-xs ${currentResponse.length >= minLength ? 'text-[#50D890]' : 'text-white/40'}`}>
+              {currentResponse.length}/{minLength} characters minimum
+            </span>
+            {currentResponse.length >= minLength && (
+              <span className="text-xs text-[#50D890] flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> Ready to continue
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleWritingPrevious}
+            disabled={currentWritingPrompt === 0}
+            className={`flex-1 py-3 pl-6 rounded-xl font-medium transition-all duration-300 ${
+              currentWritingPrompt === 0
+                ? 'bg-white/5 text-white/30 cursor-not-allowed'
+                : 'bg-white/10 text-white hover:bg-white/20'
+            }`}
+          >
+            Previous
+          </button>
+
+          <button
+            onClick={handleWritingNext}
+            disabled={!isWritingResponseValid()}
+            className={`flex-1 py-3 rounded-xl font-bold transition-all duration-300 ${
+              isWritingResponseValid()
+                ? 'bg-gradient-to-r from-[#FF9F1C] to-[#FF6B35] text-white btn-3d hover:scale-105'
+                : 'bg-white/5 text-white/30 cursor-not-allowed'
+            }`}
+          >
+            {currentWritingPrompt === totalWritingPrompts - 1 ? 'See Results' : 'Next'}
+          </button>
+        </div>
       </div>
     );
   }
