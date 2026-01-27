@@ -23,20 +23,14 @@ export interface Enrollment {
 }
 
 // Fallback programs when database is not available
+// Note: College track hidden - will be separate build later
 const FALLBACK_PROGRAMS: Program[] = [
   {
     id: 'HS' as ProgramId,
     title: 'High School Program',
-    description: 'A comprehensive 12-week financial literacy course designed for high school students. Learn budgeting, saving, credit basics, and smart money habits.',
-    weeks_total: 12,
+    description: 'A comprehensive 18-week financial literacy course designed for high school students. Learn budgeting, saving, credit basics, and smart money habits.',
+    weeks_total: 18,
     target_audience: 'High School Students'
-  },
-  {
-    id: 'COLLEGE' as ProgramId,
-    title: 'College Program',
-    description: 'Advanced financial education for college students covering investing, debt management, career preparation, and building long-term wealth.',
-    weeks_total: 12,
-    target_audience: 'College Students'
   }
 ];
 
@@ -84,9 +78,11 @@ function createLocalEnrollment(
  */
 export async function getPrograms(): Promise<Program[]> {
   try {
+    // Only fetch HS program - College track hidden for now
     const { data, error } = await supabase
       .from('programs')
       .select('*')
+      .eq('id', 'HS')
       .order('id');
 
     if (error) {
@@ -100,7 +96,9 @@ export async function getPrograms(): Promise<Program[]> {
       return FALLBACK_PROGRAMS;
     }
 
-    return data as Program[];
+    // Filter to only HS program (college track hidden for now)
+    const hsPrograms = (data as Program[]).filter(p => p.id === 'HS');
+    return hsPrograms.length > 0 ? hsPrograms : FALLBACK_PROGRAMS;
   } catch (err) {
     console.warn('Error fetching programs, using fallback:', err);
     return FALLBACK_PROGRAMS;
