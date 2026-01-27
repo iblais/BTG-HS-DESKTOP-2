@@ -5764,8 +5764,8 @@ You've completed this program - now go build the life you want.`,
       return;
     }
 
-    if (activityResponse.trim().length < 50) {
-      setActivityError('Please write at least 50 characters.');
+    if (activityResponse.trim().length < 200) {
+      setActivityError('Please write at least 200 characters.');
       return;
     }
 
@@ -6059,12 +6059,12 @@ You've completed this program - now go build the life you want.`,
                     setActivityResponse(e.target.value);
                     setActivityError(null);
                   }}
-                  placeholder="Write your response here (minimum 50 characters)..."
+                  placeholder="Write your response here (minimum 200 characters)..."
                   className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
                 />
                 <div className="flex justify-between items-center mt-2">
-                  <span className={`text-xs ${activityResponse.length >= 50 ? 'text-[#50D890]' : 'text-white/40'}`}>
-                    {activityResponse.length}/50 characters minimum
+                  <span className={`text-xs ${activityResponse.length >= 200 ? 'text-[#50D890]' : 'text-white/40'}`}>
+                    {activityResponse.length}/200 characters minimum
                   </span>
                 </div>
                 {activityError && (
@@ -6072,7 +6072,7 @@ You've completed this program - now go build the life you want.`,
                 )}
                 <Button3D
                   onClick={handleActivitySubmit}
-                  disabled={submitting || activityResponse.length < 50}
+                  disabled={submitting || activityResponse.length < 200}
                   variant="primary"
                   className="mt-4 w-full"
                 >
