@@ -5772,6 +5772,13 @@ You've completed this program - now go build the life you want.`,
     setSubmitting(true);
     setActivityError(null);
 
+    // Helper to complete submission (success or fail, always finish)
+    const completeSubmission = () => {
+      setSubmittedActivities(prev => ({ ...prev, [currentSection]: true }));
+      setActivityResponse('');
+      setSubmitting(false);
+    };
+
     try {
       const user = await getCurrentUser();
       if (!user) {
@@ -5780,8 +5787,13 @@ You've completed this program - now go build the life you want.`,
         return;
       }
 
-      // Save to activity_responses table
-      const { error } = await supabase.from('activity_responses').insert({
+      // Create timeout promise (8 seconds max)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database timeout')), 8000);
+      });
+
+      // Save to activity_responses table with timeout
+      const insertPromise = supabase.from('activity_responses').insert({
         user_id: user.id,
         enrollment_id: enrollmentId,
         week_number: weekNumber,
@@ -5793,21 +5805,23 @@ You've completed this program - now go build the life you want.`,
         submitted_at: new Date().toISOString()
       });
 
-      if (error) {
-        console.error('Failed to save activity:', error);
-        // Still mark as submitted locally even if DB fails
+      try {
+        const { error } = await Promise.race([insertPromise, timeoutPromise]) as { error: any };
+        if (error) {
+          console.error('Failed to save activity:', error);
+          // Still complete locally even if DB fails
+        }
+      } catch (timeoutErr) {
+        console.error('Activity save timed out:', timeoutErr);
+        // Still complete locally on timeout
       }
 
-      // Mark this section's activity as submitted
-      setSubmittedActivities(prev => ({ ...prev, [currentSection]: true }));
-      setActivityResponse('');
-      setSubmitting(false);
+      // Always mark as submitted locally
+      completeSubmission();
     } catch (err) {
       console.error('Activity submission error:', err);
       // Still mark as submitted locally to not block progress
-      setSubmittedActivities(prev => ({ ...prev, [currentSection]: true }));
-      setActivityResponse('');
-      setSubmitting(false);
+      completeSubmission();
     }
   };
 

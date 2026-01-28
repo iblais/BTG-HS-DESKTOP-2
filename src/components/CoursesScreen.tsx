@@ -72,6 +72,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [startSection, setStartSection] = useState<number>(0);
   // Track which modules have activities completed per week: { weekNumber: [day1Complete, day2Complete, ...] }
   const [weekActivities, setWeekActivities] = useState<Record<number, boolean[]>>({});
+  // Locked week message
+  const [lockedMessage, setLockedMessage] = useState<string | null>(null);
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
@@ -390,6 +392,17 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     return progress?.score || 0;
   };
 
+  // Handle week card click - block if locked
+  const handleWeekClick = (week: Week) => {
+    if (week.status === 'locked') {
+      setLockedMessage(`Complete Week ${week.number - 1} to unlock Week ${week.number}`);
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => setLockedMessage(null), 3000);
+      return;
+    }
+    setSelectedWeek(week.number);
+  };
+
   const weeks: Week[] = Array.from({ length: totalWeeks }, (_, i) => {
     const num = i + 1;
     const info = weekTitles[num] || { title: `Week ${num}`, description: 'Coming soon' };
@@ -559,17 +572,27 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
         </div>
       </div>
 
+      {/* Locked Week Message */}
+      {lockedMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="bg-[#FF6B35] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
+            <Lock className="w-5 h-5" />
+            <span className="font-medium">{lockedMessage}</span>
+          </div>
+        </div>
+      )}
+
       {/* Weeks Grid - EXCITING VERSION WITH IMAGES */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {weeks.map((week) => (
           <div
             key={week.number}
-            onClick={() => setSelectedWeek(week.number)}
+            onClick={() => handleWeekClick(week)}
             className={cn(
-              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer",
+              "course-card-lift rounded-2xl overflow-hidden transition-all duration-300 group",
               week.status === 'locked'
-                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)]"
-                : "",
+                ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)] opacity-60 cursor-not-allowed"
+                : "cursor-pointer",
               week.status === 'completed'
                 ? "bg-gradient-to-br from-[var(--success)]/10 to-[var(--bg-elevated)] border-2 border-[var(--success)]/30"
                 : week.status === 'in_progress'
