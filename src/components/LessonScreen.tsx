@@ -5757,7 +5757,7 @@ You've completed this program - now go build the life you want.`,
     }
   };
 
-  // Submit activity response
+  // Submit activity response - AGGRESSIVE FAILSAFE VERSION
   const handleActivitySubmit = async () => {
     if (!activityResponse.trim()) {
       setActivityError('Please write a response before submitting.');
@@ -5769,58 +5769,78 @@ You've completed this program - now go build the life you want.`,
       return;
     }
 
+    // Capture response before any async operations
+    const responseText = activityResponse.trim();
+    const sectionToMark = currentSection;
+
     setSubmitting(true);
     setActivityError(null);
 
-    // Helper to complete submission (success or fail, always finish)
+    // FAILSAFE #1: Force complete after 5 seconds NO MATTER WHAT
+    // This runs outside all try/catch and cannot be blocked
+    const failsafeTimeout = setTimeout(() => {
+      console.warn('FAILSAFE: Forcing submission complete after 5 seconds');
+      setSubmittedActivities(prev => ({ ...prev, [sectionToMark]: true }));
+      setActivityResponse('');
+      setSubmitting(false);
+    }, 5000);
+
+    // FAILSAFE #2: Save to localStorage immediately (optimistic)
+    try {
+      const localKey = `btg_activity_${weekNumber}_${sectionToMark}`;
+      localStorage.setItem(localKey, JSON.stringify({
+        response: responseText,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // localStorage may be unavailable, continue anyway
+    }
+
+    // Helper to complete and clear failsafe
     const completeSubmission = () => {
-      setSubmittedActivities(prev => ({ ...prev, [currentSection]: true }));
+      clearTimeout(failsafeTimeout);
+      setSubmittedActivities(prev => ({ ...prev, [sectionToMark]: true }));
       setActivityResponse('');
       setSubmitting(false);
     };
 
+    // Attempt database save (non-blocking)
     try {
       const user = await getCurrentUser();
       if (!user) {
-        setActivityError('You must be logged in to submit.');
-        setSubmitting(false);
+        // No user but still complete locally
+        completeSubmission();
         return;
       }
 
-      // Create timeout promise (8 seconds max)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database timeout')), 8000);
-      });
-
-      // Save to activity_responses table with timeout
-      const insertPromise = supabase.from('activity_responses').insert({
-        user_id: user.id,
-        enrollment_id: enrollmentId,
-        week_number: weekNumber,
-        day_number: currentSection + 1,  // Days are 1-indexed (1-5)
-        module_number: currentSection + 1,  // Module = Day for our structure
-        module_title: currentSectionData?.title || `Module ${currentSection + 1}`,
-        activity_question: currentSectionData?.activityQuestion || '',
-        response_text: activityResponse.trim(),
-        submitted_at: new Date().toISOString()
-      });
-
-      try {
-        const { error } = await Promise.race([insertPromise, timeoutPromise]) as { error: any };
-        if (error) {
-          console.error('Failed to save activity:', error);
-          // Still complete locally even if DB fails
+      // Fire and forget DB save - don't await, let failsafe handle timeout
+      (async () => {
+        try {
+          const { error } = await supabase.from('activity_responses').insert({
+            user_id: user.id,
+            enrollment_id: enrollmentId,
+            week_number: weekNumber,
+            day_number: sectionToMark + 1,
+            module_number: sectionToMark + 1,
+            module_title: currentSectionData?.title || `Module ${sectionToMark + 1}`,
+            activity_question: currentSectionData?.activityQuestion || '',
+            response_text: responseText,
+            submitted_at: new Date().toISOString()
+          });
+          if (error) {
+            console.error('DB save failed (non-blocking):', error);
+          } else {
+            console.log('Activity saved to database successfully');
+          }
+        } catch (err) {
+          console.error('DB save error (non-blocking):', err);
         }
-      } catch (timeoutErr) {
-        console.error('Activity save timed out:', timeoutErr);
-        // Still complete locally on timeout
-      }
+      })();
 
-      // Always mark as submitted locally
+      // Complete immediately - don't wait for DB
       completeSubmission();
     } catch (err) {
       console.error('Activity submission error:', err);
-      // Still mark as submitted locally to not block progress
       completeSubmission();
     }
   };
