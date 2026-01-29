@@ -53,14 +53,26 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check auth state on mount using getSession() for reliability
+  // FAST initialization - localStorage first, database in background
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
 
     const initializeAuth = async () => {
+      // STEP 1: Check localStorage INSTANTLY for cached enrollment
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          setEnrollment(parsed);
+          setEnrollmentState('ready');
+        } catch {
+          // Invalid cache, will handle below
+        }
+      }
+
       try {
-        // Use getSession() - more reliable than getCurrentUser()
+        // STEP 2: Check auth session
         const { data: { session } } = await supabase.auth.getSession();
 
         if (session?.user) {
@@ -72,10 +84,19 @@ function App() {
           setUser(authUser);
           setIsLoggedIn(true);
 
-          // Check enrollment from database with localStorage fallback
-          await checkEnrollment(authUser.id);
+          // If we already have cached enrollment, we're done loading
+          // Just sync with database in background
+          if (cachedEnrollment) {
+            setAuthLoading(false);
+            // Background sync - don't await
+            syncEnrollmentInBackground(authUser.id);
+          } else {
+            // No cache - need to check enrollment (but fast)
+            await checkEnrollment(authUser.id);
+            setAuthLoading(false);
+          }
 
-          // Fetch user profile for avatar and display name (non-blocking)
+          // These are all non-blocking background operations
           supabase
             .from('users')
             .select('avatar_url, display_name')
@@ -88,12 +109,13 @@ function App() {
               }
             });
 
-          // Check if user is a teacher (non-blocking)
           isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
+        } else {
+          // No session - show login
+          setAuthLoading(false);
         }
       } catch (error) {
         console.error('Auth init failed:', error);
-      } finally {
         setAuthLoading(false);
       }
     };
@@ -107,9 +129,25 @@ function App() {
         };
         setUser(authUser);
         setIsLoggedIn(true);
-        await checkEnrollment(authUser.id);
 
-        // Fetch user profile (non-blocking)
+        // Check localStorage first for instant loading
+        const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+        if (cachedEnrollment) {
+          try {
+            setEnrollment(JSON.parse(cachedEnrollment));
+            setEnrollmentState('ready');
+            setAuthLoading(false);
+            syncEnrollmentInBackground(authUser.id);
+          } catch {
+            await checkEnrollment(authUser.id);
+            setAuthLoading(false);
+          }
+        } else {
+          await checkEnrollment(authUser.id);
+          setAuthLoading(false);
+        }
+
+        // Non-blocking background operations
         supabase
           .from('users')
           .select('avatar_url, display_name')
@@ -122,10 +160,7 @@ function App() {
             }
           });
 
-        // Check teacher status (non-blocking)
         isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
-
-        setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsLoggedIn(false);
@@ -139,10 +174,14 @@ function App() {
       }
     });
 
-    // Failsafe timeout - always complete loading
+    // Failsafe - never wait more than 2 seconds
     const timeout = setTimeout(() => {
       setAuthLoading(false);
-    }, 5000);
+      // If still checking enrollment, just proceed
+      if (enrollmentState === 'checking') {
+        setEnrollmentState('needs_program');
+      }
+    }, 2000);
 
     initializeAuth();
 
@@ -152,7 +191,7 @@ function App() {
     };
   }, []);
 
-  // Failsafe for enrollment check
+  // Failsafe for enrollment check - reduced to 1.5 seconds
   useEffect(() => {
     if (enrollmentState !== 'checking') return;
 
@@ -162,7 +201,6 @@ function App() {
         try {
           const parsed = JSON.parse(cachedEnrollment);
           setEnrollment(parsed);
-          localStorage.setItem('btg-onboarding-complete', 'true');
           setEnrollmentState('ready');
           return;
         } catch {
@@ -170,7 +208,7 @@ function App() {
         }
       }
       setEnrollmentState('needs_program');
-    }, 5000);
+    }, 1500);
 
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
@@ -195,52 +233,54 @@ function App() {
     autoEnroll();
   }, [enrollmentState, user]);
 
-  // Check enrollment - uses database with localStorage fallback
+  // Background sync - updates localStorage from database without blocking UI
+  const syncEnrollmentInBackground = (userId: string) => {
+    getActiveEnrollment().then((dbEnrollment) => {
+      if (dbEnrollment && dbEnrollment.user_id === userId) {
+        setEnrollment(dbEnrollment);
+        localStorage.setItem('btg_local_enrollment', JSON.stringify(dbEnrollment));
+      }
+    }).catch(() => {
+      // Ignore background sync errors - we already have cached data
+    });
+  };
+
+  // Check enrollment - localStorage FIRST for speed, then database
   const checkEnrollment = async (userId: string) => {
+    // ALWAYS check localStorage first - it's instant
+    const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+    if (cachedEnrollment) {
+      try {
+        const parsed = JSON.parse(cachedEnrollment);
+        if (parsed.user_id === userId) {
+          setEnrollment(parsed);
+          setEnrollmentState('ready');
+          // Sync with database in background
+          syncEnrollmentInBackground(userId);
+          return;
+        }
+      } catch {
+        // Invalid cache, continue to database
+      }
+    }
+
+    // No valid cache - try database with short timeout
     try {
-      // Try to get enrollment from database (with localStorage fallback built-in)
-      const existingEnrollment = await getActiveEnrollment();
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+      const enrollmentPromise = getActiveEnrollment();
+
+      const existingEnrollment = await Promise.race([enrollmentPromise, timeoutPromise]);
 
       if (existingEnrollment) {
         setEnrollment(existingEnrollment);
-        localStorage.setItem('btg-onboarding-complete', 'true');
         setEnrollmentState('ready');
         return;
-      }
-
-      // Check localStorage as final fallback
-      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-      if (cachedEnrollment) {
-        try {
-          const parsed = JSON.parse(cachedEnrollment);
-          // Verify cached enrollment belongs to this user
-          if (parsed.user_id === userId) {
-            setEnrollment(parsed);
-            localStorage.setItem('btg-onboarding-complete', 'true');
-            setEnrollmentState('ready');
-            return;
-          }
-        } catch {
-          // Invalid cache, continue
-        }
       }
 
       // No enrollment found - needs auto-enrollment
       setEnrollmentState('needs_program');
     } catch (error) {
       console.error('Enrollment check failed:', error);
-      // On error, check localStorage
-      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-      if (cachedEnrollment) {
-        try {
-          const parsed = JSON.parse(cachedEnrollment);
-          setEnrollment(parsed);
-          setEnrollmentState('ready');
-          return;
-        } catch {
-          // Invalid cache
-        }
-      }
       setEnrollmentState('needs_program');
     }
   };
