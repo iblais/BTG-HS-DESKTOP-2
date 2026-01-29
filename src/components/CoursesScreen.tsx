@@ -265,40 +265,39 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           answersObject[index] = answer;
         });
 
-        await supabase
-          .from('quiz_attempts')
-          .insert({
-            user_id: user.id,
-            enrollment_id: enrollmentId,
-            week_number: activeWeek,
-            score: score,
-            total_questions: 10,
-            passed: passed,
-            time_taken_seconds: timeTaken,
-            answers: answersObject,
-            completed_at: new Date().toISOString()
-          });
+        // Only insert if we have a valid enrollment
+        if (enrollmentId) {
+          await supabase
+            .from('quiz_attempts')
+            .insert({
+              user_id: user.id,
+              enrollment_id: enrollmentId,
+              week_number: activeWeek,
+              score: score,
+              total_questions: 10,
+              passed: passed,
+              time_taken_seconds: timeTaken,
+              answers: answersObject,
+              completed_at: new Date().toISOString()
+            });
+        }
 
-        // Save writing prompt responses to activity_responses table
+        // Save writing prompt responses to activity_grades table
         if (writingResponses && writingResponses.length > 0) {
-          const writingPromptInserts = writingResponses.map((response, index) => ({
-            user_id: user.id,
-            enrollment_id: enrollmentId,
-            week_number: activeWeek,
-            day_number: 5 + index, // Use day 5+ for writing prompts (after 4 lesson modules)
-            module_number: 5 + index,
-            module_title: `Week ${activeWeek} Writing Prompt ${index + 1}`,
-            activity_question: index === 0
-              ? 'Explain how income, saving, expenses, and budgeting work together (8-10 sentences)'
-              : 'Describe financial survival mode and how to regain control (8-10 sentences)',
-            response_text: response,
-            submitted_at: new Date().toISOString()
-          }));
-
-          for (const insert of writingPromptInserts) {
-            await supabase
-              .from('activity_responses')
-              .upsert(insert, { onConflict: 'user_id,week_number,day_number' });
+          try {
+            for (let i = 0; i < writingResponses.length; i++) {
+              await supabase
+                .from('activity_grades')
+                .insert({
+                  user_id: user.id,
+                  enrollment_id: enrollmentId,
+                  week_number: activeWeek,
+                  activity_type: `writing_prompt_${i + 1}`,
+                  response_text: writingResponses[i]
+                });
+            }
+          } catch (err) {
+            console.warn('Could not save writing responses:', err);
           }
         }
 
