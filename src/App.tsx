@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { type AuthUser } from '@/lib/auth';
-import { type Enrollment, getActiveEnrollment, createEnrollment } from '@/lib/enrollment';
+import { type AuthUser, getCurrentUser } from '@/lib/auth';
+import { type Enrollment, createEnrollment } from '@/lib/enrollment';
+import { isTeacher } from '@/lib/teacher';
 import { LoginScreen } from '@/components/LoginScreen';
 // ProgramSelectScreen removed - users are now auto-enrolled
 import { OnboardingScreen } from '@/components/OnboardingScreen';
@@ -9,13 +10,13 @@ import { DashboardScreen } from '@/components/DashboardScreen';
 import { CoursesScreen } from '@/components/CoursesScreen';
 import { GamesScreen } from '@/components/GamesScreen';
 import { ProfileScreen } from '@/components/ProfileScreen';
-import { LeaderboardScreen } from '@/components/LeaderboardScreen';
-import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
+import { TeacherPortal } from '@/components/teacher';
+import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 
 type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
-type ActiveTab = 'dashboard' | 'courses' | 'games' | 'leaderboard' | 'profile';
+type ActiveTab = 'dashboard' | 'courses' | 'games' | 'profile' | 'teacher';
 
 function App() {
   // Auth state
@@ -35,6 +36,9 @@ function App() {
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [userDisplayName, setUserDisplayName] = useState<string | null>(null);
 
+  // Teacher state
+  const [isUserTeacher, setIsUserTeacher] = useState(false);
+
   // Check if mobile
   const [isMobile, setIsMobile] = useState(false);
 
@@ -45,136 +49,68 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Fetch user profile data
-  const fetchUserProfile = useCallback(async (userId: string) => {
-    try {
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('avatar_url, display_name')
-        .eq('id', userId)
-        .single();
-
-      if (userProfile) {
-        setUserAvatarUrl(userProfile.avatar_url);
-        setUserDisplayName(userProfile.display_name);
-      }
-    } catch (err) {
-      console.warn('Could not fetch user profile:', err);
-    }
-  }, []);
-
-  // Check enrollment - tries database first, then localStorage
-  const checkEnrollment = useCallback(async (userId: string) => {
-    try {
-      // Try to get enrollment from database (with localStorage fallback built-in)
-      const existingEnrollment = await getActiveEnrollment();
-
-      if (existingEnrollment) {
-        setEnrollment(existingEnrollment);
-        setEnrollmentState('ready');
-        return;
-      }
-
-      // No enrollment found - auto-enroll in HS program
-      try {
-        const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
-        setEnrollment(newEnrollment);
-        setEnrollmentState('ready');
-      } catch (enrollErr) {
-        console.error('Auto-enrollment failed:', enrollErr);
-        // Create a minimal local enrollment to let user proceed
-        const fallbackEnrollment: Enrollment = {
-          id: `local_${Date.now()}`,
-          user_id: userId,
-          program_id: 'HS',
-          track_level: 'beginner',
-          language: 'en',
-          enrolled_at: new Date().toISOString(),
-          completed_at: null
-        };
-        localStorage.setItem('btg_local_enrollment', JSON.stringify(fallbackEnrollment));
-        setEnrollment(fallbackEnrollment);
-        setEnrollmentState('ready');
-      }
-    } catch (err) {
-      console.error('Enrollment check failed:', err);
-      // Last resort - create local enrollment
-      const fallbackEnrollment: Enrollment = {
-        id: `local_${Date.now()}`,
-        user_id: userId,
-        program_id: 'HS',
-        track_level: 'beginner',
-        language: 'en',
-        enrolled_at: new Date().toISOString(),
-        completed_at: null
-      };
-      localStorage.setItem('btg_local_enrollment', JSON.stringify(fallbackEnrollment));
-      setEnrollment(fallbackEnrollment);
-      setEnrollmentState('ready');
-    }
-  }, []);
-
-  // Track if initialization is complete
-  const initCompleteRef = useRef(false);
-
-  // Initialize auth and enrollment on mount
+  // Check auth state on mount
   useEffect(() => {
     let isSubscribed = true;
 
-    const initializeApp = async () => {
+    const checkAuth = async () => {
       try {
-        // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
-
+        const currentUser = await getCurrentUser();
         if (!isSubscribed) return;
-
-        if (session?.user) {
-          const authUser: AuthUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            isNewUser: false,
-          };
-          setUser(authUser);
+        if (currentUser) {
+          setUser(currentUser);
           setIsLoggedIn(true);
+          await checkEnrollment(currentUser.id);
 
-          // Run enrollment check and profile fetch in parallel
-          await Promise.all([
-            checkEnrollment(authUser.id),
-            fetchUserProfile(authUser.id)
-          ]);
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
+          // Fetch user profile for avatar and display name
+          const { data: userProfile } = await supabase
+            .from('users')
+            .select('avatar_url, display_name')
+            .eq('id', currentUser.id)
+            .single();
+
+          if (userProfile) {
+            setUserAvatarUrl(userProfile.avatar_url);
+            setUserDisplayName(userProfile.display_name);
+          }
+
+          // Check if user is a teacher
+          const teacherStatus = await isTeacher();
+          setIsUserTeacher(teacherStatus);
         }
       } catch (error) {
-        console.error('App initialization failed:', error);
+        console.error('Auth check failed:', error);
       } finally {
-        if (isSubscribed) {
-          setAuthLoading(false);
-          initCompleteRef.current = true;
-        }
+        if (isSubscribed) setAuthLoading(false);
       }
     };
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Skip if this is the initial check (handled by initializeApp)
-      if (!initCompleteRef.current && event === 'INITIAL_SESSION') return;
-
       if (event === 'SIGNED_IN' && session?.user) {
         const authUser: AuthUser = {
           id: session.user.id,
-          email: session.user.email || '',
+          email: session.user.email!,
           isNewUser: false,
         };
         setUser(authUser);
         setIsLoggedIn(true);
-        setAuthLoading(true);
+        await checkEnrollment(authUser.id);
 
-        await Promise.all([
-          checkEnrollment(authUser.id),
-          fetchUserProfile(authUser.id)
-        ]);
+        // Fetch user profile for avatar and display name
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('avatar_url, display_name')
+          .eq('id', authUser.id)
+          .single();
+
+        if (userProfile) {
+          setUserAvatarUrl(userProfile.avatar_url);
+          setUserDisplayName(userProfile.display_name);
+        }
+
+        // Check if user is a teacher
+        const teacherStatus = await isTeacher();
+        setIsUserTeacher(teacherStatus);
 
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
@@ -185,33 +121,84 @@ function App() {
         setActiveTab('dashboard');
         setUserAvatarUrl(null);
         setUserDisplayName(null);
+        setIsUserTeacher(false);
         setAuthLoading(false);
-      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        // Token refreshed - re-fetch data to ensure it's current
-        await Promise.all([
-          checkEnrollment(session.user.id),
-          fetchUserProfile(session.user.id)
-        ]);
       }
     });
 
-    // Hard timeout to prevent infinite loading
     const timeout = setTimeout(() => {
-      if (isSubscribed && !initCompleteRef.current) {
-        console.warn('Auth check timed out');
-        setAuthLoading(false);
-        initCompleteRef.current = true;
-      }
-    }, 8000);
+      if (isSubscribed) setAuthLoading(false);
+    }, 10000);
 
-    initializeApp();
+    checkAuth();
 
     return () => {
       isSubscribed = false;
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
-  }, [checkEnrollment, fetchUserProfile]);
+  }, []);
+
+  // Failsafe for enrollment check
+  useEffect(() => {
+    if (enrollmentState !== 'checking') return;
+
+    const failsafe = setTimeout(() => {
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          setEnrollment(parsed);
+          localStorage.setItem('btg-onboarding-complete', 'true');
+          setEnrollmentState('ready');
+          return;
+        } catch {
+          // Ignore parse errors
+        }
+      }
+      setEnrollmentState('needs_program');
+    }, 5000);
+
+    return () => clearTimeout(failsafe);
+  }, [enrollmentState]);
+
+  // Auto-enroll new users in HS Beginner program (English)
+  useEffect(() => {
+    if (enrollmentState !== 'needs_program' || !user) return;
+
+    const autoEnroll = async () => {
+      try {
+        const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
+        setEnrollment(newEnrollment);
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
+      } catch (err) {
+        console.error('Auto-enrollment failed:', err);
+        // Still try to proceed with a local-only enrollment
+        setEnrollmentState('ready');
+      }
+    };
+
+    autoEnroll();
+  }, [enrollmentState, user]);
+
+  // Check enrollment - LOCAL ONLY for instant loading
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const checkEnrollment = async (_userId: string) => {
+    const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+    if (cachedEnrollment) {
+      try {
+        const parsed = JSON.parse(cachedEnrollment);
+        setEnrollment(parsed);
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
+        return;
+      } catch {
+        // Invalid cache
+      }
+    }
+    setEnrollmentState('needs_program');
+  };
 
   const handleOnboardingComplete = () => setEnrollmentState('ready');
 
@@ -226,12 +213,14 @@ function App() {
     setActiveTab('dashboard');
   };
 
+  // Build nav items based on user role
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'courses' as const, label: 'Courses', icon: GraduationCap },
     { id: 'games' as const, label: 'Games', icon: Gamepad2 },
-    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
     { id: 'profile' as const, label: 'Profile', icon: User },
+    // Teacher portal tab - only shown for teachers
+    ...(isUserTeacher ? [{ id: 'teacher' as const, label: 'Teacher', icon: BookOpen }] : []),
   ];
 
   // Loading state
@@ -408,13 +397,15 @@ function App() {
         <div className="p-4 md:p-6 lg:p-8">
           {/* Page Header */}
           <div className="mb-6 md:mb-8">
-            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">{activeTab}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">
+              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab}
+            </h1>
             <p className="text-sm md:text-base text-[#9CA3AF]">
               {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
               {activeTab === 'courses' && 'Continue your financial literacy journey.'}
               {activeTab === 'games' && 'Learn through interactive games.'}
-              {activeTab === 'leaderboard' && 'See how you rank against other players.'}
               {activeTab === 'profile' && 'Manage your account and settings.'}
+              {activeTab === 'teacher' && 'Manage your classes, students, and grading.'}
             </p>
           </div>
 
@@ -434,16 +425,16 @@ function App() {
             <GamesScreen />
           )}
 
-          {activeTab === 'leaderboard' && (
-            <LeaderboardScreen />
-          )}
-
           {activeTab === 'profile' && (
             <ProfileScreen
               enrollment={enrollment}
               onSignOut={handleSignOut}
               onAvatarUpdate={(avatarUrl) => setUserAvatarUrl(avatarUrl)}
             />
+          )}
+
+          {activeTab === 'teacher' && isUserTeacher && (
+            <TeacherPortal />
           )}
         </div>
       </main>
@@ -453,7 +444,10 @@ function App() {
         className="md:hidden fixed bottom-0 left-0 right-0 bg-[#12162F] border-t border-white/10 z-50"
         style={{ height: '64px' }}
       >
-        <div className="grid grid-cols-4 h-full">
+        <div className={cn(
+          "grid h-full",
+          navItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
+        )}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
