@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { type AuthUser, getCurrentUser } from '@/lib/auth';
-import { type Enrollment, createEnrollment } from '@/lib/enrollment';
+import { type AuthUser } from '@/lib/auth';
+import { type Enrollment, createEnrollment, getActiveEnrollment } from '@/lib/enrollment';
 import { isTeacher } from '@/lib/teacher';
 import { LoginScreen } from '@/components/LoginScreen';
 // ProgramSelectScreen removed - users are now auto-enrolled
@@ -9,14 +9,15 @@ import { OnboardingScreen } from '@/components/OnboardingScreen';
 import { DashboardScreen } from '@/components/DashboardScreen';
 import { CoursesScreen } from '@/components/CoursesScreen';
 import { GamesScreen } from '@/components/GamesScreen';
+import { LeaderboardScreen } from '@/components/LeaderboardScreen';
 import { ProfileScreen } from '@/components/ProfileScreen';
 import { TeacherPortal } from '@/components/teacher';
-import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { Loader2, Home, GraduationCap, Gamepad2, Trophy, User, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 
 type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
-type ActiveTab = 'dashboard' | 'courses' | 'games' | 'profile' | 'teacher';
+type ActiveTab = 'dashboard' | 'courses' | 'games' | 'leaderboard' | 'profile' | 'teacher';
 
 function App() {
   // Auth state
@@ -42,6 +43,9 @@ function App() {
   // Check if mobile
   const [isMobile, setIsMobile] = useState(false);
 
+  // Track initialization
+  const initRef = useRef(false);
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -49,39 +53,48 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check auth state on mount
+  // Check auth state on mount using getSession() for reliability
   useEffect(() => {
-    let isSubscribed = true;
+    if (initRef.current) return;
+    initRef.current = true;
 
-    const checkAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        const currentUser = await getCurrentUser();
-        if (!isSubscribed) return;
-        if (currentUser) {
-          setUser(currentUser);
-          setIsLoggedIn(true);
-          await checkEnrollment(currentUser.id);
+        // Use getSession() - more reliable than getCurrentUser()
+        const { data: { session } } = await supabase.auth.getSession();
 
-          // Fetch user profile for avatar and display name
-          const { data: userProfile } = await supabase
+        if (session?.user) {
+          const authUser: AuthUser = {
+            id: session.user.id,
+            email: session.user.email!,
+            isNewUser: false,
+          };
+          setUser(authUser);
+          setIsLoggedIn(true);
+
+          // Check enrollment from database with localStorage fallback
+          await checkEnrollment(authUser.id);
+
+          // Fetch user profile for avatar and display name (non-blocking)
+          supabase
             .from('users')
             .select('avatar_url, display_name')
-            .eq('id', currentUser.id)
-            .single();
+            .eq('id', authUser.id)
+            .single()
+            .then(({ data: userProfile }) => {
+              if (userProfile) {
+                setUserAvatarUrl(userProfile.avatar_url);
+                setUserDisplayName(userProfile.display_name);
+              }
+            });
 
-          if (userProfile) {
-            setUserAvatarUrl(userProfile.avatar_url);
-            setUserDisplayName(userProfile.display_name);
-          }
-
-          // Check if user is a teacher
-          const teacherStatus = await isTeacher();
-          setIsUserTeacher(teacherStatus);
+          // Check if user is a teacher (non-blocking)
+          isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('Auth init failed:', error);
       } finally {
-        if (isSubscribed) setAuthLoading(false);
+        setAuthLoading(false);
       }
     };
 
@@ -96,21 +109,21 @@ function App() {
         setIsLoggedIn(true);
         await checkEnrollment(authUser.id);
 
-        // Fetch user profile for avatar and display name
-        const { data: userProfile } = await supabase
+        // Fetch user profile (non-blocking)
+        supabase
           .from('users')
           .select('avatar_url, display_name')
           .eq('id', authUser.id)
-          .single();
+          .single()
+          .then(({ data: userProfile }) => {
+            if (userProfile) {
+              setUserAvatarUrl(userProfile.avatar_url);
+              setUserDisplayName(userProfile.display_name);
+            }
+          });
 
-        if (userProfile) {
-          setUserAvatarUrl(userProfile.avatar_url);
-          setUserDisplayName(userProfile.display_name);
-        }
-
-        // Check if user is a teacher
-        const teacherStatus = await isTeacher();
-        setIsUserTeacher(teacherStatus);
+        // Check teacher status (non-blocking)
+        isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
 
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
@@ -126,14 +139,14 @@ function App() {
       }
     });
 
+    // Failsafe timeout - always complete loading
     const timeout = setTimeout(() => {
-      if (isSubscribed) setAuthLoading(false);
-    }, 10000);
+      setAuthLoading(false);
+    }, 5000);
 
-    checkAuth();
+    initializeAuth();
 
     return () => {
-      isSubscribed = false;
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
@@ -182,22 +195,54 @@ function App() {
     autoEnroll();
   }, [enrollmentState, user]);
 
-  // Check enrollment - LOCAL ONLY for instant loading
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const checkEnrollment = async (_userId: string) => {
-    const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-    if (cachedEnrollment) {
-      try {
-        const parsed = JSON.parse(cachedEnrollment);
-        setEnrollment(parsed);
+  // Check enrollment - uses database with localStorage fallback
+  const checkEnrollment = async (userId: string) => {
+    try {
+      // Try to get enrollment from database (with localStorage fallback built-in)
+      const existingEnrollment = await getActiveEnrollment();
+
+      if (existingEnrollment) {
+        setEnrollment(existingEnrollment);
         localStorage.setItem('btg-onboarding-complete', 'true');
         setEnrollmentState('ready');
         return;
-      } catch {
-        // Invalid cache
       }
+
+      // Check localStorage as final fallback
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          // Verify cached enrollment belongs to this user
+          if (parsed.user_id === userId) {
+            setEnrollment(parsed);
+            localStorage.setItem('btg-onboarding-complete', 'true');
+            setEnrollmentState('ready');
+            return;
+          }
+        } catch {
+          // Invalid cache, continue
+        }
+      }
+
+      // No enrollment found - needs auto-enrollment
+      setEnrollmentState('needs_program');
+    } catch (error) {
+      console.error('Enrollment check failed:', error);
+      // On error, check localStorage
+      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
+      if (cachedEnrollment) {
+        try {
+          const parsed = JSON.parse(cachedEnrollment);
+          setEnrollment(parsed);
+          setEnrollmentState('ready');
+          return;
+        } catch {
+          // Invalid cache
+        }
+      }
+      setEnrollmentState('needs_program');
     }
-    setEnrollmentState('needs_program');
   };
 
   const handleOnboardingComplete = () => setEnrollmentState('ready');
@@ -218,6 +263,7 @@ function App() {
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'courses' as const, label: 'Courses', icon: GraduationCap },
     { id: 'games' as const, label: 'Games', icon: Gamepad2 },
+    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
     { id: 'profile' as const, label: 'Profile', icon: User },
     // Teacher portal tab - only shown for teachers
     ...(isUserTeacher ? [{ id: 'teacher' as const, label: 'Teacher', icon: BookOpen }] : []),
@@ -398,12 +444,13 @@ function App() {
           {/* Page Header */}
           <div className="mb-6 md:mb-8">
             <h1 className="text-xl md:text-2xl font-bold text-white capitalize">
-              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab}
+              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab === 'leaderboard' ? 'Leaderboard' : activeTab}
             </h1>
             <p className="text-sm md:text-base text-[#9CA3AF]">
               {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
               {activeTab === 'courses' && 'Continue your financial literacy journey.'}
               {activeTab === 'games' && 'Learn through interactive games.'}
+              {activeTab === 'leaderboard' && 'See how you rank against other students.'}
               {activeTab === 'profile' && 'Manage your account and settings.'}
               {activeTab === 'teacher' && 'Manage your classes, students, and grading.'}
             </p>
@@ -423,6 +470,10 @@ function App() {
 
           {activeTab === 'games' && (
             <GamesScreen />
+          )}
+
+          {activeTab === 'leaderboard' && (
+            <LeaderboardScreen />
           )}
 
           {activeTab === 'profile' && (
@@ -446,7 +497,7 @@ function App() {
       >
         <div className={cn(
           "grid h-full",
-          navItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
+          navItems.length === 6 ? "grid-cols-6" : navItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
         )}>
           {navItems.map((item) => {
             const Icon = item.icon;
