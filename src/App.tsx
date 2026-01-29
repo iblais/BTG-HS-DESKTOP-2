@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { type AuthUser, getCurrentUser } from '@/lib/auth';
-import { type Enrollment, createEnrollment } from '@/lib/enrollment';
+import { type AuthUser } from '@/lib/auth';
+import { type Enrollment, getActiveEnrollment, createEnrollment } from '@/lib/enrollment';
 import { LoginScreen } from '@/components/LoginScreen';
 // ProgramSelectScreen removed - users are now auto-enrolled
 import { OnboardingScreen } from '@/components/OnboardingScreen';
@@ -45,60 +45,136 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check auth state on mount
+  // Fetch user profile data
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    try {
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('avatar_url, display_name')
+        .eq('id', userId)
+        .single();
+
+      if (userProfile) {
+        setUserAvatarUrl(userProfile.avatar_url);
+        setUserDisplayName(userProfile.display_name);
+      }
+    } catch (err) {
+      console.warn('Could not fetch user profile:', err);
+    }
+  }, []);
+
+  // Check enrollment - tries database first, then localStorage
+  const checkEnrollment = useCallback(async (userId: string) => {
+    try {
+      // Try to get enrollment from database (with localStorage fallback built-in)
+      const existingEnrollment = await getActiveEnrollment();
+
+      if (existingEnrollment) {
+        setEnrollment(existingEnrollment);
+        setEnrollmentState('ready');
+        return;
+      }
+
+      // No enrollment found - auto-enroll in HS program
+      try {
+        const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
+        setEnrollment(newEnrollment);
+        setEnrollmentState('ready');
+      } catch (enrollErr) {
+        console.error('Auto-enrollment failed:', enrollErr);
+        // Create a minimal local enrollment to let user proceed
+        const fallbackEnrollment: Enrollment = {
+          id: `local_${Date.now()}`,
+          user_id: userId,
+          program_id: 'HS',
+          track_level: 'beginner',
+          language: 'en',
+          enrolled_at: new Date().toISOString(),
+          completed_at: null
+        };
+        localStorage.setItem('btg_local_enrollment', JSON.stringify(fallbackEnrollment));
+        setEnrollment(fallbackEnrollment);
+        setEnrollmentState('ready');
+      }
+    } catch (err) {
+      console.error('Enrollment check failed:', err);
+      // Last resort - create local enrollment
+      const fallbackEnrollment: Enrollment = {
+        id: `local_${Date.now()}`,
+        user_id: userId,
+        program_id: 'HS',
+        track_level: 'beginner',
+        language: 'en',
+        enrolled_at: new Date().toISOString(),
+        completed_at: null
+      };
+      localStorage.setItem('btg_local_enrollment', JSON.stringify(fallbackEnrollment));
+      setEnrollment(fallbackEnrollment);
+      setEnrollmentState('ready');
+    }
+  }, []);
+
+  // Track if initialization is complete
+  const initCompleteRef = useRef(false);
+
+  // Initialize auth and enrollment on mount
   useEffect(() => {
     let isSubscribed = true;
 
-    const checkAuth = async () => {
+    const initializeApp = async () => {
       try {
-        const currentUser = await getCurrentUser();
+        // Get current session
+        const { data: { session } } = await supabase.auth.getSession();
+
         if (!isSubscribed) return;
-        if (currentUser) {
-          setUser(currentUser);
+
+        if (session?.user) {
+          const authUser: AuthUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            isNewUser: false,
+          };
+          setUser(authUser);
           setIsLoggedIn(true);
-          await checkEnrollment(currentUser.id);
 
-          // Fetch user profile for avatar and display name
-          const { data: userProfile } = await supabase
-            .from('users')
-            .select('avatar_url, display_name')
-            .eq('id', currentUser.id)
-            .single();
-
-          if (userProfile) {
-            setUserAvatarUrl(userProfile.avatar_url);
-            setUserDisplayName(userProfile.display_name);
-          }
+          // Run enrollment check and profile fetch in parallel
+          await Promise.all([
+            checkEnrollment(authUser.id),
+            fetchUserProfile(authUser.id)
+          ]);
+        } else {
+          setIsLoggedIn(false);
+          setUser(null);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('App initialization failed:', error);
       } finally {
-        if (isSubscribed) setAuthLoading(false);
+        if (isSubscribed) {
+          setAuthLoading(false);
+          initCompleteRef.current = true;
+        }
       }
     };
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Skip if this is the initial check (handled by initializeApp)
+      if (!initCompleteRef.current && event === 'INITIAL_SESSION') return;
+
       if (event === 'SIGNED_IN' && session?.user) {
         const authUser: AuthUser = {
           id: session.user.id,
-          email: session.user.email!,
+          email: session.user.email || '',
           isNewUser: false,
         };
         setUser(authUser);
         setIsLoggedIn(true);
-        await checkEnrollment(authUser.id);
+        setAuthLoading(true);
 
-        // Fetch user profile for avatar and display name
-        const { data: userProfile } = await supabase
-          .from('users')
-          .select('avatar_url, display_name')
-          .eq('id', authUser.id)
-          .single();
-
-        if (userProfile) {
-          setUserAvatarUrl(userProfile.avatar_url);
-          setUserDisplayName(userProfile.display_name);
-        }
+        await Promise.all([
+          checkEnrollment(authUser.id),
+          fetchUserProfile(authUser.id)
+        ]);
 
         setAuthLoading(false);
       } else if (event === 'SIGNED_OUT') {
@@ -110,81 +186,32 @@ function App() {
         setUserAvatarUrl(null);
         setUserDisplayName(null);
         setAuthLoading(false);
+      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+        // Token refreshed - re-fetch data to ensure it's current
+        await Promise.all([
+          checkEnrollment(session.user.id),
+          fetchUserProfile(session.user.id)
+        ]);
       }
     });
 
+    // Hard timeout to prevent infinite loading
     const timeout = setTimeout(() => {
-      if (isSubscribed) setAuthLoading(false);
-    }, 10000);
+      if (isSubscribed && !initCompleteRef.current) {
+        console.warn('Auth check timed out');
+        setAuthLoading(false);
+        initCompleteRef.current = true;
+      }
+    }, 8000);
 
-    checkAuth();
+    initializeApp();
 
     return () => {
       isSubscribed = false;
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
-  }, []);
-
-  // Failsafe for enrollment check
-  useEffect(() => {
-    if (enrollmentState !== 'checking') return;
-
-    const failsafe = setTimeout(() => {
-      const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-      if (cachedEnrollment) {
-        try {
-          const parsed = JSON.parse(cachedEnrollment);
-          setEnrollment(parsed);
-          localStorage.setItem('btg-onboarding-complete', 'true');
-          setEnrollmentState('ready');
-          return;
-        } catch {
-          // Ignore parse errors
-        }
-      }
-      setEnrollmentState('needs_program');
-    }, 5000);
-
-    return () => clearTimeout(failsafe);
-  }, [enrollmentState]);
-
-  // Auto-enroll new users in HS Beginner program (English)
-  useEffect(() => {
-    if (enrollmentState !== 'needs_program' || !user) return;
-
-    const autoEnroll = async () => {
-      try {
-        const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
-        setEnrollment(newEnrollment);
-        localStorage.setItem('btg-onboarding-complete', 'true');
-        setEnrollmentState('ready');
-      } catch (err) {
-        console.error('Auto-enrollment failed:', err);
-        // Still try to proceed with a local-only enrollment
-        setEnrollmentState('ready');
-      }
-    };
-
-    autoEnroll();
-  }, [enrollmentState, user]);
-
-  // Check enrollment - LOCAL ONLY for instant loading
-  const checkEnrollment = async (_userId: string) => {
-    const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
-    if (cachedEnrollment) {
-      try {
-        const parsed = JSON.parse(cachedEnrollment);
-        setEnrollment(parsed);
-        localStorage.setItem('btg-onboarding-complete', 'true');
-        setEnrollmentState('ready');
-        return;
-      } catch {
-        // Invalid cache
-      }
-    }
-    setEnrollmentState('needs_program');
-  };
+  }, [checkEnrollment, fetchUserProfile]);
 
   const handleOnboardingComplete = () => setEnrollmentState('ready');
 
