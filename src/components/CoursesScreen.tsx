@@ -48,7 +48,10 @@ interface CoursesScreenProps {
 interface CourseProgress {
   week_number: number;
   completed: boolean;
+  quiz_completed: boolean;
+  lesson_completed: boolean;
   score: number;
+  best_quiz_score?: number;
 }
 
 interface Week {
@@ -117,38 +120,55 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
   // Load activity completions to determine quiz lock status
   const loadActivityProgress = async () => {
+    const activities: Record<number, boolean[]> = {};
+
+    // 1. First check localStorage for all weeks (1-18)
+    for (let week = 1; week <= 18; week++) {
+      for (let section = 0; section < 5; section++) {
+        const localKey = `btg_activity_${week}_${section}`;
+        if (localStorage.getItem(localKey)) {
+          if (!activities[week]) {
+            activities[week] = [false, false, false, false, false];
+          }
+          activities[week][section] = true;
+        }
+      }
+      // Also check quiz completion in localStorage
+      const quizKey = `btg_quiz_complete_${week}`;
+      if (localStorage.getItem(quizKey)) {
+        if (!activities[week]) {
+          activities[week] = [false, false, false, false, false];
+        }
+        // Mark all activities as complete if quiz is done
+        activities[week] = [true, true, true, true, true];
+      }
+    }
+
+    // 2. Then try database (will merge with localStorage data)
     try {
       const user = await getCurrentUser();
-      if (!user) {
-        return;
-      }
+      if (user) {
+        const { data } = await supabase
+          .from('activity_responses')
+          .select('week_number, day_number')
+          .eq('user_id', user.id);
 
-      const { data, error } = await supabase
-        .from('activity_responses')
-        .select('week_number, day_number')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Failed to load activity progress:', error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const activities: Record<number, boolean[]> = {};
-        data.forEach((item: { week_number: number; day_number: number }) => {
-          if (!activities[item.week_number]) {
-            activities[item.week_number] = [false, false, false, false, false];
-          }
-          // day_number is 1-indexed, array is 0-indexed
-          if (item.day_number >= 1 && item.day_number <= 5) {
-            activities[item.week_number][item.day_number - 1] = true;
-          }
-        });
-        setWeekActivities(activities);
+        if (data && data.length > 0) {
+          data.forEach((item: { week_number: number; day_number: number }) => {
+            if (!activities[item.week_number]) {
+              activities[item.week_number] = [false, false, false, false, false];
+            }
+            if (item.day_number >= 1 && item.day_number <= 5) {
+              activities[item.week_number][item.day_number - 1] = true;
+            }
+          });
+        }
       }
     } catch (err) {
-      console.error('Error loading activity progress:', err);
+      console.error('Error loading activity progress from database:', err);
     }
+
+    setWeekActivities(activities);
   };
 
   // Check if quiz is unlocked for a week (all 4 modules completed)
@@ -226,6 +246,10 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
   const handleLessonComplete = async (completed: boolean) => {
     if (completed) {
+      // Save lesson completion to localStorage for offline support
+      const lessonKey = `btg_lesson_complete_${activeWeek}`;
+      localStorage.setItem(lessonKey, JSON.stringify({ completed: true, timestamp: Date.now() }));
+
       // Update progress in database
       try {
         const user = await getCurrentUser();
@@ -315,6 +339,10 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
               best_quiz_score: percentage,
               completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,week_number' });
+
+          // Save quiz completion to localStorage for offline support
+          const quizKey = `btg_quiz_complete_${activeWeek}`;
+          localStorage.setItem(quizKey, JSON.stringify({ passed: true, score: percentage, timestamp: Date.now() }));
         }
 
         await loadProgress();
@@ -327,7 +355,17 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
   // Save progress when each section is completed (fire and forget - don't block UI)
   const handleSectionComplete = (sectionIndex: number, totalSections: number) => {
-    // Run async without blocking
+    // Save activity to localStorage immediately for offline support
+    const activityKey = `btg_activity_${activeWeek}_${sectionIndex}`;
+    localStorage.setItem(activityKey, JSON.stringify({ completed: true, timestamp: Date.now() }));
+
+    // If all sections done, mark lesson complete in localStorage
+    if (sectionIndex + 1 >= totalSections) {
+      const lessonKey = `btg_lesson_complete_${activeWeek}`;
+      localStorage.setItem(lessonKey, JSON.stringify({ completed: true, timestamp: Date.now() }));
+    }
+
+    // Run async database save without blocking
     (async () => {
       try {
         const user = await getCurrentUser();
@@ -370,16 +408,29 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   };
 
   const getWeekStatus = (weekNum: number): Week['status'] => {
+    // Check database progress
     const progress = courseProgress.find(p => p.week_number === weekNum);
-    if (progress?.completed) return 'completed';
-    if (progress) return 'in_progress';
+
+    // Check localStorage for quiz completion (offline support)
+    const localQuizKey = `btg_quiz_complete_${weekNum}`;
+    const localQuiz = localStorage.getItem(localQuizKey);
+
+    // Week is completed if database says so OR localStorage has quiz completion
+    if (progress?.completed || progress?.quiz_completed || localQuiz) return 'completed';
+
+    // Check localStorage for lesson progress
+    const localLessonKey = `btg_lesson_complete_${weekNum}`;
+    const localLesson = localStorage.getItem(localLessonKey);
+
+    if (progress || localLesson) return 'in_progress';
 
     // Week 1 is always available by default
     if (weekNum === 1) return 'available';
 
     // For other weeks, check if previous week's quiz is passed
     const prevProgress = courseProgress.find(p => p.week_number === weekNum - 1);
-    if (prevProgress?.completed) return 'available';
+    const prevLocalQuiz = localStorage.getItem(`btg_quiz_complete_${weekNum - 1}`);
+    if (prevProgress?.completed || prevProgress?.quiz_completed || prevLocalQuiz) return 'available';
 
     // Otherwise, week is locked
     return 'locked';
@@ -387,7 +438,19 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
   const getWeekProgress = (weekNum: number): number => {
     const progress = courseProgress.find(p => p.week_number === weekNum);
-    if (progress?.completed) return 100;
+
+    // Check localStorage for quiz completion
+    const localQuiz = localStorage.getItem(`btg_quiz_complete_${weekNum}`);
+    if (progress?.completed || progress?.quiz_completed || localQuiz) return 100;
+
+    // Calculate from activities completed
+    const activities = weekActivities[weekNum];
+    if (activities) {
+      const completedCount = activities.filter(a => a).length;
+      // 5 activities = 50% (lesson), quiz adds another 50%
+      return Math.round((completedCount / 5) * 50);
+    }
+
     return progress?.score || 0;
   };
 

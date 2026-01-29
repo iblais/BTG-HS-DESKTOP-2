@@ -9,12 +9,13 @@ import { DashboardScreen } from '@/components/DashboardScreen';
 import { CoursesScreen } from '@/components/CoursesScreen';
 import { GamesScreen } from '@/components/GamesScreen';
 import { ProfileScreen } from '@/components/ProfileScreen';
-import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LeaderboardScreen } from '@/components/LeaderboardScreen';
+import { Loader2, Home, GraduationCap, Gamepad2, User, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 
 type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
-type ActiveTab = 'dashboard' | 'courses' | 'games' | 'profile';
+type ActiveTab = 'dashboard' | 'courses' | 'games' | 'leaderboard' | 'profile';
 
 function App() {
   // Auth state
@@ -202,6 +203,7 @@ function App() {
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
     { id: 'courses' as const, label: 'Courses', icon: GraduationCap },
     { id: 'games' as const, label: 'Games', icon: Gamepad2 },
+    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
     { id: 'profile' as const, label: 'Profile', icon: User },
   ];
 
@@ -384,6 +386,7 @@ function App() {
               {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
               {activeTab === 'courses' && 'Continue your financial literacy journey.'}
               {activeTab === 'games' && 'Learn through interactive games.'}
+              {activeTab === 'leaderboard' && 'See how you rank against other players.'}
               {activeTab === 'profile' && 'Manage your account and settings.'}
             </p>
           </div>
@@ -402,6 +405,10 @@ function App() {
 
           {activeTab === 'games' && (
             <GamesScreen />
+          )}
+
+          {activeTab === 'leaderboard' && (
+            <LeaderboardScreen />
           )}
 
           {activeTab === 'profile' && (
