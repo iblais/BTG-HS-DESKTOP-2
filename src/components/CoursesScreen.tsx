@@ -172,7 +172,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   };
 
   // Check if quiz is unlocked for a week - all quizzes are now unlocked
-  const isQuizUnlocked = (weekNum: number): boolean => {
+  const isQuizUnlocked = (_weekNum: number): boolean => {
     // All quizzes are unlocked - students can take any quiz at any time
     return true;
   };
