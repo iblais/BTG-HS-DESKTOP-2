@@ -171,12 +171,10 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     setWeekActivities(activities);
   };
 
-  // Check if quiz is unlocked for a week (all 4 modules completed)
+  // Check if quiz is unlocked for a week - all quizzes are now unlocked
   const isQuizUnlocked = (weekNum: number): boolean => {
-    const activities = weekActivities[weekNum];
-    if (!activities) return false;
-    // All 4 modules must have activities completed
-    return activities.every(completed => completed === true);
+    // All quizzes are unlocked - students can take any quiz at any time
+    return true;
   };
 
   // Get count of completed modules for a week
@@ -424,16 +422,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
     if (progress || localLesson) return 'in_progress';
 
-    // Week 1 is always available by default
-    if (weekNum === 1) return 'available';
-
-    // For other weeks, check if previous week's quiz is passed
-    const prevProgress = courseProgress.find(p => p.week_number === weekNum - 1);
-    const prevLocalQuiz = localStorage.getItem(`btg_quiz_complete_${weekNum - 1}`);
-    if (prevProgress?.completed || prevProgress?.quiz_completed || prevLocalQuiz) return 'available';
-
-    // Otherwise, week is locked
-    return 'locked';
+    // All courses are unlocked - students can access any course at any time
+    return 'available';
   };
 
   const getWeekProgress = (weekNum: number): number => {
@@ -813,8 +803,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                     {Array.from({ length: 4 }, (_, i) => {
                       const activities = weekActivities[week.number] || [false, false, false, false];
                       const isModuleComplete = activities[i] === true;
-                      // Module is unlocked if it's the first module OR the previous module is complete
-                      const isModuleUnlocked = i === 0 || activities[i - 1] === true;
+                      // All modules are unlocked - students can access any module at any time
+                      const isModuleUnlocked = true;
 
                       return (
                         <div
