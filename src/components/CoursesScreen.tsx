@@ -5,7 +5,8 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   BookOpen, CheckCircle, Play, Clock,
   ChevronRight, Loader2, GraduationCap, Zap,
-  FileText, HelpCircle, Award, Lock
+  FileText, HelpCircle, Award, Lock, Sparkles,
+  ChevronDown, ChevronUp, Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -18,7 +19,7 @@ import {
 import { LessonScreen } from './LessonScreen';
 import { QuizScreen } from './QuizScreen';
 import { FinalExamScreen } from './FinalExamScreen';
-import { triggerAutoGrading } from '@/lib/autoGrading';
+import { triggerAutoGrading, getStudentAutoGrades, type AutoGrade } from '@/lib/autoGrading';
 
 // Map week numbers to images
 const weekImages: Record<number, string> = {
@@ -78,6 +79,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
   const [weekActivities, setWeekActivities] = useState<Record<number, boolean[]>>({});
   // Locked week message
   const [lockedMessage, setLockedMessage] = useState<string | null>(null);
+  // Auto grades for student
+  const [autoGrades, setAutoGrades] = useState<AutoGrade[]>([]);
+  const [showGrades, setShowGrades] = useState(false);
 
   const totalWeeks = enrollment?.program_id === 'HS' ? 18 : 16;
 
@@ -87,7 +91,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       setLoading(false);
     }, 5000); // Max 5 seconds loading
 
-    Promise.all([loadProgress(), loadActivityProgress()])
+    Promise.all([loadProgress(), loadActivityProgress(), loadAutoGrades()])
       .finally(() => {
         clearTimeout(timeout);
         setLoading(false);
@@ -95,6 +99,15 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
     return () => clearTimeout(timeout);
   }, []);
+
+  const loadAutoGrades = async () => {
+    try {
+      const grades = await getStudentAutoGrades();
+      setAutoGrades(grades);
+    } catch (err) {
+      console.error('Failed to load auto grades:', err);
+    }
+  };
 
   const loadProgress = async () => {
     try {
@@ -653,6 +666,85 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           </div>
         </div>
       </div>
+
+      {/* My Writing Grades Section */}
+      {autoGrades.length > 0 && (
+        <div className="hero-card rounded-2xl overflow-hidden">
+          <button
+            onClick={() => setShowGrades(!showGrades)}
+            className="w-full p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4A5FFF] to-[#50D890] flex items-center justify-center">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white">My Writing Grades</h3>
+                  <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                </div>
+                <p className="text-[var(--text-tertiary)] text-sm">
+                  {autoGrades.length} graded assignment{autoGrades.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-2xl font-bold text-[#4A5FFF]">
+                  {Math.round(autoGrades.reduce((sum, g) => sum + (g.teacher_adjusted_score ?? g.total_score), 0) / autoGrades.length)}%
+                </p>
+                <p className="text-white/50 text-xs">Average</p>
+              </div>
+              {showGrades ? (
+                <ChevronUp className="w-5 h-5 text-white/40" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-white/40" />
+              )}
+            </div>
+          </button>
+
+          {showGrades && (
+            <div className="px-6 pb-6 space-y-3 border-t border-white/[0.06]">
+              {autoGrades.map((grade) => {
+                const score = grade.teacher_adjusted_score ?? grade.total_score;
+                const pct = Math.round((score / (grade.max_score || 100)) * 100);
+                const gradeColor = pct >= 90 ? 'text-[#50D890]' : pct >= 80 ? 'text-[#4ADE80]' : pct >= 70 ? 'text-[#FFD700]' : pct >= 60 ? 'text-[#FFA500]' : 'text-[#FF6B35]';
+                const gradeLetter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
+
+                return (
+                  <div key={grade.id} className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="text-white font-medium">Week {grade.week_number}, Module {grade.day_number}</p>
+                        <p className="text-white/50 text-xs">
+                          {new Date(grade.graded_at).toLocaleDateString()}
+                          {grade.teacher_reviewed && (
+                            <span className="ml-2 text-[#50D890]">✓ Teacher Reviewed</span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold ${gradeColor}`}>{pct}%</p>
+                        <p className="text-white/50 text-xs">Grade: {gradeLetter}</p>
+                      </div>
+                    </div>
+                    {grade.ai_feedback && (
+                      <p className="text-white/70 text-sm mt-2 p-2 rounded bg-white/[0.02]">
+                        {grade.ai_feedback}
+                      </p>
+                    )}
+                    {grade.teacher_feedback && (
+                      <p className="text-[#50D890]/90 text-sm mt-2 p-2 rounded bg-[#50D890]/10 border border-[#50D890]/20">
+                        <span className="font-medium">Teacher: </span>{grade.teacher_feedback}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Locked Week Message */}
       {lockedMessage && (
