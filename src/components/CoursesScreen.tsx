@@ -18,6 +18,7 @@ import {
 import { LessonScreen } from './LessonScreen';
 import { QuizScreen } from './QuizScreen';
 import { FinalExamScreen } from './FinalExamScreen';
+import { triggerAutoGrading } from '@/lib/autoGrading';
 
 // Map week numbers to images
 const weekImages: Record<number, string> = {
@@ -398,6 +399,35 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
               completed: true,
               completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,week_number,section_index' });
+        }
+
+        // Trigger auto-grading for the submitted activity (in background)
+        // Fetch the most recent activity response for this section
+        const { data: activityResponse } = await supabase
+          .from('activity_responses')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('week_number', activeWeek)
+          .eq('day_number', sectionIndex + 1)
+          .order('submitted_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (activityResponse?.response_text && activityResponse?.activity_question) {
+          // Fire and forget - don't await, let it run in background
+          triggerAutoGrading(
+            user.id,
+            activeWeek,
+            sectionIndex + 1,
+            activityResponse.response_text,
+            activityResponse.activity_question
+          ).then((result) => {
+            if (result) {
+              console.log('[CoursesScreen] Auto-grade completed:', result.total_score);
+            }
+          }).catch((err) => {
+            console.error('[CoursesScreen] Auto-grading error:', err);
+          });
         }
       } catch (err) {
         console.error('Failed to save section progress:', err);

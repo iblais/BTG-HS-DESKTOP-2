@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   ArrowLeft, FileText, Save,
-  Loader2, Star, ChevronDown, ChevronUp
+  Loader2, Star, ChevronDown, ChevronUp,
+  Sparkles, ExternalLink, Bot, CheckCircle2
 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
 import { Button3D } from '../ui/Button3D';
@@ -13,6 +14,8 @@ import {
   type GradingRubric,
   WEEK_TITLES
 } from '@/lib/teacher';
+import { getAutoGrade, reviewAutoGrade, type AutoGrade } from '@/lib/autoGrading';
+import { getOrCreateKamiDocument, openKamiDocument, isKamiConfigured } from '@/lib/kamiIntegration';
 
 interface GradingInterfaceProps {
   activity: ActivityResponse;
@@ -38,9 +41,75 @@ export function GradingInterface({
     rubric_scores?: Record<string, number>;
   } | null>(null);
 
+  // Auto-grading state
+  const [autoGrade, setAutoGrade] = useState<AutoGrade | null>(null);
+  const [loadingAutoGrade, setLoadingAutoGrade] = useState(false);
+  const [showAutoGrade, setShowAutoGrade] = useState(true);
+
+  // Kami state
+  const [loadingKami, setLoadingKami] = useState(false);
+
   useEffect(() => {
     loadExistingGrade();
+    loadAutoGrade();
   }, [activity]);
+
+  const loadAutoGrade = async () => {
+    setLoadingAutoGrade(true);
+    try {
+      const grade = await getAutoGrade(
+        activity.user_id,
+        activity.week_number,
+        activity.day_number
+      );
+      if (grade) {
+        setAutoGrade(grade);
+        // If no manual scores set yet, pre-populate with AI scores
+        if (Object.keys(rubricScores).length === 0 && grade.rubric_scores) {
+          setRubricScores(grade.rubric_scores);
+        }
+        if (!feedback && grade.ai_feedback) {
+          setFeedback(grade.ai_feedback);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading auto-grade:', err);
+    } finally {
+      setLoadingAutoGrade(false);
+    }
+  };
+
+  const handleApplyAutoGrade = () => {
+    if (autoGrade) {
+      if (autoGrade.rubric_scores) {
+        setRubricScores(autoGrade.rubric_scores);
+      }
+      if (autoGrade.ai_feedback) {
+        setFeedback(autoGrade.ai_feedback);
+      }
+    }
+  };
+
+  const handleOpenInKami = async () => {
+    setLoadingKami(true);
+    try {
+      const kamiDoc = await getOrCreateKamiDocument(
+        activity.user_id,
+        studentName,
+        activity.response_text,
+        activity.week_number,
+        activity.day_number,
+        `Week ${activity.week_number} Module ${activity.day_number} Writing Assignment`
+      );
+      if (kamiDoc) {
+        openKamiDocument(kamiDoc.kami_share_url, kamiDoc.kami_document_id?.startsWith('local_'));
+      }
+    } catch (err) {
+      console.error('Error opening in Kami:', err);
+    } finally {
+      setLoadingKami(false);
+    }
+  };
 
   const loadExistingGrade = async () => {
     const grade = await getActivityGrade(
@@ -103,6 +172,12 @@ export function GradingInterface({
 
       if (result.success) {
         console.log('[GradingInterface] Grade saved successfully!');
+
+        // Mark auto-grade as reviewed if it exists
+        if (autoGrade?.id) {
+          await reviewAutoGrade(autoGrade.id, calculateTotalScore(), feedback);
+        }
+
         // Small delay to ensure database write completes
         await new Promise(resolve => setTimeout(resolve, 500));
         onGradeComplete();
@@ -175,12 +250,119 @@ export function GradingInterface({
             </p>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-white/40 text-sm">
-            <span>{activity.response_text.length} characters</span>
-            <span>|</span>
-            <span>{activity.response_text.split(/\s+/).length} words</span>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-white/40 text-sm">
+              <span>{activity.response_text.length} characters</span>
+              <span>|</span>
+              <span>{activity.response_text.split(/\s+/).length} words</span>
+            </div>
+
+            {/* Kami Button */}
+            <Button3D
+              variant="secondary"
+              onClick={handleOpenInKami}
+              disabled={loadingKami}
+              className="text-sm"
+            >
+              {loadingKami ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Opening...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  {isKamiConfigured() ? 'Open in Kami' : 'Download PDF'}
+                </span>
+              )}
+            </Button3D>
           </div>
         </GlassCard>
+
+        {/* Auto-Grade Results */}
+        {(autoGrade || loadingAutoGrade) && (
+          <GlassCard className="p-6 border border-[#4A5FFF]/30 bg-[#4A5FFF]/5">
+            <button
+              onClick={() => setShowAutoGrade(!showAutoGrade)}
+              className="w-full flex items-center justify-between mb-4"
+            >
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Bot className="w-5 h-5 text-[#4A5FFF]" />
+                <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                AI Auto-Grade
+              </h3>
+              {showAutoGrade ? (
+                <ChevronUp className="w-5 h-5 text-white/40" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-white/40" />
+              )}
+            </button>
+
+            {loadingAutoGrade ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 text-[#4A5FFF] animate-spin" />
+                <span className="ml-2 text-white/60">Loading AI grade...</span>
+              </div>
+            ) : autoGrade && showAutoGrade ? (
+              <div className="space-y-4">
+                {/* AI Score */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <div>
+                    <p className="text-white/60 text-sm">AI Score</p>
+                    <p className="text-3xl font-bold text-[#4A5FFF]">
+                      {autoGrade.total_score}/{autoGrade.max_score || 100}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white/60 text-sm">Graded</p>
+                    <p className="text-white/80 text-sm">
+                      {new Date(autoGrade.graded_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* AI Rubric Scores */}
+                {autoGrade.rubric_scores && (
+                  <div className="space-y-2">
+                    {Object.entries(autoGrade.rubric_scores).map(([criterion, score]) => (
+                      <div key={criterion} className="flex justify-between items-center p-2 rounded bg-white/[0.02]">
+                        <span className="text-white/70 text-sm">{criterion}</span>
+                        <span className="text-[#4A5FFF] font-semibold">{score as number}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* AI Feedback */}
+                {autoGrade.ai_feedback && (
+                  <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                    <p className="text-white/60 text-xs mb-1">AI Feedback:</p>
+                    <p className="text-white/80 text-sm">{autoGrade.ai_feedback}</p>
+                  </div>
+                )}
+
+                {/* Apply AI Grade Button */}
+                <Button3D
+                  variant="secondary"
+                  onClick={handleApplyAutoGrade}
+                  className="w-full"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Apply AI Scores to Rubric
+                  </span>
+                </Button3D>
+
+                {autoGrade.teacher_reviewed && (
+                  <div className="flex items-center gap-2 text-[#50D890] text-sm">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Teacher has reviewed this grade
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </GlassCard>
+        )}
 
         {/* Grading Panel */}
         <div className="space-y-6">
