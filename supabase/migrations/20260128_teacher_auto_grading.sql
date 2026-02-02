@@ -64,7 +64,8 @@ CREATE TABLE IF NOT EXISTS auto_grades (
   teacher_adjusted_score integer,
   teacher_feedback text,
   reviewed_at timestamptz,
-  reviewed_by uuid REFERENCES auth.users(id)
+  reviewed_by uuid REFERENCES auth.users(id),
+  UNIQUE(student_id, week_number, day_number)
 );
 
 -- 6. Kami integration tracking
@@ -76,7 +77,8 @@ CREATE TABLE IF NOT EXISTS kami_documents (
   day_number integer,
   kami_document_id text UNIQUE,
   kami_share_url text,
-  created_at timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(student_id, week_number, day_number)
 );
 
 -- Indexes
