@@ -1,0 +1,3 @@
+src/components/LessonScreen.tsx
+src/data/articles.ts
+src/data/quizzes.ts
