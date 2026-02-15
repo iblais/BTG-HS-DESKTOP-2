@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isMissingEnvVars } from '@/lib/supabase';
 import { type AuthUser } from '@/lib/auth';
 import { type Enrollment, createEnrollment, getActiveEnrollment } from '@/lib/enrollment';
 import { isTeacher } from '@/lib/teacher';
@@ -308,6 +308,31 @@ function App() {
     // Teacher portal tab - only shown for teachers
     ...(isUserTeacher ? [{ id: 'teacher' as const, label: 'Teacher', icon: BookOpen }] : []),
   ];
+
+  // Missing environment variables - show setup instructions
+  if (isMissingEnvVars) {
+    return (
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
+        <div className="bg-[#12162F] border border-white/10 p-8 rounded-xl text-center max-w-lg">
+          <h2 className="text-xl font-bold text-[#F59E0B] mb-4">Configuration Required</h2>
+          <p className="text-[#9CA3AF] mb-4">
+            Missing Supabase environment variables. The app cannot connect to the backend.
+          </p>
+          <div className="bg-[#0A0E27] rounded-lg p-4 text-left mb-4">
+            <p className="text-[#6366F1] text-sm font-mono mb-2">1. Copy .env.example to .env</p>
+            <p className="text-[#6366F1] text-sm font-mono mb-2">2. Add your Supabase URL and anon key</p>
+            <p className="text-[#6366F1] text-sm font-mono">3. Restart the dev server</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-[#6366F1] text-white rounded-lg hover:bg-[#5558E3] transition-colors"
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (authLoading) {

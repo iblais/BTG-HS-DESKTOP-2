@@ -33,8 +33,15 @@ export const bitcoinApi = {
       const response = await fetch(
         `${COINGECKO_API}/simple/price?ids=bitcoin&vs_currencies=usd`
       );
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
       const data = await response.json();
-      const price = data.bitcoin.usd;
+      const price = data?.bitcoin?.usd;
+
+      if (typeof price !== 'number') {
+        throw new Error('Unexpected API response structure');
+      }
 
       // Update cache
       priceCache = { price, timestamp: Date.now() };
@@ -56,7 +63,14 @@ export const bitcoinApi = {
       const response = await fetch(
         `${COINGECKO_API}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}`
       );
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
       const data = await response.json();
+
+      if (!Array.isArray(data?.prices)) {
+        throw new Error('Unexpected API response structure');
+      }
 
       // Transform to our format
       return data.prices.map(([timestamp, price]: [number, number]) => ({
@@ -77,7 +91,14 @@ export const bitcoinApi = {
       const response = await fetch(
         `${COINGECKO_API}/coins/bitcoin/market_chart?vs_currency=usd&days=1`
       );
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
       const data = await response.json();
+
+      if (!Array.isArray(data?.prices)) {
+        throw new Error('Unexpected API response structure');
+      }
 
       return data.prices.map(([timestamp, price]: [number, number]) => ({
         timestamp,
