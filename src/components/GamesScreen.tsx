@@ -403,7 +403,8 @@ export function GamesScreen() {
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
-              const game = games.find(g => g.id === selectedGame)!;
+              const game = games.find(g => g.id === selectedGame);
+              if (!game) return null;
               const Icon = game.icon;
               return (
                 <>

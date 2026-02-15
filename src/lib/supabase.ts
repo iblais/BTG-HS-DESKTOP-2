@@ -3,8 +3,14 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\s/g, '')
 const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').replace(/\s/g, '')
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+export const isMissingEnvVars = !supabaseUrl || !supabaseAnonKey
+
+if (isMissingEnvVars) {
+  console.error(
+    'Missing Supabase environment variables. ' +
+    'Please create a .env file with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. ' +
+    'See .env.example for reference.'
+  )
 }
 
 // Header-sanitizing fetch wrapper to prevent "Invalid value" TypeError
@@ -26,17 +32,21 @@ const safeFetch: typeof fetch = (input, init?) => {
   return fetch(input, init);
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'implicit'
-  },
-  global: {
-    fetch: safeFetch
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'implicit'
+    },
+    global: {
+      fetch: safeFetch
+    }
   }
-});
+);
 
 // Program Types
 export type ProgramId = 'HS' | 'COLLEGE';
