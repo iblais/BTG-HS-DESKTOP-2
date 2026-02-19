@@ -67,8 +67,10 @@ function AppContent() {
   // FAST initialization - localStorage first, database in background
   useEffect(() => {
     let mounted = true;
+    console.log('App: useEffect mounted', { hash: window.location.hash });
 
     const initializeAuth = async () => {
+      console.log('App: initializeAuth started');
       // STEP 1: Check localStorage INSTANTLY for cached enrollment
       const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
       if (cachedEnrollment) {
@@ -137,6 +139,7 @@ function AppContent() {
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('App: onAuthStateChange', event, session?.user?.id);
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
