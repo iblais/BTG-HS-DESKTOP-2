@@ -7,6 +7,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
+// Log loaded count (sanitized)
+console.log('Supabase Config:', {
+  urlLength: supabaseUrl.length,
+  urlStart: supabaseUrl.substring(0, 8),
+  keyLength: supabaseAnonKey.length,
+  keyStart: supabaseAnonKey.substring(0, 5)
+});
+
 if (supabaseUrl.includes('.supabase.com')) {
   console.warn('CRITICAL WARNING: Supabase URL ends in .com but should likely end in .co');
 }
