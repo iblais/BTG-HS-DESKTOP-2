@@ -26,6 +26,7 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
   const [currentSection, setCurrentSection] = useState(startSection);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
   const [programContent, setProgramContent] = useState<Record<number, LessonContent> | null>(null);
+  const [contentLoadError, setContentLoadError] = useState(false);
 
   // Load lesson content dynamically
   useEffect(() => {
@@ -55,6 +56,7 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
         }
       } catch (err) {
         console.error('Failed to load lesson content:', err);
+        if (isMounted) setContentLoadError(true);
       }
     }
 
@@ -2824,13 +2826,37 @@ You've completed this program - now go build the life you want.`,
   const lessonData = programId === 'COLLEGE' ? getCollegeLessonContent(weekNumber) : getLessonContent(weekNumber);
 
   // Show loading state if content is initializing
-  if (programId === 'HS' && !lessonData && !programContent) {
+  if (programId === 'HS' && !lessonData && !programContent && !contentLoadError) {
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#6366F1] animate-spin" />
       </div>
     );
   }
+
+  // Handle missing lesson content (week not yet available)
+  if (!lessonData || !lessonData.sections || lessonData.sections.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0A0E27] flex flex-col items-center justify-center p-6">
+        <GlassCard className="max-w-md w-full p-8 text-center">
+          <Lock className="h-12 w-12 text-[#6366F1] mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">
+            {language === 'es' ? 'Contenido Próximamente' : 'Content Coming Soon'}
+          </h2>
+          <p className="text-gray-400 mb-6">
+            {language === 'es'
+              ? `La lección de la Semana ${weekNumber} aún no está disponible. ¡Vuelve pronto!`
+              : `Week ${weekNumber} lesson content is not yet available. Check back soon!`}
+          </p>
+          <Button3D onClick={onBack} className="w-full">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {language === 'es' ? 'Volver a las Lecciones' : 'Back to Lessons'}
+          </Button3D>
+        </GlassCard>
+      </div>
+    );
+  }
+
   const currentSectionData = lessonData.sections[currentSection];
   const totalSections = lessonData.sections.length;
   const progressPercentage = ((currentSection + 1) / totalSections) * 100;
