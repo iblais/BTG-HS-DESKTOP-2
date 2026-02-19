@@ -20,7 +20,20 @@ if (supabaseUrl.includes('.supabase.com')) {
 }
 
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const customFetch = (url: RequestInfo | URL, options?: RequestInit) => {
+  return fetch(url, options);
+};
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  global: {
+    fetch: customFetch
+  }
+});
 
 // Program Types
 export type ProgramId = 'HS' | 'COLLEGE';
