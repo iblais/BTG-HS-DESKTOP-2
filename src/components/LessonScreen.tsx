@@ -7,8 +7,7 @@ import { Button3D } from './ui/Button3D';
 import { supabase } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/auth';
 import { useLanguage } from '@/context/LanguageContext';
-import { lessons as enLessons } from '@/content/en/lessons';
-import { lessons as esLessons } from '@/content/es/lessons';
+import type { LessonContent } from '@/content/types';
 
 interface LessonScreenProps {
   weekNumber: number;
@@ -26,6 +25,42 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
   const { t, language } = useLanguage();
   const [currentSection, setCurrentSection] = useState(startSection);
   const [completedSections, setCompletedSections] = useState<number[]>([]);
+  const [programContent, setProgramContent] = useState<Record<number, LessonContent> | null>(null);
+
+  // Load lesson content dynamically
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadContent() {
+      try {
+        if (language === 'es') {
+          const [esModule, enModule] = await Promise.all([
+            import('@/content/es/lessons'),
+            import('@/content/en/lessons')
+          ]);
+
+          if (!isMounted) return;
+
+          const mergedContent: Record<number, LessonContent> = { ...enModule.lessons };
+          Object.keys(esModule.lessons).forEach(key => {
+            const weekNum = parseInt(key);
+            mergedContent[weekNum] = esModule.lessons[weekNum];
+          });
+
+          setProgramContent(mergedContent);
+        } else {
+          const enModule = await import('@/content/en/lessons');
+          if (!isMounted) return;
+          setProgramContent(enModule.lessons);
+        }
+      } catch (err) {
+        console.error('Failed to load lesson content:', err);
+      }
+    }
+
+    loadContent();
+    return () => { isMounted = false; };
+  }, [language]);
 
   // Activity submission state
   const [activityResponse, setActivityResponse] = useState('');
@@ -73,12 +108,10 @@ export function LessonScreen({ weekNumber, weekTitle, trackLevel = 'beginner', p
   }, [weekNumber]);
 
   // Lesson content for different weeks
+  // Lesson content for different weeks
   const getLessonContent = (week: number) => {
-    // Determine which language to use
-    const content = language === 'es' ? esLessons : enLessons;
-
-    // Return content for the requested week, falling back to English if Spanish is missing
-    return content[week] || enLessons[week];
+    if (!programContent) return null;
+    return programContent[week];
   };
 
   // College-specific lesson content (16 weeks)
@@ -2789,6 +2822,15 @@ You've completed this program - now go build the life you want.`,
   };
 
   const lessonData = programId === 'COLLEGE' ? getCollegeLessonContent(weekNumber) : getLessonContent(weekNumber);
+
+  // Show loading state if content is initializing
+  if (programId === 'HS' && !lessonData && !programContent) {
+    return (
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#6366F1] animate-spin" />
+      </div>
+    );
+  }
   const currentSectionData = lessonData.sections[currentSection];
   const totalSections = lessonData.sections.length;
   const progressPercentage = ((currentSection + 1) / totalSections) * 100;
