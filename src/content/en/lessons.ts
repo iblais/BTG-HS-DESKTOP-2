@@ -7,9 +7,8 @@ export const lessons: Record<number, LessonContent> = {
         sections: [
             {
                 title: "What is Income?",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "gq3hMjBrvLo",
                 content: `Alright, so what even is income? It's basically all the money that comes INTO your pocket from wherever. Pretty simple, right?
 
 As a student, you might be getting money from a bunch of different places:
@@ -81,9 +80,8 @@ The goal is to respect money.`
             },
             {
                 title: "The Power of Saving",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "ssLouh8kSUc",
                 content: `Real talk - saving money is just like building any skill. You don't become great overnight, and you don't build wealth overnight either. It takes discipline and doing it consistently, even when you don't feel like it.
 
 Even if you're only saving like $5 or $10 a week, that stuff ADDS UP. Seriously. That's the magic of compound interest (basically your money making more money over time).
@@ -161,9 +159,8 @@ And that mindset will take you further than any paycheck ever will.`
             },
             {
                 title: "Types of Expenses",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "EkeC0L55jms",
                 content: `So expenses are basically everywhere money LEAVES your pocket. But not all expenses are the same - there's two types you gotta know:
 
 **FIXED EXPENSES (Same amount every single month):**
@@ -249,9 +246,8 @@ And once you learn how to plug the leaks, everything changes.`
             },
             {
                 title: "Creating Your First Budget",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "jqyCiAIPCP8",
                 content: `Okay, time to make your first budget. Don't worry, it's not as boring as it sounds. Think of a budget like your game plan - except instead of planning plays, you're planning where your money goes BEFORE you spend it.
 
 **Step 1: Figure out your monthly income**

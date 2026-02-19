@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, FileText, Video, Users, ChevronDown, BookOpen, Send, Loader2, Lock, Play, ExternalLink } from 'lucide-react';
+import { ArrowLeft, CheckCircle, FileText, Users, ChevronDown, BookOpen, Send, Loader2, Lock, ExternalLink } from 'lucide-react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { GlassCard } from './ui/GlassCard';
 import { ProgressBar } from './ui/ProgressBar';
@@ -177,7 +177,7 @@ Example: $10,000 loan, 5% rate, 4 years of school
           },
           {
             title: "Repayment Plans Explained",
-            type: "video",
+            type: "reading",
             duration: "7 min",
             content: `After graduation, you'll need to choose how to repay your federal loans. Here are your options:
 
@@ -336,7 +336,7 @@ You're starting from scratch, which is actually better than having bad credit. A
           },
           {
             title: "Using Credit Cards Wisely",
-            type: "video",
+            type: "reading",
             duration: "6 min",
             content: `A credit card is a tool. Used correctly, it builds your financial future. Used poorly, it creates debt that follows you for years.
 
@@ -458,7 +458,7 @@ Track every dollar for 2 weeks. Use an app or just note it in your phone. You'll
           },
           {
             title: "Creating Your College Budget",
-            type: "video",
+            type: "reading",
             duration: "6 min",
             content: `Here's a realistic college budget framework:
 
@@ -649,7 +649,7 @@ Download one budgeting app today and connect your accounts. Start by just tracki
           },
           {
             title: "Banking Apps and Technology",
-            type: "video",
+            type: "reading",
             duration: "5 min",
             content: `Modern banking is mobile-first. Here's what you need to know:
 
@@ -838,7 +838,7 @@ Most students take the standard deduction ($13,850 for 2024). This means you don
           },
           {
             title: "Education Tax Benefits",
-            type: "video",
+            type: "reading",
             duration: "6 min",
             content: `Education comes with significant tax benefits. Here's how to claim them:
 
@@ -1037,7 +1037,7 @@ If you have federal work-study:
           },
           {
             title: "Side Hustles for Students",
-            type: "video",
+            type: "reading",
             duration: "6 min",
             content: `Want more income without a traditional job? Here are proven side hustles:
 
@@ -1236,7 +1236,7 @@ This clarity is the foundation of your debt strategy.`,
           },
           {
             title: "Debt Payoff Strategies",
-            type: "video",
+            type: "reading",
             duration: "6 min",
             content: `Ready to attack your debt? Here are the two proven methods:
 
@@ -1433,7 +1433,7 @@ Every year you wait costs you more than you think. Starting at 25 vs 35 can mean
           },
           {
             title: "Investment Basics",
-            type: "video",
+            type: "reading",
             duration: "7 min",
             content: `Let's demystify the main investment types:
 
@@ -1634,7 +1634,7 @@ Starting at 22 vs 32, investing $200/month at 8% return:
         },
         {
           title: "401(k) Explained",
-          type: "video",
+          type: "reading",
           duration: "6 min",
           content: `The 401(k) is likely your most powerful retirement tool. Here's how it works:
 
@@ -1810,7 +1810,7 @@ To max Roth IRA ($7,000/year):
         },
         {
           title: "Understanding Your Benefits",
-          type: "video",
+          type: "reading",
           duration: "6 min",
           content: `Salary is just part of your compensation. Benefits can be worth $10,000-50,000+ per year.
 
@@ -1956,7 +1956,7 @@ Year 5: Consider management or specialization
       title: "Housing & Renting",
       sections: [
         { title: "Finding Your First Apartment", type: "reading", duration: "6 min", content: `Finding your first apartment is exciting. Here's how to do it right:\n\n**WHAT YOU'LL NEED:**\n• Proof of income (3x rent typically)\n• Credit check (soft pull usually)\n• References (landlord, employer)\n• Security deposit (1-2 months rent)\n• First month's rent\n\n**BUDGETING FOR RENT:**\nThe 30% rule: Spend no more than 30% of gross income on housing.\n• $40,000 salary = $1,000/month max rent\n• $50,000 salary = $1,250/month max rent\n\n**WHAT TO LOOK FOR:**\n• Location (commute, safety, amenities)\n• Included utilities\n• Parking situation\n• Laundry access\n• Natural light and ventilation\n• Cell service in the unit`, keyPoints: ["Never spend more than 30% of income on rent", "Budget for security deposit + first month", "Location affects more than just commute", "Check cell service before signing"] },
-        { title: "Understanding Your Lease", type: "video", duration: "5 min", content: `Your lease is a legal contract. Know what you're signing:\n\n**KEY TERMS:**\n• Lease term (usually 12 months)\n• Rent amount and due date\n• Late fees\n• Security deposit terms\n• Pet policies\n• Subletting rules\n• Renewal terms\n\n**RED FLAGS:**\n• Fees not disclosed upfront\n• Vague maintenance responsibility\n• Excessive penalties\n• No written documentation`, keyPoints: ["Read every word of your lease", "Document apartment condition at move-in", "Understand renewal and termination terms", "Get everything in writing"] },
+        { title: "Understanding Your Lease", type: "reading", duration: "5 min", content: `Your lease is a legal contract. Know what you're signing:\n\n**KEY TERMS:**\n• Lease term (usually 12 months)\n• Rent amount and due date\n• Late fees\n• Security deposit terms\n• Pet policies\n• Subletting rules\n• Renewal terms\n\n**RED FLAGS:**\n• Fees not disclosed upfront\n• Vague maintenance responsibility\n• Excessive penalties\n• No written documentation`, keyPoints: ["Read every word of your lease", "Document apartment condition at move-in", "Understand renewal and termination terms", "Get everything in writing"] },
         { title: "Roommate Finances", type: "reading", duration: "5 min", content: `Living with roommates saves money but requires financial coordination:\n\n**SPLITTING COSTS:**\n• Rent: By room size or equally\n• Utilities: Equally or by usage\n• Shared supplies: Household fund\n\n**TOOLS:**\n• Splitwise for tracking\n• Joint account for bills\n• Written agreement for expectations\n\n**CONFLICT PREVENTION:**\n• Discuss finances before moving in\n• Set up autopay systems\n• Have monthly check-ins`, keyPoints: ["Discuss money before moving in together", "Use apps to track shared expenses", "Have a written roommate agreement", "Regular communication prevents issues"] },
         { title: "Moving Costs & Setup", type: "interactive", duration: "5 min", content: `Moving is expensive. Budget for:\n\n**UPFRONT COSTS:**\n• Security deposit: $1,000-3,000\n• First month's rent: $1,000-2,000\n• Moving truck/help: $200-500\n• Utility deposits: $100-300\n\n**SETUP COSTS:**\n• Basic furniture\n• Kitchen essentials\n• Cleaning supplies\n• Internet setup\n\n**MONEY-SAVING TIPS:**\n• Move mid-month or winter (lower demand)\n• Facebook Marketplace for furniture\n• Ask friends to help move\n• Start utility accounts early`, keyPoints: ["Budget $3,000-5,000 for moving costs", "Timing your move can save money", "Buy used furniture to save thousands", "Set up utilities before move-in day"] }
       ]
@@ -1966,7 +1966,7 @@ Year 5: Consider management or specialization
       title: "Insurance Fundamentals",
       sections: [
         { title: "Health Insurance 101", type: "reading", duration: "6 min", content: `Health insurance is confusing but essential. Here's what you need to know:\n\n**KEY TERMS:**\n• **Premium**: Monthly cost\n• **Deductible**: What you pay before insurance kicks in\n• **Copay**: Fixed amount per visit\n• **Coinsurance**: Percentage you pay after deductible\n• **Out-of-pocket max**: Most you'll pay per year\n\n**PLAN TYPES:**\n• HMO: Lower cost, need referrals, in-network only\n• PPO: More flexibility, higher cost\n• HDHP: High deductible, pairs with HSA\n\n**STAYING ON PARENTS' PLAN:**\nYou can stay on until age 26, regardless of:\n• Student status\n• Marital status\n• Living situation\n• Employment`, keyPoints: ["Stay on parents' insurance until 26 if possible", "Understand deductibles before choosing a plan", "In-network vs out-of-network matters greatly", "HSA-eligible plans can save money long-term"] },
-        { title: "Auto Insurance Explained", type: "video", duration: "5 min", content: `If you drive, you need auto insurance. Here's the breakdown:\n\n**COVERAGE TYPES:**\n• Liability: Covers damage you cause to others (required)\n• Collision: Covers your car in accidents\n• Comprehensive: Covers theft, weather, etc.\n• Uninsured motorist: Covers you if other driver has no insurance\n\n**SAVING MONEY:**\n• Shop around every 6-12 months\n• Bundle with renters insurance\n• Good student discounts\n• Higher deductible = lower premium\n• Pay full premium upfront`, keyPoints: ["Liability is required, collision/comprehensive optional", "Shop around - prices vary significantly", "Good student discounts can save 10-25%", "Higher deductible lowers premium but increases risk"] },
+        { title: "Auto Insurance Explained", type: "reading", duration: "5 min", content: `If you drive, you need auto insurance. Here's the breakdown:\n\n**COVERAGE TYPES:**\n• Liability: Covers damage you cause to others (required)\n• Collision: Covers your car in accidents\n• Comprehensive: Covers theft, weather, etc.\n• Uninsured motorist: Covers you if other driver has no insurance\n\n**SAVING MONEY:**\n• Shop around every 6-12 months\n• Bundle with renters insurance\n• Good student discounts\n• Higher deductible = lower premium\n• Pay full premium upfront`, keyPoints: ["Liability is required, collision/comprehensive optional", "Shop around - prices vary significantly", "Good student discounts can save 10-25%", "Higher deductible lowers premium but increases risk"] },
         { title: "Renters Insurance", type: "reading", duration: "4 min", content: `Renters insurance is cheap and incredibly valuable:\n\n**WHAT IT COVERS:**\n• Your belongings (theft, fire, water damage)\n• Liability (someone gets hurt in your place)\n• Additional living expenses (if displaced)\n\n**COST:**\n• Typically $15-30/month\n• Easily worth it for peace of mind\n\n**HOW MUCH COVERAGE:**\n• Inventory your belongings\n• Most people have $20,000-50,000 in stuff\n• Don't underestimate electronics and clothes`, keyPoints: ["Only $15-30/month for protection", "Covers theft, fire, and liability", "Your landlord's insurance doesn't cover your stuff", "Document your belongings with photos/video"] },
         { title: "Building Your Insurance Portfolio", type: "interactive", duration: "5 min", content: `Here's what insurance you need at each stage:\n\n**COLLEGE STUDENT:**\n• Health (parents' plan or school's)\n• Renters (highly recommended)\n• Auto (if you drive)\n\n**FIRST JOB:**\n• Health (employer plan)\n• Renters (required by many landlords)\n• Auto (required if driving)\n• Disability (if offered)\n\n**AS YOU GROW:**\n• Life insurance (when you have dependents)\n• Umbrella policy (extra liability coverage)\n\n**ACTION ITEMS:**\n1. Review current coverage\n2. Get renters insurance quote today\n3. Shop auto insurance annually\n4. Understand employer health options`, keyPoints: ["Build coverage as your life complexity grows", "Renters insurance is a no-brainer at $15-30/month", "Shop insurance annually for better rates", "Document everything you own for claims"] }
       ]
@@ -1976,7 +1976,7 @@ Year 5: Consider management or specialization
       title: "Advanced Credit Strategies",
       sections: [
         { title: "Optimizing Your Credit Score", type: "reading", duration: "5 min", content: `Once you've built credit, here's how to optimize it:\n\n**UTILIZATION HACKS:**\n• Keep under 10% for best scores (not just 30%)\n• Pay before statement closes to report low balance\n• Request limit increases (without hard pull if possible)\n• Multiple cards = more total credit = lower utilization\n\n**PAYMENT STRATEGIES:**\n• Set up autopay for every card\n• Pay weekly to keep utilization low\n• Never miss a payment - set multiple reminders\n\n**LENGTH OF HISTORY:**\n• Never close your oldest card\n• Authorized user on parent's old card\n• Unused cards can be closed by issuers - use them occasionally`, keyPoints: ["Under 10% utilization is ideal, not just 30%", "Pay before statement closes to report lower balance", "Never close your oldest credit card", "Set up autopay on every single card"] },
-        { title: "Credit Card Rewards Strategy", type: "video", duration: "5 min", content: `Once your credit is solid, rewards cards can pay you back:\n\n**TYPES OF REWARDS:**\n• Cash back (1-5%)\n• Travel points (often higher value)\n• Store-specific rewards\n\n**BEGINNER REWARDS CARDS:**\n• Citi Double Cash (2% on everything)\n• Chase Freedom Flex (5% categories)\n• Discover it (5% rotating categories)\n\n**THE GOLDEN RULES:**\n• Never carry a balance for rewards\n• Rewards < interest if you carry balance\n• Sign-up bonuses can be $200-500+\n• Upgrade path within card families`, keyPoints: ["Never carry a balance just to earn rewards", "Sign-up bonuses can be worth hundreds", "2% cash back is the baseline to beat", "Only get rewards cards when credit is solid"] },
+        { title: "Credit Card Rewards Strategy", type: "reading", duration: "5 min", content: `Once your credit is solid, rewards cards can pay you back:\n\n**TYPES OF REWARDS:**\n• Cash back (1-5%)\n• Travel points (often higher value)\n• Store-specific rewards\n\n**BEGINNER REWARDS CARDS:**\n• Citi Double Cash (2% on everything)\n• Chase Freedom Flex (5% categories)\n• Discover it (5% rotating categories)\n\n**THE GOLDEN RULES:**\n• Never carry a balance for rewards\n• Rewards < interest if you carry balance\n• Sign-up bonuses can be $200-500+\n• Upgrade path within card families`, keyPoints: ["Never carry a balance just to earn rewards", "Sign-up bonuses can be worth hundreds", "2% cash back is the baseline to beat", "Only get rewards cards when credit is solid"] },
         { title: "Protecting Your Credit", type: "reading", duration: "4 min", content: `Your credit is valuable. Protect it:\n\n**MONITORING:**\n• Free credit monitoring (Credit Karma, bank apps)\n• Review credit reports annually (AnnualCreditReport.com)\n• Set up fraud alerts\n\n**SECURITY:**\n• Freeze your credit at all three bureaus (free)\n• Strong, unique passwords for all accounts\n• Enable two-factor authentication everywhere\n\n**IF YOU'RE A VICTIM:**\n• Freeze credit immediately\n• File police report\n• Contact all affected creditors\n• Place fraud alert on credit reports`, keyPoints: ["Freeze your credit at all three bureaus for free", "Monitor credit weekly through free services", "Strong passwords and 2FA prevent most fraud", "Act immediately if you suspect identity theft"] },
         { title: "Credit for Major Purchases", type: "interactive", duration: "5 min", content: `Your credit affects major life purchases:\n\n**AUTO LOANS:**\n• 750+ credit: Best rates (4-6% currently)\n• 700-749: Good rates (6-8%)\n• Below 700: Higher rates, consider waiting\n\n**MORTGAGES:**\n• 740+ for best rates\n• 620 minimum for most loans\n• Each 20-point improvement saves thousands\n\n**PREPARATION TIMELINE:**\n• 12 months before: Check credit, fix errors\n• 6 months before: Pay down balances, no new accounts\n• 3 months before: Stop credit shopping\n• Day of: Rate shop within 14-day window\n\n**CREDIT IMPACT OF LOANS:**\n• Hard inquiry: Small, temporary dip\n• New account: Short-term decrease\n• Payment history: Long-term benefit`, keyPoints: ["740+ credit score gets best mortgage rates", "Don't open new credit 6+ months before major purchase", "Rate shopping within 14 days counts as one inquiry", "Good credit saves tens of thousands on homes"] }
       ]
@@ -1986,7 +1986,7 @@ Year 5: Consider management or specialization
       title: "Wealth Building Foundations",
       sections: [
         { title: "The Wealth Building Framework", type: "reading", duration: "6 min", content: `Building wealth follows a proven formula:\n\n**THE EQUATION:**\nWealth = (Income - Expenses) × Time × Rate of Return\n\n**THE LEVERS:**\n1. **Increase Income**: Career growth, side hustles\n2. **Decrease Expenses**: Live below your means\n3. **Increase Time**: Start early (you have this!)\n4. **Improve Returns**: Invest wisely\n\n**THE MILLIONAIRE MATH:**\n• Invest $500/month at 8% for 30 years = $745,000\n• Invest $1,000/month at 8% for 30 years = $1.49 million\n• Start 10 years earlier with $500/month = $1.19 million\n\n**WEALTH VS HIGH INCOME:**\nMany high earners are broke because they spend it all. Wealth is what you keep, not what you make.`, keyPoints: ["Wealth = (Income - Expenses) × Time × Returns", "Starting early is your biggest advantage", "High income doesn't equal wealth", "Consistency beats intensity in building wealth"] },
-        { title: "Investment Diversification", type: "video", duration: "5 min", content: `Don't put all your eggs in one basket:\n\n**DIVERSIFICATION ACROSS:**\n• Asset classes (stocks, bonds, real estate)\n• Geography (US, international, emerging)\n• Sectors (tech, healthcare, finance)\n• Time (consistent investing regardless of market)\n\n**A DIVERSIFIED PORTFOLIO:**\n• 60% US stocks (VTI)\n• 20% International stocks (VXUS)\n• 10% Bonds (BND)\n• 10% REITs/Alternative (VNQ)\n\n**REBALANCING:**\n• Check annually\n• Sell winners, buy losers to maintain ratios\n• Or use target-date funds that auto-rebalance`, keyPoints: ["Diversification reduces risk without sacrificing returns", "Rebalance annually to maintain your allocation", "Target-date funds auto-diversify and rebalance", "Don't over-concentrate in any single stock"] },
+        { title: "Investment Diversification", type: "reading", duration: "5 min", content: `Don't put all your eggs in one basket:\n\n**DIVERSIFICATION ACROSS:**\n• Asset classes (stocks, bonds, real estate)\n• Geography (US, international, emerging)\n• Sectors (tech, healthcare, finance)\n• Time (consistent investing regardless of market)\n\n**A DIVERSIFIED PORTFOLIO:**\n• 60% US stocks (VTI)\n• 20% International stocks (VXUS)\n• 10% Bonds (BND)\n• 10% REITs/Alternative (VNQ)\n\n**REBALANCING:**\n• Check annually\n• Sell winners, buy losers to maintain ratios\n• Or use target-date funds that auto-rebalance`, keyPoints: ["Diversification reduces risk without sacrificing returns", "Rebalance annually to maintain your allocation", "Target-date funds auto-diversify and rebalance", "Don't over-concentrate in any single stock"] },
         { title: "Real Estate Basics", type: "reading", duration: "5 min", content: `Real estate is a powerful wealth builder:\n\n**WAYS TO INVEST:**\n• Primary residence (build equity)\n• Rental properties (cash flow + appreciation)\n• REITs (real estate stocks, no property management)\n\n**BUYING YOUR FIRST HOME:**\n• Save 20% down to avoid PMI\n• Budget for closing costs (2-5%)\n• Maintenance reserves (1% of value/year)\n• Don't exceed 3x annual income\n\n**RENTING VS BUYING:**\nRent makes sense when:\n• Staying less than 5 years\n• Market prices are inflated\n• You need flexibility\n\nBuying makes sense when:\n• Long-term commitment\n• Building equity > rent cost\n• You want control/customization`, keyPoints: ["20% down avoids PMI (private mortgage insurance)", "Budget 1% of home value for annual maintenance", "REITs give real estate exposure without buying property", "Don't buy if staying less than 5 years"] },
         { title: "Your Wealth Building Plan", type: "interactive", duration: "6 min", content: `Create your personalized wealth building roadmap:\n\n**PHASE 1: FOUNDATION (Now - Age 30)**\n• Emergency fund: 6 months\n• Retirement: 15% of income\n• Debt: Eliminate high-interest\n• Net worth goal: $100,000\n\n**PHASE 2: GROWTH (30-45)**\n• Max retirement accounts\n• Build taxable investments\n• Consider real estate\n• Net worth goal: $500,000+\n\n**PHASE 3: ACCUMULATION (45-55)**\n• Coast to early retirement\n• Diversify income streams\n• Net worth goal: $1-2 million\n\n**PHASE 4: PRESERVATION (55+)**\n• Shift to income-producing assets\n• Estate planning\n• Enjoy your wealth!\n\n**YOUR ACTIONS:**\n1. Calculate current net worth\n2. Set 1-year financial goals\n3. Automate your savings/investing\n4. Review quarterly`, keyPoints: ["Set net worth goals for each life phase", "Automate everything to ensure consistency", "Review and adjust quarterly", "Wealth building is a 40-year game"] }
       ]
@@ -1996,7 +1996,7 @@ Year 5: Consider management or specialization
       title: "Entrepreneurship & Freelancing",
       sections: [
         { title: "The Entrepreneur Mindset", type: "reading", duration: "5 min", content: `Entrepreneurship isn't just about starting companies—it's a mindset:\n\n**ENTREPRENEURIAL THINKING:**\n• See problems as opportunities\n• Take calculated risks\n• Learn from failure\n• Create value for others\n• Always be learning\n\n**SIDE BUSINESS VS FULL-TIME:**\nStart as a side hustle while employed:\n• Test your idea with minimal risk\n• Build income before quitting\n• Save 12+ months expenses first\n• Grow it until it replaces your salary\n\n**BUSINESS IDEAS TO START SMALL:**\n• Freelance your current skills\n• Consulting in your expertise\n• Content creation\n• E-commerce/products\n• Services (tutoring, coaching, etc.)`, keyPoints: ["Start side hustles while still employed", "Entrepreneurship is a learnable skill", "Solve problems others have", "Save 12+ months expenses before going full-time"] },
-        { title: "Freelancing Fundamentals", type: "video", duration: "5 min", content: `Freelancing is entrepreneurship with training wheels:\n\n**GETTING STARTED:**\n• List your marketable skills\n• Research going rates\n• Create simple portfolio/website\n• Start with people you know\n\n**FINDING CLIENTS:**\n• Upwork, Fiverr (to start)\n• LinkedIn networking\n• Referrals from happy clients\n• Cold outreach\n\n**PRICING YOUR SERVICES:**\n• Research market rates\n• Value-based pricing > hourly\n• Start competitive, raise as you prove value\n• Never work for free (even for "exposure")\n\n**FREELANCE FINANCES:**\n• Set aside 25-30% for taxes\n• Track all expenses\n• Separate business bank account\n• Invoice promptly, follow up on late payments`, keyPoints: ["Start freelancing with skills you already have", "Set aside 25-30% for taxes", "Value-based pricing beats hourly rates", "Never work for free or 'exposure'"] },
+        { title: "Freelancing Fundamentals", type: "reading", duration: "5 min", content: `Freelancing is entrepreneurship with training wheels:\n\n**GETTING STARTED:**\n• List your marketable skills\n• Research going rates\n• Create simple portfolio/website\n• Start with people you know\n\n**FINDING CLIENTS:**\n• Upwork, Fiverr (to start)\n• LinkedIn networking\n• Referrals from happy clients\n• Cold outreach\n\n**PRICING YOUR SERVICES:**\n• Research market rates\n• Value-based pricing > hourly\n• Start competitive, raise as you prove value\n• Never work for free (even for "exposure")\n\n**FREELANCE FINANCES:**\n• Set aside 25-30% for taxes\n• Track all expenses\n• Separate business bank account\n• Invoice promptly, follow up on late payments`, keyPoints: ["Start freelancing with skills you already have", "Set aside 25-30% for taxes", "Value-based pricing beats hourly rates", "Never work for free or 'exposure'"] },
         { title: "Business Basics", type: "reading", duration: "5 min", content: `If you're making money, you're running a business:\n\n**LEGAL STRUCTURE:**\n• Sole proprietorship: Simplest, least protection\n• LLC: Good protection, moderate complexity\n• S-Corp: Tax advantages at higher income\n\n**BUSINESS BANKING:**\n• Separate business account\n• Keep business/personal expenses separate\n• Makes taxes much easier\n\n**TAXES:**\n• Quarterly estimated payments\n• Self-employment tax (15.3%)\n• Deduct legitimate business expenses\n• Consider hiring an accountant\n\n**INSURANCE:**\n• General liability\n• Professional liability (if applicable)\n• Health insurance (marketplace or spouse's plan)`, keyPoints: ["LLC provides liability protection", "Keep business and personal finances separate", "Pay quarterly estimated taxes", "Deduct all legitimate business expenses"] },
         { title: "Scaling Your Business", type: "interactive", duration: "5 min", content: `From side hustle to real business:\n\n**GROWTH PATH:**\n1. Validate: Does someone pay for this?\n2. Systemize: Document your processes\n3. Optimize: Improve efficiency\n4. Scale: Increase capacity/clients\n5. Hire: Delegate to grow further\n\n**WHEN TO GO FULL-TIME:**\n• Business income = 75%+ of salary\n• 12+ months expenses saved\n• Health insurance figured out\n• Strong pipeline/recurring revenue\n\n**BUILDING RECURRING REVENUE:**\n• Retainer clients\n• Subscription services\n• Productized services\n• Digital products\n\n**YOUR ACTION PLAN:**\n1. Identify one skill to monetize\n2. Get your first paying client\n3. Reinvest profits in the business\n4. Build towards recurring revenue`, keyPoints: ["Validate before scaling", "Recurring revenue creates stability", "Save 12+ months before going full-time", "Systemize your processes to scale"] }
       ]
@@ -2006,7 +2006,7 @@ Year 5: Consider management or specialization
       title: "Financial Independence Planning",
       sections: [
         { title: "What is Financial Independence?", type: "reading", duration: "5 min", content: `Financial Independence (FI) means your investments cover your living expenses:\n\n**THE DEFINITION:**\n• Passive income ≥ expenses\n• Work becomes optional\n• You own your time\n\n**THE 4% RULE:**\n• Safe withdrawal rate from investments\n• $1M invested = $40,000/year safely\n• Adjust for inflation annually\n• 25x your annual expenses = FI number\n\n**EXAMPLES:**\n• Spend $40,000/year → Need $1,000,000\n• Spend $60,000/year → Need $1,500,000\n• Spend $80,000/year → Need $2,000,000\n\n**IT'S ACHIEVABLE:**\nWith $500/month at 8% for 35 years = $1.1 million\nThat's starting at 22, FI by 57 with just $500/month.`, keyPoints: ["25x annual expenses = financial independence number", "4% withdrawal rate is considered safe", "Lower expenses = faster path to FI", "FI is achievable even with modest savings"] },
-        { title: "Calculating Your FI Number", type: "video", duration: "5 min", content: `Let's calculate your personal FI number:\n\n**STEP 1: KNOW YOUR EXPENSES**\nTrack for 3 months minimum:\n• Housing\n• Food\n• Transportation\n• Healthcare\n• Entertainment\n• Everything else\n\n**STEP 2: ANNUAL EXPENSES**\nMonthly × 12 = annual\nExample: $3,500/month × 12 = $42,000/year\n\n**STEP 3: MULTIPLY BY 25**\n$42,000 × 25 = $1,050,000 = Your FI number\n\n**STEP 4: TRACK YOUR PROGRESS**\n• Current investments / FI number = % FI\n• Example: $50,000 / $1,050,000 = 4.7% FI\n\n**ACCELERATING FI:**\n• Reduce expenses (25x less needed)\n• Increase savings rate\n• Optimize investment returns`, keyPoints: ["Annual expenses × 25 = FI number", "Track expenses to know your true number", "Lowering expenses reduces FI target", "Calculate your FI percentage to track progress"] },
+        { title: "Calculating Your FI Number", type: "reading", duration: "5 min", content: `Let's calculate your personal FI number:\n\n**STEP 1: KNOW YOUR EXPENSES**\nTrack for 3 months minimum:\n• Housing\n• Food\n• Transportation\n• Healthcare\n• Entertainment\n• Everything else\n\n**STEP 2: ANNUAL EXPENSES**\nMonthly × 12 = annual\nExample: $3,500/month × 12 = $42,000/year\n\n**STEP 3: MULTIPLY BY 25**\n$42,000 × 25 = $1,050,000 = Your FI number\n\n**STEP 4: TRACK YOUR PROGRESS**\n• Current investments / FI number = % FI\n• Example: $50,000 / $1,050,000 = 4.7% FI\n\n**ACCELERATING FI:**\n• Reduce expenses (25x less needed)\n• Increase savings rate\n• Optimize investment returns`, keyPoints: ["Annual expenses × 25 = FI number", "Track expenses to know your true number", "Lowering expenses reduces FI target", "Calculate your FI percentage to track progress"] },
         { title: "The Path to FI", type: "reading", duration: "5 min", content: `Here's the roadmap to financial independence:\n\n**SAVINGS RATE IS EVERYTHING:**\n• 10% savings rate = 51 years to FI\n• 25% savings rate = 32 years to FI\n• 50% savings rate = 17 years to FI\n• 75% savings rate = 7 years to FI\n\n**THE FI JOURNEY:**\n\n1. **Coast FI** - Enough invested that you'll have enough by traditional retirement, even if you stop contributing\n\n2. **Barista FI** - Investments + part-time work covers expenses\n\n3. **Lean FI** - FI with tight budget\n\n4. **FI** - FI with normal spending\n\n5. **Fat FI** - FI with luxurious spending\n\n**YOUR OPTIONS:**\n• Keep working (optional now)\n• Work part-time on passion projects\n• Volunteer full-time\n• Travel the world\n• Start businesses without financial pressure`, keyPoints: ["Savings rate determines years to FI", "There are many flavors of FI", "Coast FI is an achievable milestone", "FI gives you options, not just retirement"] },
         { title: "Your FI Action Plan", type: "interactive", duration: "6 min", content: `Create your personalized path to financial independence:\n\n**CALCULATE YOUR NUMBERS:**\n• Monthly expenses: $______\n• Annual expenses: $______\n• FI number (×25): $______\n• Current investments: $______\n• FI percentage: ______%\n\n**SET YOUR MILESTONES:**\n• $10,000 invested (started!)\n• $100,000 invested (six figures!)\n• Coast FI\n• 50% FI\n• 75% FI\n• 100% FI\n\n**YOUR ACTION ITEMS:**\n1. Calculate your FI number today\n2. Automate savings (even 10%)\n3. Increase savings rate by 1% every 6 months\n4. Track net worth monthly\n5. Optimize the big three: housing, transport, food\n\n**REMEMBER:**\n• This is a marathon, not a sprint\n• Small consistent actions win\n• You're already ahead by thinking about this\n• Financial independence is freedom`, keyPoints: ["Know your FI number", "Increase savings rate incrementally", "Track net worth monthly", "Every 1% increase in savings rate matters"] }
       ]
@@ -2953,8 +2953,6 @@ You've completed this program - now go build the life you want.`,
 
   const getSectionIcon = (type: string) => {
     switch (type) {
-      case 'video':
-        return Video;
       case 'interactive':
         return Users;
       case 'reading':
@@ -3039,30 +3037,7 @@ You've completed this program - now go build the life you want.`,
           </div>
         </div>
 
-        {/* Video Player - YouTube Embed or Placeholder */}
-        <div className="mb-6 rounded-xl overflow-hidden border border-white/10">
-          {currentSectionData.videoUrl ? (
-            <iframe
-              key={currentSectionData.videoUrl}
-              className="w-full aspect-video"
-              src={`https://www.youtube.com/embed/${currentSectionData.videoUrl}`}
-              title={currentSectionData.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          ) : (
-            <div className="w-full aspect-video flex items-center justify-center bg-gradient-to-br from-[#1a1f3e] to-[#0d1025] border border-white/20 rounded-xl">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-[#4A5FFF]/30 flex items-center justify-center mx-auto mb-3">
-                  <Play size={32} className="text-[#4A5FFF]" />
-                </div>
-                <p className="text-white font-semibold">{t('courses.lessonVideo')}</p>
-                <p className="text-white/60 text-sm mt-1">{t('common.comingSoon')}</p>
-              </div>
-            </div>
-          )}
-        </div>
+
 
         <div className="mb-6">
           <div className="text-white/80 text-sm leading-relaxed whitespace-pre-line">

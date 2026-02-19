@@ -7,9 +7,8 @@ export const lessons: Record<number, LessonContent> = {
         sections: [
             {
                 title: "¿Qué es el Ingreso?",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "gq3hMjBrvLo",
                 content: `Muy bien, ¿qué es exactamente el ingreso? Básicamente es todo el dinero que entra en tu bolsillo, venga de donde venga. Bastante simple, ¿verdad?
 
 Como estudiante, podrías estar recibiendo dinero de varios lugares diferentes:
@@ -53,9 +52,8 @@ El ingreso no se trata de cuánto dinero ganas. Se trata de entender de dónde v
             },
             {
                 title: "El Poder del Ahorro",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "ssLouh8kSUc",
                 content: `Hablemos claro: ahorrar dinero es como desarrollar cualquier habilidad. No te vuelves genial de la noche a la mañana, y tampoco construyes riqueza de la noche a la mañana. Requiere disciplina y hacerlo constantemente, incluso cuando no tienes ganas.
 
 Incluso si solo estás ahorrando $5 o $10 a la semana, eso SUMA. En serio. Esa es la magia del interés compuesto (básicamente tu dinero haciendo más dinero con el tiempo).
@@ -97,9 +95,8 @@ Ahorrar dinero te da un respiro. Te da la capacidad de decir no. Te da tiempo pa
             },
             {
                 title: "Tipos de Gastos",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "EkeC0L55jms",
                 content: `Los gastos son básicamente todos los lugares donde el dinero SALE de tu bolsillo. Pero no todos los gastos son iguales, hay dos tipos que debes conocer:
 
 **GASTOS FIJOS (La misma cantidad cada mes):**
@@ -140,9 +137,8 @@ Eso es poder.`
             },
             {
                 title: "Creando Tu Primer Presupuesto",
-                type: "video",
+                type: "reading",
                 duration: "8 min",
-                videoUrl: "jqyCiAIPCP8",
                 content: `Muy bien, hora de hacer tu primer presupuesto. No te preocupes, no es tan aburrido como suena. Piensa en un presupuesto como tu plan de juego, excepto que en lugar de planear jugadas, estás planeando a dónde va tu dinero ANTES de gastarlo.
 
 **Paso 1: Calcula tu ingreso mensual**
