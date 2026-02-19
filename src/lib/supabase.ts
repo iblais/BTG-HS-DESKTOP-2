@@ -1,37 +1,40 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim()
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim()
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
-// Log loaded count (sanitized)
-console.log('Supabase Config:', {
-  urlLength: supabaseUrl.length,
-  urlStart: supabaseUrl.substring(0, 8),
-  keyLength: supabaseAnonKey.length,
-  keyStart: supabaseAnonKey.substring(0, 5)
-});
-
-if (supabaseUrl.includes('.supabase.com')) {
-  console.warn('CRITICAL WARNING: Supabase URL ends in .com but should likely end in .co');
-}
-
-
-const customFetch = (url: RequestInfo | URL, options?: RequestInit) => {
-  return fetch(url, options);
+// Header-sanitizing fetch wrapper to prevent "Invalid value" TypeError
+// Supabase internally may pass undefined/null header values during auth init
+const safeFetch: typeof fetch = (input, init?) => {
+  if (init?.headers) {
+    const cleaned: Record<string, string> = {};
+    if (init.headers instanceof Headers) {
+      init.headers.forEach((v, k) => { if (v != null) cleaned[k] = v; });
+    } else if (Array.isArray(init.headers)) {
+      for (const [k, v] of init.headers) { if (v != null) cleaned[k] = v; }
+    } else {
+      for (const [k, v] of Object.entries(init.headers)) {
+        if (v != null && v !== undefined) cleaned[k] = String(v);
+      }
+    }
+    init = { ...init, headers: cleaned };
+  }
+  return fetch(input, init);
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: false,  // We handle OAuth callback manually in App.tsx
+    flowType: 'implicit'
   },
   global: {
-    fetch: customFetch
+    fetch: safeFetch
   }
 });
 

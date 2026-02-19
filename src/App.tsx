@@ -85,27 +85,44 @@ function AppContent() {
 
       try {
         // STEP 1.5: Manually handle OAuth redirect tokens from URL hash
-        // Supabase's internal _getSessionFromURL can crash on some deployments
-        // We manually extract and set the session to bypass that issue
+        // detectSessionInUrl is disabled to prevent Supabase's internal crash
+        // We handle the OAuth callback entirely ourselves
         const hash = window.location.hash;
         if (hash && hash.includes('access_token=')) {
-          console.log('App: Found access_token in URL hash, manually setting session');
           const params = new URLSearchParams(hash.substring(1));
           const access_token = params.get('access_token');
           const refresh_token = params.get('refresh_token');
+          const expires_in = params.get('expires_in');
+          const expires_at = params.get('expires_at');
 
           if (access_token && refresh_token) {
-            const { data, error } = await supabase.auth.setSession({
-              access_token,
-              refresh_token,
-            });
-            console.log('App: Manual setSession result:', {
-              hasSession: !!data.session,
-              error: error?.message
-            });
-            // Clear the hash from the URL to prevent stale token issues
-            if (data.session) {
-              window.location.hash = '';
+            try {
+              // Try official setSession first
+              const { data, error } = await supabase.auth.setSession({
+                access_token,
+                refresh_token,
+              });
+              if (error) throw error;
+              if (data.session) {
+                // Clear hash to prevent stale token on reload
+                window.history.replaceState(null, '', window.location.pathname);
+              }
+            } catch (setSessionError) {
+              console.warn('setSession failed, storing session manually:', setSessionError);
+              // Fallback: store session directly in localStorage
+              // Supabase reads from this key on getSession()
+              const projRef = (import.meta.env.VITE_SUPABASE_URL || '').split('//')[1]?.split('.')[0] || 'unknown';
+              const storageKey = `sb-${projRef}-auth-token`;
+              const sessionData = {
+                access_token,
+                refresh_token,
+                expires_in: Number(expires_in) || 3600,
+                expires_at: Number(expires_at) || Math.floor(Date.now() / 1000) + 3600,
+                token_type: 'bearer',
+              };
+              localStorage.setItem(storageKey, JSON.stringify(sessionData));
+              // Clear hash
+              window.history.replaceState(null, '', window.location.pathname);
             }
           }
         }
