@@ -84,7 +84,33 @@ function AppContent() {
       }
 
       try {
-        // STEP 2: Check auth session
+        // STEP 1.5: Manually handle OAuth redirect tokens from URL hash
+        // Supabase's internal _getSessionFromURL can crash on some deployments
+        // We manually extract and set the session to bypass that issue
+        const hash = window.location.hash;
+        if (hash && hash.includes('access_token=')) {
+          console.log('App: Found access_token in URL hash, manually setting session');
+          const params = new URLSearchParams(hash.substring(1));
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
+
+          if (access_token && refresh_token) {
+            const { data, error } = await supabase.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+            console.log('App: Manual setSession result:', {
+              hasSession: !!data.session,
+              error: error?.message
+            });
+            // Clear the hash from the URL to prevent stale token issues
+            if (data.session) {
+              window.location.hash = '';
+            }
+          }
+        }
+
+        // STEP 2: Check auth session (will now find the session we just set)
         const { data: { session } } = await supabase.auth.getSession();
 
         if (mounted && session?.user) {
