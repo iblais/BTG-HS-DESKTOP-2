@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { type AuthUser } from '@/lib/auth';
 import { type Enrollment, createEnrollment, getActiveEnrollment } from '@/lib/enrollment';
@@ -55,7 +55,7 @@ function AppContent() {
   const [isMobile, setIsMobile] = useState(false);
 
   // Track initialization
-  const initRef = useRef(false);
+  // const initRef = useRef(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
