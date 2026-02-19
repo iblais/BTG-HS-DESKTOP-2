@@ -66,8 +66,7 @@ function AppContent() {
 
   // FAST initialization - localStorage first, database in background
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
+    let mounted = true;
 
     const initializeAuth = async () => {
       // STEP 1: Check localStorage INSTANTLY for cached enrollment
@@ -86,7 +85,7 @@ function AppContent() {
         // STEP 2: Check auth session
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (session?.user) {
+        if (mounted && session?.user) {
           const authUser: AuthUser = {
             id: session.user.id,
             email: session.user.email!,
@@ -104,7 +103,7 @@ function AppContent() {
           } else {
             // No cache - need to check enrollment (but fast)
             await checkEnrollment(authUser.id);
-            setAuthLoading(false);
+            if (mounted) setAuthLoading(false);
           }
 
           // These are all non-blocking background operations
@@ -114,24 +113,32 @@ function AppContent() {
             .eq('id', authUser.id)
             .single()
             .then(({ data: userProfile }) => {
-              if (userProfile) {
+              if (mounted && userProfile) {
                 setUserAvatarUrl(userProfile.avatar_url);
                 setUserDisplayName(userProfile.display_name);
               }
             });
 
-          isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
-        } else {
+          isTeacher().then(res => {
+            if (mounted) setIsUserTeacher(res);
+          }).catch(() => {
+            if (mounted) setIsUserTeacher(false);
+          });
+        } else if (mounted) {
           // No session - show login
           setAuthLoading(false);
         }
       } catch (error) {
         console.error('Auth init failed:', error);
-        setAuthLoading(false);
+        if (mounted) setAuthLoading(false);
       }
     };
 
+    initializeAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
       if (event === 'SIGNED_IN' && session?.user) {
         const authUser: AuthUser = {
           id: session.user.id,
@@ -151,11 +158,11 @@ function AppContent() {
             syncEnrollmentInBackground(authUser.id);
           } catch {
             await checkEnrollment(authUser.id);
-            setAuthLoading(false);
+            if (mounted) setAuthLoading(false);
           }
         } else {
           await checkEnrollment(authUser.id);
-          setAuthLoading(false);
+          if (mounted) setAuthLoading(false);
         }
 
         // Non-blocking background operations
@@ -165,13 +172,17 @@ function AppContent() {
           .eq('id', authUser.id)
           .single()
           .then(({ data: userProfile }) => {
-            if (userProfile) {
+            if (mounted && userProfile) {
               setUserAvatarUrl(userProfile.avatar_url);
               setUserDisplayName(userProfile.display_name);
             }
           });
 
-        isTeacher().then(setIsUserTeacher).catch(() => setIsUserTeacher(false));
+        isTeacher().then(res => {
+          if (mounted) setIsUserTeacher(res);
+        }).catch(() => {
+          if (mounted) setIsUserTeacher(false);
+        });
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsLoggedIn(false);
@@ -185,19 +196,8 @@ function AppContent() {
       }
     });
 
-    // Failsafe - never wait more than 2 seconds
-    const timeout = setTimeout(() => {
-      setAuthLoading(false);
-      // If still checking enrollment, just proceed
-      if (enrollmentState === 'checking') {
-        setEnrollmentState('needs_program');
-      }
-    }, 2000);
-
-    initializeAuth();
-
     return () => {
-      clearTimeout(timeout);
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
