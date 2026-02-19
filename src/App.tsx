@@ -15,11 +15,22 @@ import { TeacherPortal } from '@/components/teacher';
 import { Loader2, Home, GraduationCap, Gamepad2, Trophy, User, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
+import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 
-type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
 type ActiveTab = 'dashboard' | 'courses' | 'games' | 'leaderboard' | 'profile' | 'teacher';
+type EnrollmentState = 'checking' | 'needs_program' | 'needs_onboarding' | 'ready' | 'error';
 
 function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
+
+function AppContent() {
+  const { t } = useLanguage();
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -300,13 +311,13 @@ function App() {
 
   // Build nav items based on user role
   const navItems = [
-    { id: 'dashboard' as const, label: 'Dashboard', icon: Home },
-    { id: 'courses' as const, label: 'Courses', icon: GraduationCap },
-    { id: 'games' as const, label: 'Games', icon: Gamepad2 },
-    { id: 'leaderboard' as const, label: 'Leaderboard', icon: Trophy },
-    { id: 'profile' as const, label: 'Profile', icon: User },
+    { id: 'dashboard' as const, label: t('nav.dashboard'), icon: Home },
+    { id: 'courses' as const, label: t('nav.courses'), icon: GraduationCap },
+    { id: 'games' as const, label: t('nav.games'), icon: Gamepad2 },
+    { id: 'leaderboard' as const, label: t('nav.leaderboard'), icon: Trophy },
+    { id: 'profile' as const, label: t('nav.profile'), icon: User },
     // Teacher portal tab - only shown for teachers
-    ...(isUserTeacher ? [{ id: 'teacher' as const, label: 'Teacher', icon: BookOpen }] : []),
+    ...(isUserTeacher ? [{ id: 'teacher' as const, label: t('nav.teacher'), icon: BookOpen }] : []),
   ];
 
   // Loading state
@@ -315,7 +326,7 @@ function App() {
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
-          <p className="text-[#9CA3AF]">Loading...</p>
+          <p className="text-[#9CA3AF]">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -484,10 +495,10 @@ function App() {
           {/* Page Header */}
           <div className="mb-6 md:mb-8">
             <h1 className="text-xl md:text-2xl font-bold text-white capitalize">
-              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab === 'leaderboard' ? 'Leaderboard' : activeTab}
+              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab === 'leaderboard' ? 'Leaderboard' : t(`nav.${activeTab}`)}
             </h1>
             <p className="text-sm md:text-base text-[#9CA3AF]">
-              {activeTab === 'dashboard' && 'Welcome back! Here\'s your progress.'}
+              {activeTab === 'dashboard' && t('dashboard.welcome')}
               {activeTab === 'courses' && 'Continue your financial literacy journey.'}
               {activeTab === 'games' && 'Learn through interactive games.'}
               {activeTab === 'leaderboard' && 'See how you rank against other students.'}

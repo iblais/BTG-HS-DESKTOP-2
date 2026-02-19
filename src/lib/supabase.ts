@@ -7,6 +7,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
+if (supabaseUrl.includes('.supabase.com')) {
+  console.warn('CRITICAL WARNING: Supabase URL ends in .com but should likely end in .co');
+}
+
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Program Types
