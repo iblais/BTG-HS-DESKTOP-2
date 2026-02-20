@@ -245,7 +245,6 @@ export async function triggerAutoGrading(
     // The classes join returns an object with auto_grading_enabled
     const classSettings = studentClass?.classes as { auto_grading_enabled?: boolean } | null;
     if (classSettings && classSettings.auto_grading_enabled === false) {
-      console.log('Auto-grading disabled for this class');
       return null;
     }
 
@@ -287,7 +286,6 @@ export async function triggerAutoGrading(
       return null;
     }
 
-    console.log('Auto-grade saved successfully:', autoGrade);
     return autoGrade as AutoGrade;
   } catch (err) {
     console.error('Error in triggerAutoGrading:', err);

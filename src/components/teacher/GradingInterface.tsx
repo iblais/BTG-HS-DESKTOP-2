@@ -150,14 +150,6 @@ export function GradingInterface({
   const handleSave = async () => {
     setSaving(true);
     try {
-      console.log('[GradingInterface] Saving grade...', {
-        activityId: activity.id,
-        userId: activity.user_id,
-        week: activity.week_number,
-        day: activity.day_number,
-        score: calculateTotalScore()
-      });
-
       const result = await gradeActivity(
         activity.id,
         activity.user_id,
@@ -171,7 +163,6 @@ export function GradingInterface({
       );
 
       if (result.success) {
-        console.log('[GradingInterface] Grade saved successfully!');
 
         // Mark auto-grade as reviewed if it exists
         if (autoGrade?.id) {

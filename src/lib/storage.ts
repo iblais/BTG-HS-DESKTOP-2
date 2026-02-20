@@ -550,7 +550,6 @@ export const syncUtils = {
     const userId = await getCurrentUserId();
     if (!userId || !isOnline()) return;
 
-    console.log('Syncing all local data to cloud...');
 
     // Sync bitcoin state
     const bitcoinState = localStore.get<BitcoinSimulatorState>(STORAGE_KEYS.BITCOIN_TRADES);
@@ -574,7 +573,6 @@ export const syncUtils = {
       }
     }
 
-    console.log('Sync complete!');
   },
 
   // Force fetch all data from cloud
@@ -582,11 +580,9 @@ export const syncUtils = {
     const userId = await getCurrentUserId();
     if (!userId || !isOnline()) return;
 
-    console.log('Fetching all data from cloud...');
 
     // Fetch bitcoin state
     await bitcoinStorage.getState();
 
-    console.log('Cloud data fetched!');
   },
 };

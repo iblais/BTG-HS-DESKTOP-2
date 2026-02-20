@@ -123,7 +123,6 @@ export function GamesScreen() {
           session_data: sessionData || null
         });
 
-      console.log(`Game score saved: ${gameType} - ${score}`);
     } catch (err) {
       console.error('Failed to save game score:', err);
     }

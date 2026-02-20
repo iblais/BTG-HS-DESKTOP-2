@@ -5,10 +5,11 @@ import { type Enrollment } from '@/lib/enrollment';
 import {
   Mail, Calendar, Trophy, Star, Flame, BookOpen,
   LogOut, ChevronRight, Edit2, Shield, Bell,
-  Download, Trash2, Loader2, Check, Settings, Camera
+  Download, Trash2, Loader2, Check, Settings, Camera, Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountSettingsScreen } from './AccountSettingsScreen';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ProfileScreenProps {
   enrollment: Enrollment | null;
@@ -28,6 +29,7 @@ interface UserProfile {
 }
 
 export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: ProfileScreenProps) {
+  const { language, setLanguage } = useLanguage();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -270,7 +272,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
               </span>
               <span className="flex items-center gap-1.5">
                 <BookOpen className="w-4 h-4" />
-                {enrollment?.program_id === 'HS' ? 'High School Program' : 'College Program'}
+                {language === 'es' ? 'Programa de Preparatoria' : 'High School Program'}
               </span>
             </div>
 
@@ -313,13 +315,45 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
           <div>
             <p className="text-white/40 text-sm mb-1">Program</p>
             <p className="text-white font-medium">
-              {enrollment?.program_id === 'HS' ? 'High School (18 weeks)' : 'College (16 weeks)'}
+              {language === 'es' ? 'Preparatoria (18 semanas)' : 'High School (18 weeks)'}
             </p>
           </div>
           <div>
             <p className="text-white/40 text-sm mb-1">Difficulty Level</p>
             <p className="text-white font-medium capitalize">{enrollment?.track_level || 'Beginner'}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Language Selection */}
+      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Globe className="w-5 h-5 text-white/60" />
+          <h3 className="text-lg font-bold text-white">{language === 'es' ? 'Idioma' : 'Language'}</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setLanguage('en')}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all",
+              language === 'en'
+                ? "bg-[#4A5FFF] text-white"
+                : "bg-white/[0.05] text-white/60 hover:bg-white/[0.1] hover:text-white"
+            )}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLanguage('es')}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all",
+              language === 'es'
+                ? "bg-[#4A5FFF] text-white"
+                : "bg-white/[0.05] text-white/60 hover:bg-white/[0.1] hover:text-white"
+            )}
+          >
+            Espa&ntilde;ol
+          </button>
         </div>
       </div>
 

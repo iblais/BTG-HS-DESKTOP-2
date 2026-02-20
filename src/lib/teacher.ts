@@ -375,22 +375,15 @@ export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
-      console.log('[Teacher] No current user found');
       return [];
     }
 
-    console.log('[Teacher] Current user:', currentUser.email, currentUser.id);
 
     // First check if there are ANY users at all (including self)
     const { data: allUsers, error: countError } = await supabase
       .from('users')
       .select('id, email')
       .limit(100);
-
-    console.log('[Teacher] Total users in database:', allUsers?.length || 0, countError?.message || 'no error');
-    if (allUsers) {
-      console.log('[Teacher] User list:', allUsers.map(u => u.email));
-    }
 
     // Get ALL users from the database (except the current teacher)
     const { data: students, error } = await supabase
@@ -399,7 +392,6 @@ export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
       .neq('id', currentUser.id)
       .order('created_at', { ascending: false });
 
-    console.log('[Teacher] Students (excluding self):', students?.length || 0, error?.message || 'no error');
 
     if (error) {
       console.error('[Teacher] Error fetching users:', error);
@@ -407,7 +399,6 @@ export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
     }
 
     if (!students || students.length === 0) {
-      console.log('[Teacher] No students found in database');
       return [];
     }
 
@@ -510,17 +501,6 @@ export async function gradeActivity(
       return { success: false, error: 'Not authenticated' };
     }
 
-    console.log('[Teacher] Saving grade:', {
-      activityResponseId,
-      studentId,
-      teacherId: user.id,
-      teacherEmail: user.email,
-      weekNumber,
-      dayNumber,
-      grade,
-      maxGrade
-    });
-
     // Store grade in activity_grades table
     const gradeData = {
       activity_response_id: activityResponseId || null,
@@ -537,7 +517,6 @@ export async function gradeActivity(
       updated_at: new Date().toISOString(),
     };
 
-    console.log('[Teacher] Grade data to insert:', JSON.stringify(gradeData, null, 2));
 
     const { data, error } = await supabase
       .from('activity_grades')
@@ -560,11 +539,9 @@ export async function gradeActivity(
         gradedAt: new Date().toISOString(),
         gradedBy: user.id,
       }));
-      console.log('[Teacher] Saved to localStorage as backup');
       return { success: true }; // Still return success since we saved locally
     }
 
-    console.log('[Teacher] Grade saved successfully to database:', data);
 
     // Also save to localStorage as cache
     const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
@@ -602,7 +579,6 @@ export async function getActivityGrade(
       .single();
 
     if (data && !error) {
-      console.log('[Teacher] Found grade in database:', data);
       return {
         id: data.id,
         activity_response_id: data.activity_response_id || '',
@@ -626,7 +602,6 @@ export async function getActivityGrade(
     if (localGrade) {
       try {
         const parsed = JSON.parse(localGrade);
-        console.log('[Teacher] Found grade in localStorage:', parsed);
         return {
           id: `local-${gradeKey}`,
           activity_response_id: '',

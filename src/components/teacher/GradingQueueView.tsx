@@ -30,11 +30,9 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
   const loadAllActivities = async () => {
     setLoading(true);
     try {
-      console.log('[GradingQueue] Loading all activities...');
 
       // First check auth status
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('[GradingQueue] Current session:', session?.user?.email || 'NO SESSION');
 
       // Get all activity responses (without JOIN - foreign key not set up)
       const { data: activitiesData, error } = await supabase
@@ -49,16 +47,13 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
       }
 
       if (!activitiesData || activitiesData.length === 0) {
-        console.log('[GradingQueue] No activities found');
         setActivities([]);
         return;
       }
 
-      console.log('[GradingQueue] Found activities:', activitiesData.length);
 
       // Get unique user IDs
       const userIds = [...new Set(activitiesData.map(a => a.user_id))];
-      console.log('[GradingQueue] Fetching info for', userIds.length, 'users');
 
       // Fetch user info separately
       const { data: usersData } = await supabase
@@ -76,7 +71,6 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
 
       // Get all grades at once (efficient batch query)
       const gradesMap = await getAllGrades();
-      console.log('[GradingQueue] Loaded grades:', gradesMap.size);
 
       // Combine activities with user info and grade status
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,7 +87,6 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
       });
 
       setActivities(activitiesWithGrades);
-      console.log('[GradingQueue] Activities loaded successfully:', activitiesWithGrades.length);
     } catch (err) {
       console.error('[GradingQueue] Failed to load activities:', err);
     } finally {

@@ -435,9 +435,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             activityResponse.response_text,
             activityResponse.activity_question
           ).then((result) => {
-            if (result) {
-              console.log('[CoursesScreen] Auto-grade completed:', result.total_score);
-            }
+            // Auto-grade completed
           }).catch((err) => {
             console.error('[CoursesScreen] Auto-grading error:', err);
           });
@@ -601,7 +599,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
               <div>
                 <h3 className="text-xl font-black text-white">Your Learning Program</h3>
                 <p className="text-[var(--text-tertiary)] text-sm">
-                  {enrollment?.program_id === 'HS' ? 'High School' : 'College'} Track
+                  High School Track
                 </p>
               </div>
             </div>

@@ -2956,8 +2956,6 @@ You've completed this program - now go build the life you want.`,
           });
           if (error) {
             console.error('DB save failed (non-blocking):', error);
-          } else {
-            console.log('Activity saved to database successfully');
           }
         } catch (err) {
           console.error('DB save error (non-blocking):', err);

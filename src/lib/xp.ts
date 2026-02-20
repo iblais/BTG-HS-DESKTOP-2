@@ -168,7 +168,6 @@ export async function awardXP(action: XPAction, data?: { score?: number; percent
         created_at: new Date().toISOString()
       });
 
-    console.log(`Awarded ${xpToAward} XP for ${action}. New total: ${newTotal}`);
 
     return {
       success: true,

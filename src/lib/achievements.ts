@@ -227,7 +227,6 @@ export async function unlockAchievement(achievementId: string): Promise<{
         metadata: { achievement_id: achievementId, achievement_name: achievement.name }
       });
 
-    console.log(`Achievement unlocked: ${achievement.name} (+${achievement.xp_reward} XP)`);
 
     return {
       success: true,
