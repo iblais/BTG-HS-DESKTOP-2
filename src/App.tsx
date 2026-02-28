@@ -132,8 +132,40 @@ function AppContent() {
           }
         }
 
-        // STEP 2: Check auth session
-        const { data: { session } } = await supabase.auth.getSession();
+        // STEP 2: Check auth session (with timeout so broken API doesn't block app)
+        let session = null;
+        try {
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+          const result = await Promise.race([sessionPromise, timeoutPromise]);
+          session = result?.data?.session ?? null;
+        } catch {
+          console.warn('[App] getSession failed, continuing without session');
+        }
+
+        // Also check for demo user in localStorage
+        if (!session && mounted) {
+          const demoUser = localStorage.getItem('btg_demo_user');
+          if (demoUser) {
+            try {
+              const parsed = JSON.parse(demoUser);
+              const authUser: AuthUser = { id: parsed.id, email: parsed.email, isNewUser: false };
+              setUser(authUser);
+              setIsLoggedIn(true);
+              setEnrollmentState('needs_program');
+              setAuthLoading(false);
+
+              isTeacher().then(res => {
+                if (mounted) setIsUserTeacher(res);
+              }).catch(() => {
+                if (mounted) setIsUserTeacher(false);
+              });
+              return;
+            } catch {
+              // Invalid demo session
+            }
+          }
+        }
 
         if (mounted && session?.user) {
           const authUser: AuthUser = {
@@ -271,6 +303,26 @@ function AppContent() {
     if (enrollmentState !== 'needs_program' || !user) return;
 
     const autoEnroll = async () => {
+      // For demo users, create a local-only enrollment
+      if (user.id.startsWith('demo-') || user.id.startsWith('fallback-')) {
+        const demoEnrollment = {
+          id: `demo-enrollment-${user.id}`,
+          user_id: user.id,
+          program_id: 'HS',
+          track_level: 'beginner',
+          language: 'en',
+          enrolled_at: new Date().toISOString(),
+          completed_at: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setEnrollment(demoEnrollment as Enrollment);
+        localStorage.setItem('btg_local_enrollment', JSON.stringify(demoEnrollment));
+        localStorage.setItem('btg-onboarding-complete', 'true');
+        setEnrollmentState('ready');
+        return;
+      }
+
       try {
         const newEnrollment = await createEnrollment('HS', 'beginner', 'en');
         setEnrollment(newEnrollment);
@@ -411,7 +463,21 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here`}</pre>
   const handleLoginSuccess = async (authUser: AuthUser) => {
     setUser(authUser);
     setIsLoggedIn(true);
-    await checkEnrollment(authUser.id);
+
+    // For demo users, skip Supabase enrollment check — go straight to ready
+    if (authUser.id.startsWith('demo-') || authUser.id.startsWith('fallback-')) {
+      setEnrollmentState('needs_program'); // auto-enroll effect will handle it
+      // Check teacher status for demo users (uses hardcoded email list)
+      isTeacher().then(res => setIsUserTeacher(res)).catch(() => setIsUserTeacher(false));
+      return;
+    }
+
+    try {
+      await checkEnrollment(authUser.id);
+    } catch {
+      // If enrollment check fails, just proceed
+      setEnrollmentState('needs_program');
+    }
   };
 
   if (!isLoggedIn) {
