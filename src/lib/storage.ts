@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabase';
+import { guardedUpsert, guardedInsert } from './dataGuard';
 
 const STORAGE_KEYS = {
   QUIZ_STATE: 'btg_quiz_state',
@@ -161,19 +162,15 @@ export const bitcoinStorage = {
     if (!userId || !isOnline()) return;
 
     try {
-      // Upsert simulator state
-      await supabase
-        .from('bitcoin_simulator')
-        .upsert({
-          user_id: userId,
-          balance: state.balance,
-          btc_holdings: state.btcHoldings,
-          starting_balance: state.startingBalance,
-          total_profit: state.totalProfit,
-          total_loss: state.totalLoss,
-        }, {
-          onConflict: 'user_id',
-        });
+      // Upsert simulator state via DataGuard
+      await guardedUpsert('bitcoin_simulator', {
+        user_id: userId,
+        balance: state.balance,
+        btc_holdings: state.btcHoldings,
+        starting_balance: state.startingBalance,
+        total_profit: state.totalProfit,
+        total_loss: state.totalLoss,
+      }, 'user_id');
     } catch (error) {
       console.warn('Cloud save failed, data saved locally:', error);
     }
@@ -214,19 +211,17 @@ export const bitcoinStorage = {
     const userId = await getCurrentUserId();
     if (userId && isOnline()) {
       try {
-        await supabase
-          .from('bitcoin_simulator')
-          .upsert({
-            user_id: userId,
-            balance: state.balance,
-            btc_holdings: state.btcHoldings,
-            starting_balance: state.startingBalance,
-            total_profit: state.totalProfit,
-            total_loss: state.totalLoss,
-          }, {
-            onConflict: 'user_id',
-          });
+        // Upsert simulator state via DataGuard
+        await guardedUpsert('bitcoin_simulator', {
+          user_id: userId,
+          balance: state.balance,
+          btc_holdings: state.btcHoldings,
+          starting_balance: state.startingBalance,
+          total_profit: state.totalProfit,
+          total_loss: state.totalLoss,
+        }, 'user_id');
 
+        // Fetch simulator ID for trade foreign key
         const { data: sim } = await supabase
           .from('bitcoin_simulator')
           .select('id')
@@ -234,16 +229,15 @@ export const bitcoinStorage = {
           .single();
 
         if (sim) {
-          await supabase
-            .from('bitcoin_trades')
-            .insert({
-              user_id: userId,
-              simulator_id: sim.id,
-              trade_type: trade.type,
-              btc_amount: trade.amount,
-              price_per_btc: trade.price,
-              total_usd: trade.total,
-            });
+          // Insert trade via DataGuard
+          await guardedInsert('bitcoin_trades', {
+            user_id: userId,
+            simulator_id: sim.id,
+            trade_type: trade.type,
+            btc_amount: trade.amount,
+            price_per_btc: trade.price,
+            total_usd: trade.total,
+          });
         }
       } catch (error) {
         console.warn('Cloud sync failed, trade saved locally:', error);
@@ -315,18 +309,15 @@ export const quizStorage = {
     if (!userId || !isOnline()) return;
 
     try {
-      await supabase
-        .from('quiz_progress')
-        .upsert({
-          user_id: userId,
-          week_number: weekNumber,
-          current_question_index: state.currentQuestionIndex,
-          answers: state.answers,
-          started_at: new Date(state.startedAt).toISOString(),
-          time_spent_seconds: state.timeSpent,
-        }, {
-          onConflict: 'user_id,week_number',
-        });
+      // Upsert quiz progress via DataGuard
+      await guardedUpsert('quiz_progress', {
+        user_id: userId,
+        week_number: weekNumber,
+        current_question_index: state.currentQuestionIndex,
+        answers: state.answers,
+        started_at: new Date(state.startedAt).toISOString(),
+        time_spent_seconds: state.timeSpent,
+      }, 'user_id,week_number');
     } catch (error) {
       console.warn('Quiz cloud save failed:', error);
     }
@@ -397,18 +388,15 @@ export const gameStorage = {
     if (!userId || !isOnline()) return;
 
     try {
-      await supabase
-        .from('game_progress')
-        .upsert({
-          user_id: userId,
-          game_id: gameId,
-          game_data: state.gameData,
-          started_at: new Date(state.startedAt).toISOString(),
-          last_played_at: new Date(state.lastPlayedAt).toISOString(),
-          completed: state.completed,
-        }, {
-          onConflict: 'user_id,game_id',
-        });
+      // Upsert game progress via DataGuard
+      await guardedUpsert('game_progress', {
+        user_id: userId,
+        game_id: gameId,
+        game_data: state.gameData,
+        started_at: new Date(state.startedAt).toISOString(),
+        last_played_at: new Date(state.lastPlayedAt).toISOString(),
+        completed: state.completed,
+      }, 'user_id,game_id');
     } catch (error) {
       console.warn('Game cloud save failed:', error);
     }

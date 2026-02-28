@@ -110,8 +110,8 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
       <div className="grid grid-cols-2 gap-4">
         <GlassCard className="p-4 cursor-pointer hover:scale-105 transition-transform" onClick={() => setShowContactForm(true)}>
           <div className="flex flex-col items-center text-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-              <MessageCircle className="w-6 h-6 text-[#4A5FFF]" />
+            <div className="w-12 h-12 rounded-full bg-[#10B981]/20 flex items-center justify-center">
+              <MessageCircle className="w-6 h-6 text-[#10B981]" />
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">Contact Support</h3>
@@ -154,7 +154,7 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
                 value={contactForm.subject}
                 onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
                 placeholder="What do you need help with?"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
               />
             </div>
 
@@ -165,7 +165,7 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
                 onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                 placeholder="Describe your issue or question..."
                 rows={4}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none resize-none"
               />
             </div>
 
@@ -208,7 +208,7 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
             onClick={() => setSelectedCategory(null)}
             className={`px-4 py-2 rounded-full text-sm transition-colors ${
               selectedCategory === null
-                ? 'bg-[#4A5FFF] text-white'
+                ? 'bg-[#10B981] text-white'
                 : 'bg-white/10 text-white/60 hover:bg-white/20'
             }`}
           >
@@ -220,7 +220,7 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm transition-colors ${
                 selectedCategory === category
-                  ? 'bg-[#4A5FFF] text-white'
+                  ? 'bg-[#10B981] text-white'
                   : 'bg-white/10 text-white/60 hover:bg-white/20'
               }`}
             >
@@ -246,7 +246,7 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
                   className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors"
                 >
                   <div className="flex-1 pr-4">
-                    <span className="text-xs text-[#4A5FFF] mb-1 block">{faq.category}</span>
+                    <span className="text-xs text-[#10B981] mb-1 block">{faq.category}</span>
                     <span className="text-white font-medium">{faq.question}</span>
                   </div>
                   {expandedFaq === index ? (
@@ -269,8 +269,8 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
       {/* Resources */}
       <GlassCard className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#9B59B6]/20 flex items-center justify-center">
-            <Book className="w-5 h-5 text-[#9B59B6]" />
+          <div className="w-10 h-10 rounded-full bg-[#F59E0B]/20 flex items-center justify-center">
+            <Book className="w-5 h-5 text-[#F59E0B]" />
           </div>
           <h2 className="text-lg font-bold text-white">Additional Resources</h2>
         </div>

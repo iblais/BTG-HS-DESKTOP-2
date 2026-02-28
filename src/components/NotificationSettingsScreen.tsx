@@ -22,7 +22,7 @@ export function NotificationSettingsScreen({ onBack }: NotificationSettingsScree
       id: 'lesson_reminders',
       title: 'Lesson Reminders',
       description: 'Get reminded to complete your daily lessons',
-      icon: <BookOpen className="w-5 h-5 text-[#4A5FFF]" />,
+      icon: <BookOpen className="w-5 h-5 text-[#10B981]" />,
       enabled: true,
       category: 'learning'
     },
@@ -46,7 +46,7 @@ export function NotificationSettingsScreen({ onBack }: NotificationSettingsScree
       id: 'achievement_earned',
       title: 'Achievements Earned',
       description: 'Get notified when you earn new achievements',
-      icon: <Award className="w-5 h-5 text-[#9B59B6]" />,
+      icon: <Award className="w-5 h-5 text-[#F59E0B]" />,
       enabled: true,
       category: 'achievements'
     },
@@ -62,7 +62,7 @@ export function NotificationSettingsScreen({ onBack }: NotificationSettingsScree
       id: 'email_notifications',
       title: 'Email Notifications',
       description: 'Receive important updates via email',
-      icon: <Mail className="w-5 h-5 text-[#00BFFF]" />,
+      icon: <Mail className="w-5 h-5 text-[#34D399]" />,
       enabled: false,
       category: 'reminders'
     },
@@ -128,7 +128,7 @@ export function NotificationSettingsScreen({ onBack }: NotificationSettingsScree
   };
 
   const categories = [
-    { id: 'learning', title: 'Learning & Progress', color: '#4A5FFF' },
+    { id: 'learning', title: 'Learning & Progress', color: '#10B981' },
     { id: 'achievements', title: 'Achievements', color: '#50D890' },
     { id: 'reminders', title: 'Reminders & Updates', color: '#FF6B35' }
   ];
@@ -231,7 +231,7 @@ export function NotificationSettingsScreen({ onBack }: NotificationSettingsScree
                   Notification.requestPermission();
                 }
               }}
-              className="text-[#4A5FFF] text-sm font-medium hover:underline"
+              className="text-[#10B981] text-sm font-medium hover:underline"
             >
               Request Permission
             </button>

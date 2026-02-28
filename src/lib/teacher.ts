@@ -1,30 +1,29 @@
 import { supabase } from './supabase';
 import { getCurrentUser } from './auth';
 
-// Types for teacher portal
-export interface Teacher {
-  id: string;
-  user_id: string;
-  email: string;
-  name?: string;
-  school?: string;
-  created_at: string;
-}
-
+// Types for teacher portal — aligned with actual DB tables
 export interface Class {
   id: string;
   teacher_id: string;
   name: string;
-  code?: string;
+  school_name?: string;
   grade_level?: string;
+  academic_year?: string;
+  auto_grading_enabled?: boolean;
   created_at: string;
+  updated_at?: string;
+  // Joined fields (not in DB, populated in queries)
+  student_count?: number;
+  class_code?: string;
 }
 
-export interface ClassEnrollment {
+export interface ClassCode {
   id: string;
   class_id: string;
-  student_id: string;
-  enrolled_at?: string;
+  code: string;
+  created_at: string;
+  expires_at: string;
+  is_active: boolean;
 }
 
 export interface StudentWithProgress {
@@ -248,7 +247,7 @@ export async function isTeacher(): Promise<boolean> {
     const user = await getCurrentUser();
     if (!user) return false;
 
-    // Check for teacher emails (hardcoded for now - can be moved to env or database)
+    // Superadmin fallback — hardcoded teacher emails
     const teacherEmails = [
       'itsblais@gmail.com',
       'creditchampionz@gmail.com',
@@ -257,61 +256,110 @@ export async function isTeacher(): Promise<boolean> {
       return true;
     }
 
-    // Check user_roles table
+    // Primary check: user_roles table
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single();
 
-    if (roleData?.role === 'teacher') return true;
-
-    // Also check profiles table for role
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    return profileData?.role === 'teacher';
+    return roleData?.role === 'teacher';
   } catch {
     return false;
   }
 }
 
-// Get teacher's classes
+// Register as a teacher using an invite code
+export async function registerAsTeacher(inviteCode: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    // Validate invite code (simple static codes for now)
+    const validCodes = ['BTGTEACHER2025', 'TEACHBTG', 'FINLIT-TEACHER'];
+    if (!validCodes.includes(inviteCode.toUpperCase().trim())) {
+      return { success: false, error: 'Invalid invite code' };
+    }
+
+    // Check if already a teacher
+    const { data: existing } = await supabase
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (existing) {
+      return { success: true }; // Already registered
+    }
+
+    // Insert teacher role
+    const { error } = await supabase
+      .from('user_roles')
+      .insert({ user_id: user.id, role: 'teacher' });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to register as teacher:', err);
+    return { success: false, error: 'Registration failed' };
+  }
+}
+
+// Get teacher's classes with student counts and active codes
 export async function getTeacherClasses(): Promise<Class[]> {
   try {
     const user = await getCurrentUser();
     if (!user) return [];
 
-    // First get teacher record
-    const { data: teacherData } = await supabase
-      .from('teachers')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!teacherData) return [];
-
+    // Query classes where teacher_id = current user (no teachers table needed)
     const { data: classes } = await supabase
       .from('classes')
       .select('*')
-      .eq('teacher_id', teacherData.id)
+      .eq('teacher_id', user.id)
       .order('created_at', { ascending: false });
 
-    return classes || [];
+    if (!classes || classes.length === 0) return [];
+
+    // Enrich with student counts and class codes
+    const enriched = await Promise.all(classes.map(async (cls) => {
+      // Get student count
+      const { count } = await supabase
+        .from('teacher_students')
+        .select('id', { count: 'exact', head: true })
+        .eq('class_id', cls.id);
+
+      // Get active class code
+      const { data: codeData } = await supabase
+        .from('class_codes')
+        .select('code')
+        .eq('class_id', cls.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      return {
+        ...cls,
+        student_count: count || 0,
+        class_code: codeData?.code || undefined,
+      };
+    }));
+
+    return enriched;
   } catch (err) {
     console.error('Failed to get teacher classes:', err);
     return [];
   }
 }
 
-// Get students in a class
+// Get students in a class (uses teacher_students table)
 export async function getClassStudents(classId: string): Promise<StudentWithProgress[]> {
   try {
     const { data: enrollments } = await supabase
-      .from('class_enrollments')
+      .from('teacher_students')
       .select('student_id')
       .eq('class_id', classId);
 
@@ -327,117 +375,76 @@ export async function getClassStudents(classId: string): Promise<StudentWithProg
 
     if (!students) return [];
 
-    // Get progress data for each student
-    const studentsWithProgress: StudentWithProgress[] = await Promise.all(
-      students.map(async (student) => {
-        // Get course progress
-        const { data: progress } = await supabase
-          .from('course_progress')
-          .select('week_number, quiz_completed, best_quiz_score')
-          .eq('user_id', student.id);
-
-        // Get activity count
-        const { data: activities } = await supabase
-          .from('activity_responses')
-          .select('id')
-          .eq('user_id', student.id);
-
-        const weeksCompleted = progress?.filter(p => p.quiz_completed).length || 0;
-        const totalActivities = activities?.length || 0;
-        const quizScores = progress?.filter(p => p.best_quiz_score !== null).map(p => p.best_quiz_score) || [];
-        const averageQuizScore = quizScores.length > 0
-          ? Math.round(quizScores.reduce((a, b) => a + b, 0) / quizScores.length)
-          : 0;
-
-        return {
-          id: student.id,
-          email: student.email,
-          display_name: student.display_name,
-          avatar_url: student.avatar_url,
-          created_at: student.created_at,
-          weeks_completed: weeksCompleted,
-          total_activities: totalActivities,
-          average_quiz_score: averageQuizScore,
-          last_active: student.last_active,
-        };
-      })
-    );
-
-    return studentsWithProgress;
+    return await enrichStudentsWithProgress(students);
   } catch (err) {
     console.error('Failed to get class students:', err);
     return [];
   }
 }
 
-// Get all students for a teacher (all users in the system)
+// Helper: enrich student records with progress data
+async function enrichStudentsWithProgress(
+  students: Array<{ id: string; email: string; display_name: string | null; avatar_url: string | null; created_at: string; last_active?: string }>
+): Promise<StudentWithProgress[]> {
+  return Promise.all(
+    students.map(async (student) => {
+      const { data: progress } = await supabase
+        .from('course_progress')
+        .select('week_number, quiz_completed, best_quiz_score')
+        .eq('user_id', student.id);
+
+      const { count: activityCount } = await supabase
+        .from('activity_responses')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', student.id);
+
+      const weeksCompleted = progress?.filter(p => p.quiz_completed).length || 0;
+      const quizScores = progress?.filter(p => p.best_quiz_score !== null).map(p => p.best_quiz_score) || [];
+      const averageQuizScore = quizScores.length > 0
+        ? Math.round(quizScores.reduce((a: number, b: number) => a + b, 0) / quizScores.length)
+        : 0;
+
+      return {
+        id: student.id,
+        email: student.email,
+        display_name: student.display_name,
+        avatar_url: student.avatar_url,
+        created_at: student.created_at,
+        weeks_completed: weeksCompleted,
+        total_activities: activityCount || 0,
+        average_quiz_score: averageQuizScore,
+        last_active: student.last_active,
+      };
+    })
+  );
+}
+
+// Get all students for a teacher (only students in teacher's own classes)
 export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      return [];
-    }
+    if (!currentUser) return [];
 
+    // Get student IDs from teacher_students where teacher_id = current user
+    const { data: relationships, error: relError } = await supabase
+      .from('teacher_students')
+      .select('student_id')
+      .eq('teacher_id', currentUser.id);
 
-    // First check if there are ANY users at all (including self)
-    const { data: allUsers, error: countError } = await supabase
-      .from('users')
-      .select('id, email')
-      .limit(100);
+    if (relError || !relationships || relationships.length === 0) return [];
 
-    // Get ALL users from the database (except the current teacher)
+    const studentIds = [...new Set(relationships.map(r => r.student_id))];
+
+    // Get student profiles
     const { data: students, error } = await supabase
       .from('users')
-      .select('id, email, display_name, avatar_url, created_at')
-      .neq('id', currentUser.id)
+      .select('id, email, display_name, avatar_url, created_at, last_active')
+      .in('id', studentIds)
       .order('created_at', { ascending: false });
 
+    if (error || !students || students.length === 0) return [];
 
-    if (error) {
-      console.error('[Teacher] Error fetching users:', error);
-      return [];
-    }
-
-    if (!students || students.length === 0) {
-      return [];
-    }
-
-    // Get progress data for each student
-    const studentsWithProgress: StudentWithProgress[] = await Promise.all(
-      students.map(async (student) => {
-        // Get course progress
-        const { data: progress } = await supabase
-          .from('course_progress')
-          .select('week_number, quiz_completed, best_quiz_score')
-          .eq('user_id', student.id);
-
-        // Get activity count
-        const { data: activities } = await supabase
-          .from('activity_responses')
-          .select('id')
-          .eq('user_id', student.id);
-
-        const weeksCompleted = progress?.filter(p => p.quiz_completed).length || 0;
-        const totalActivities = activities?.length || 0;
-        const quizScores = progress?.filter(p => p.best_quiz_score !== null).map(p => p.best_quiz_score) || [];
-        const averageQuizScore = quizScores.length > 0
-          ? Math.round(quizScores.reduce((a, b) => a + b, 0) / quizScores.length)
-          : 0;
-
-        return {
-          id: student.id,
-          email: student.email,
-          display_name: student.display_name,
-          avatar_url: student.avatar_url,
-          created_at: student.created_at,
-          weeks_completed: weeksCompleted,
-          total_activities: totalActivities,
-          average_quiz_score: averageQuizScore,
-        };
-      })
-    );
-
-    return studentsWithProgress;
+    return await enrichStudentsWithProgress(students);
   } catch (err) {
     console.error('Failed to get all teacher students:', err);
     return [];
@@ -482,7 +489,7 @@ export async function getStudentQuizScores(studentId: string): Promise<{ week_nu
   }
 }
 
-// Grade an activity response
+// Grade an activity response — writes to auto_grades table
 export async function gradeActivity(
   activityResponseId: string,
   studentId: string,
@@ -497,62 +504,50 @@ export async function gradeActivity(
   try {
     const user = await getCurrentUser();
     if (!user) {
-      console.error('[Teacher] gradeActivity: Not authenticated');
       return { success: false, error: 'Not authenticated' };
     }
 
-    // Store grade in activity_grades table
-    const gradeData = {
-      activity_response_id: activityResponseId || null,
-      student_id: studentId,
-      teacher_id: user.id,
-      week_number: weekNumber,
-      day_number: dayNumber,
-      grade: grade,
-      max_grade: maxGrade,
-      feedback: feedback || null,
-      rubric_id: rubricId || null,
-      rubric_scores: rubricScores || null,
-      graded_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-
-    const { data, error } = await supabase
-      .from('activity_grades')
-      .upsert(gradeData, {
+    // Update auto_grades with teacher review data
+    const { error } = await supabase
+      .from('auto_grades')
+      .upsert({
+        activity_response_id: activityResponseId || null,
+        student_id: studentId,
+        week_number: weekNumber,
+        day_number: dayNumber,
+        rubric_scores: rubricScores || {},
+        total_score: grade,
+        max_score: maxGrade,
+        ai_feedback: null,
+        graded_at: new Date().toISOString(),
+        teacher_reviewed: true,
+        teacher_adjusted_score: grade,
+        teacher_feedback: feedback || null,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: user.id,
+        rubric_id: rubricId || null,
+      }, {
         onConflict: 'student_id,week_number,day_number',
         ignoreDuplicates: false
       })
       .select();
 
     if (error) {
-      console.error('[Teacher] Supabase grade error:', error.message, error.details, error.hint, error.code);
+      console.error('[Teacher] Supabase grade error:', error.message);
       // Store locally as backup
       const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
       localStorage.setItem(gradeKey, JSON.stringify({
-        grade,
-        maxGrade,
-        feedback,
-        rubricId,
-        rubricScores,
-        gradedAt: new Date().toISOString(),
-        gradedBy: user.id,
+        grade, maxGrade, feedback, rubricId, rubricScores,
+        gradedAt: new Date().toISOString(), gradedBy: user.id,
       }));
-      return { success: true }; // Still return success since we saved locally
+      return { success: true };
     }
 
-
-    // Also save to localStorage as cache
+    // Cache locally
     const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
     localStorage.setItem(gradeKey, JSON.stringify({
-      grade,
-      maxGrade,
-      feedback,
-      rubricId,
-      rubricScores,
-      gradedAt: new Date().toISOString(),
-      gradedBy: user.id,
+      grade, maxGrade, feedback, rubricId, rubricScores,
+      gradedAt: new Date().toISOString(), gradedBy: user.id,
     }));
 
     return { success: true };
@@ -562,16 +557,15 @@ export async function gradeActivity(
   }
 }
 
-// Get grade for an activity
+// Get grade for an activity — reads from auto_grades table
 export async function getActivityGrade(
   studentId: string,
   weekNumber: number,
   dayNumber: number
 ): Promise<AssignmentGrade | null> {
   try {
-    // Query the database first
     const { data, error } = await supabase
-      .from('activity_grades')
+      .from('auto_grades')
       .select('*')
       .eq('student_id', studentId)
       .eq('week_number', weekNumber)
@@ -582,87 +576,59 @@ export async function getActivityGrade(
       return {
         id: data.id,
         activity_response_id: data.activity_response_id || '',
-        teacher_id: data.teacher_id,
+        teacher_id: data.reviewed_by || '',
         student_id: data.student_id,
         week_number: data.week_number,
         day_number: data.day_number,
-        grade: data.grade,
-        max_grade: data.max_grade,
-        feedback: data.feedback,
+        grade: data.teacher_adjusted_score ?? data.total_score,
+        max_grade: data.max_score || 100,
+        feedback: data.teacher_feedback || data.ai_feedback,
         rubric_id: data.rubric_id,
         rubric_scores: data.rubric_scores,
-        graded_at: data.graded_at,
+        graded_at: data.reviewed_at || data.graded_at,
       };
     }
 
-    // Fall back to localStorage if not in database
-    const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
-    const localGrade = localStorage.getItem(gradeKey);
-
-    if (localGrade) {
-      try {
-        const parsed = JSON.parse(localGrade);
-        return {
-          id: `local-${gradeKey}`,
-          activity_response_id: '',
-          teacher_id: parsed.gradedBy,
-          student_id: studentId,
-          week_number: weekNumber,
-          day_number: dayNumber,
-          grade: parsed.grade,
-          max_grade: parsed.maxGrade,
-          feedback: parsed.feedback,
-          rubric_id: parsed.rubricId,
-          rubric_scores: parsed.rubricScores,
-          graded_at: parsed.gradedAt,
-        };
-      } catch {
-        // Invalid local data
-      }
-    }
-
-    return null;
+    // Fall back to localStorage
+    return getLocalGrade(studentId, weekNumber, dayNumber);
   } catch (err) {
     console.error('[Teacher] Error fetching grade:', err);
+    return getLocalGrade(studentId, weekNumber, dayNumber);
+  }
+}
 
-    // Fall back to localStorage on error
-    const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
-    const localGrade = localStorage.getItem(gradeKey);
-
-    if (localGrade) {
-      try {
-        const parsed = JSON.parse(localGrade);
-        return {
-          id: `local-${gradeKey}`,
-          activity_response_id: '',
-          teacher_id: parsed.gradedBy,
-          student_id: studentId,
-          week_number: weekNumber,
-          day_number: dayNumber,
-          grade: parsed.grade,
-          max_grade: parsed.maxGrade,
-          feedback: parsed.feedback,
-          rubric_id: parsed.rubricId,
-          rubric_scores: parsed.rubricScores,
-          graded_at: parsed.gradedAt,
-        };
-      } catch {
-        // Invalid local data
-      }
-    }
-
+function getLocalGrade(studentId: string, weekNumber: number, dayNumber: number): AssignmentGrade | null {
+  const gradeKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
+  const localGrade = localStorage.getItem(gradeKey);
+  if (!localGrade) return null;
+  try {
+    const parsed = JSON.parse(localGrade);
+    return {
+      id: `local-${gradeKey}`,
+      activity_response_id: '',
+      teacher_id: parsed.gradedBy || '',
+      student_id: studentId,
+      week_number: weekNumber,
+      day_number: dayNumber,
+      grade: parsed.grade,
+      max_grade: parsed.maxGrade,
+      feedback: parsed.feedback,
+      rubric_id: parsed.rubricId,
+      rubric_scores: parsed.rubricScores,
+      graded_at: parsed.gradedAt,
+    };
+  } catch {
     return null;
   }
 }
 
-// Get all grades (for efficient batch checking)
+// Get all grades (for efficient batch checking) — reads from auto_grades
 export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
   const gradesMap = new Map<string, AssignmentGrade>();
 
   try {
-    // Query all grades from database
     const { data, error } = await supabase
-      .from('activity_grades')
+      .from('auto_grades')
       .select('*');
 
     if (data && !error) {
@@ -671,16 +637,16 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
         gradesMap.set(key, {
           id: grade.id,
           activity_response_id: grade.activity_response_id || '',
-          teacher_id: grade.teacher_id,
+          teacher_id: grade.reviewed_by || '',
           student_id: grade.student_id,
           week_number: grade.week_number,
           day_number: grade.day_number,
-          grade: grade.grade,
-          max_grade: grade.max_grade,
-          feedback: grade.feedback,
+          grade: grade.teacher_adjusted_score ?? grade.total_score,
+          max_grade: grade.max_score || 100,
+          feedback: grade.teacher_feedback || grade.ai_feedback,
           rubric_id: grade.rubric_id,
           rubric_scores: grade.rubric_scores,
-          graded_at: grade.graded_at,
+          graded_at: grade.reviewed_at || grade.graded_at,
         });
       });
     }
@@ -688,7 +654,7 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
     console.error('[Teacher] Error fetching all grades:', err);
   }
 
-  // Also check localStorage for any grades not in database
+  // Check localStorage for grades not in database
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key?.startsWith('btg_grade_')) {
@@ -696,20 +662,17 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
         const localGrade = localStorage.getItem(key);
         if (localGrade) {
           const parsed = JSON.parse(localGrade);
-          // Extract studentId, weekNumber, dayNumber from key
           const parts = key.replace('btg_grade_', '').split('_');
           if (parts.length >= 3) {
             const studentId = parts[0];
             const weekNumber = parseInt(parts[1]);
             const dayNumber = parseInt(parts[2]);
             const mapKey = `${studentId}-${weekNumber}-${dayNumber}`;
-
-            // Only add if not already in map (database takes precedence)
             if (!gradesMap.has(mapKey)) {
               gradesMap.set(mapKey, {
                 id: `local-${key}`,
                 activity_response_id: '',
-                teacher_id: parsed.gradedBy,
+                teacher_id: parsed.gradedBy || '',
                 student_id: studentId,
                 week_number: weekNumber,
                 day_number: dayNumber,
@@ -732,40 +695,39 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
   return gradesMap;
 }
 
-// Create a new class
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function createClass(name: string, _gradeLevel?: string): Promise<Class | null> {
+// Create a new class (DB trigger auto-generates class code)
+export async function createClass(name: string, gradeLevel?: string, schoolName?: string): Promise<Class | null> {
   try {
     const user = await getCurrentUser();
     if (!user) return null;
 
-    // Get or create teacher record
-    let { data: teacher } = await supabase
-      .from('teachers')
-      .select('id')
-      .eq('email', user.email)
-      .single();
-
-    if (!teacher) {
-      const { data: newTeacher } = await supabase
-        .from('teachers')
-        .insert({ email: user.email })
-        .select()
-        .single();
-      teacher = newTeacher;
-    }
-
-    if (!teacher) return null;
-
-    // Create class
-    const { data: newClass } = await supabase
+    const { data: newClass, error } = await supabase
       .from('classes')
       .insert({
-        teacher_id: teacher.id,
+        teacher_id: user.id,
         name,
+        grade_level: gradeLevel || null,
+        school_name: schoolName || null,
       })
       .select()
       .single();
+
+    if (error) {
+      console.error('Failed to create class:', error);
+      return null;
+    }
+
+    // Fetch the auto-generated code
+    if (newClass) {
+      const { data: codeData } = await supabase
+        .from('class_codes')
+        .select('code')
+        .eq('class_id', newClass.id)
+        .eq('is_active', true)
+        .single();
+
+      return { ...newClass, student_count: 0, class_code: codeData?.code };
+    }
 
     return newClass;
   } catch (err) {
@@ -774,9 +736,12 @@ export async function createClass(name: string, _gradeLevel?: string): Promise<C
   }
 }
 
-// Add student to class
+// Add student to class by email (teacher-initiated)
 export async function addStudentToClass(classId: string, studentEmail: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
     // Find student by email
     const { data: student } = await supabase
       .from('users')
@@ -790,7 +755,7 @@ export async function addStudentToClass(classId: string, studentEmail: string): 
 
     // Check if already enrolled
     const { data: existing } = await supabase
-      .from('class_enrollments')
+      .from('teacher_students')
       .select('id')
       .eq('class_id', classId)
       .eq('student_id', student.id)
@@ -800,10 +765,11 @@ export async function addStudentToClass(classId: string, studentEmail: string): 
       return { success: false, error: 'Student already in class' };
     }
 
-    // Add enrollment
+    // Add to teacher_students
     const { error } = await supabase
-      .from('class_enrollments')
+      .from('teacher_students')
       .insert({
+        teacher_id: user.id,
         class_id: classId,
         student_id: student.id,
       });
@@ -816,6 +782,148 @@ export async function addStudentToClass(classId: string, studentEmail: string): 
   } catch (err) {
     console.error('Failed to add student to class:', err);
     return { success: false, error: 'Failed to add student' };
+  }
+}
+
+// Remove student from class
+export async function removeStudentFromClass(studentId: string, classId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase
+      .from('teacher_students')
+      .delete()
+      .eq('student_id', studentId)
+      .eq('class_id', classId);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to remove student:', err);
+    return { success: false, error: 'Failed to remove student' };
+  }
+}
+
+// Generate a new class code (deactivates old ones)
+export async function generateClassCode(classId: string): Promise<string | null> {
+  try {
+    // Deactivate existing codes
+    await supabase
+      .from('class_codes')
+      .update({ is_active: false })
+      .eq('class_id', classId);
+
+    // Generate new 6-char alphanumeric code
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const { data, error } = await supabase
+      .from('class_codes')
+      .insert({
+        class_id: classId,
+        code,
+        is_active: true,
+        expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      })
+      .select('code')
+      .single();
+
+    if (error) {
+      console.error('Failed to generate class code:', error);
+      return null;
+    }
+
+    return data?.code || null;
+  } catch (err) {
+    console.error('Failed to generate class code:', err);
+    return null;
+  }
+}
+
+// Get active class code
+export async function getClassCode(classId: string): Promise<ClassCode | null> {
+  try {
+    const { data } = await supabase
+      .from('class_codes')
+      .select('*')
+      .eq('class_id', classId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    return data || null;
+  } catch {
+    return null;
+  }
+}
+
+// Student-facing: join a class by code
+export async function joinClassByCode(code: string): Promise<{ success: boolean; error?: string; className?: string }> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    // Look up the class code
+    const { data: codeData, error: codeError } = await supabase
+      .from('class_codes')
+      .select('class_id, is_active, expires_at')
+      .eq('code', code.toUpperCase().trim())
+      .single();
+
+    if (codeError || !codeData) {
+      return { success: false, error: 'Invalid class code' };
+    }
+
+    if (!codeData.is_active) {
+      return { success: false, error: 'This code is no longer active' };
+    }
+
+    if (new Date(codeData.expires_at) < new Date()) {
+      return { success: false, error: 'This code has expired' };
+    }
+
+    // Get class info (including teacher_id)
+    const { data: classData } = await supabase
+      .from('classes')
+      .select('id, name, teacher_id')
+      .eq('id', codeData.class_id)
+      .single();
+
+    if (!classData) {
+      return { success: false, error: 'Class not found' };
+    }
+
+    // Check if already enrolled
+    const { data: existing } = await supabase
+      .from('teacher_students')
+      .select('id')
+      .eq('class_id', classData.id)
+      .eq('student_id', user.id)
+      .single();
+
+    if (existing) {
+      return { success: false, error: 'You are already in this class' };
+    }
+
+    // Join the class
+    const { error: joinError } = await supabase
+      .from('teacher_students')
+      .insert({
+        teacher_id: classData.teacher_id,
+        class_id: classData.id,
+        student_id: user.id,
+      });
+
+    if (joinError) {
+      return { success: false, error: joinError.message };
+    }
+
+    return { success: true, className: classData.name };
+  } catch (err) {
+    console.error('Failed to join class:', err);
+    return { success: false, error: 'Failed to join class' };
   }
 }
 

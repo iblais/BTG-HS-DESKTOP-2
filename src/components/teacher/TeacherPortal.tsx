@@ -6,7 +6,8 @@ import { GradingQueueView } from './GradingQueueView';
 import { RubricManager } from './RubricManager';
 import { StandardsView } from './StandardsView';
 import { supabase } from '@/lib/supabase';
-import { type ActivityResponse } from '@/lib/teacher';
+import { getCurrentUser } from '@/lib/auth';
+import { getAllTeacherStudents, type ActivityResponse } from '@/lib/teacher';
 
 type PortalView = 'dashboard' | 'student' | 'grading' | 'queue' | 'rubrics' | 'standards';
 
@@ -18,12 +19,32 @@ export function TeacherPortal() {
   const [completedWeeks, setCompletedWeeks] = useState<number[]>([]);
   const [queueRefreshKey, setQueueRefreshKey] = useState(0); // Forces GradingQueueView to refresh
 
-  // Load completed weeks for standards coverage
+  // Load completed weeks for standards coverage from actual student data
   useEffect(() => {
-    // This would normally come from aggregating all student progress
-    // For now, we'll use a placeholder
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCompletedWeeks([1, 2, 3, 4]);
+    (async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user) return;
+
+        // Get all students for this teacher, then aggregate completed weeks
+        const students = await getAllTeacherStudents();
+        if (students.length === 0) return;
+
+        const studentIds = students.map(s => s.id);
+        const { data: progress } = await supabase
+          .from('course_progress')
+          .select('week_number, quiz_completed')
+          .in('user_id', studentIds)
+          .eq('quiz_completed', true);
+
+        if (progress) {
+          const weeks = [...new Set(progress.map(p => p.week_number))].sort((a, b) => a - b);
+          setCompletedWeeks(weeks);
+        }
+      } catch (err) {
+        console.error('Failed to load completed weeks:', err);
+      }
+    })();
   }, []);
 
   const handleViewStudent = async (studentId: string) => {

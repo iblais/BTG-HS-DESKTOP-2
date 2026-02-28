@@ -99,11 +99,11 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
 
   const getCategoryColor = (category: BudgetGoal['category']) => {
     switch (category) {
-      case 'savings': return '#4A5FFF';
+      case 'savings': return '#10B981';
       case 'debt': return '#FF6B35';
-      case 'purchase': return '#9B59B6';
+      case 'purchase': return '#F59E0B';
       case 'emergency': return '#50D890';
-      default: return '#4A5FFF';
+      default: return '#10B981';
     }
   };
 
@@ -126,7 +126,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
     if (progress >= 100) return { status: 'completed', label: 'Completed!', color: '#50D890' };
     if (daysLeft < 0) return { status: 'overdue', label: 'Overdue', color: '#FF6B35' };
     if (daysLeft <= 7) return { status: 'urgent', label: `${daysLeft} days left`, color: '#FFD700' };
-    return { status: 'on-track', label: `${daysLeft} days left`, color: '#4A5FFF' };
+    return { status: 'on-track', label: `${daysLeft} days left`, color: '#10B981' };
   };
 
   const totalProgress = goals.length > 0
@@ -140,7 +140,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#4A5FFF] to-[#00BFFF] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#10B981] to-[#34D399] flex items-center justify-center">
             <Target className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -166,7 +166,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
           <div className="text-white/60 text-sm">Completed</div>
         </GlassCard>
         <GlassCard className="p-4 text-center">
-          <div className="text-2xl font-bold text-[#4A5FFF]">{Math.round(totalProgress)}%</div>
+          <div className="text-2xl font-bold text-[#10B981]">{Math.round(totalProgress)}%</div>
           <div className="text-white/60 text-sm">Avg Progress</div>
         </GlassCard>
       </div>
@@ -249,7 +249,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                         value={checkInAmount[goal.id] || ''}
                         onChange={(e) => setCheckInAmount({ ...checkInAmount, [goal.id]: e.target.value })}
                         placeholder="Amount"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
                       />
                     </div>
                     <Button3D
@@ -286,7 +286,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                 value={newGoal.name}
                 onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
                 placeholder="e.g., Emergency Fund, New Car"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
               />
             </div>
 
@@ -300,7 +300,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                     value={newGoal.targetAmount}
                     onChange={(e) => setNewGoal({ ...newGoal, targetAmount: e.target.value })}
                     placeholder="1000"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
                   />
                 </div>
               </div>
@@ -313,7 +313,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                     value={newGoal.currentAmount}
                     onChange={(e) => setNewGoal({ ...newGoal, currentAmount: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
                   />
                 </div>
               </div>
@@ -326,7 +326,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                   type="date"
                   value={newGoal.deadline}
                   onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#4A5FFF]/50 focus:outline-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#10B981]/50 focus:outline-none"
                 />
               </div>
               <div>
@@ -334,7 +334,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
                 <select
                   value={newGoal.category}
                   onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value as BudgetGoal['category'] })}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#4A5FFF]/50 focus:outline-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#10B981]/50 focus:outline-none"
                 >
                   <option value="savings">Savings</option>
                   <option value="emergency">Emergency Fund</option>
@@ -374,9 +374,9 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
       )}
 
       {/* Tips */}
-      <GlassCard className="p-4 bg-[#4A5FFF]/10 border border-[#4A5FFF]/20">
+      <GlassCard className="p-4 bg-[#10B981]/10 border border-[#10B981]/20">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-[#4A5FFF] flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="text-white font-medium mb-1">Pro Tip</h4>
             <p className="text-white/70 text-sm">

@@ -15,7 +15,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       icon: BookOpen,
       title: 'Learn Financial Basics',
       description: 'Master money management through interactive courses covering budgeting, saving, investing, and more. Each lesson is designed to build practical skills you can use right away.',
-      color: 'from-[#4A5FFF] to-[#00BFFF]',
+      color: 'from-[#10B981] to-[#34D399]',
       features: ['18-week structured program', 'Progress tracking', 'Offline access'],
     },
     {
@@ -36,7 +36,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       icon: Trophy,
       title: 'Ready to Start?',
       description: "You're all set! Start with the courses to build your foundation, then test your skills in the games. Your financial literacy journey begins now.",
-      color: 'from-[#9D4EDD] to-[#C77DFF]',
+      color: 'from-[#F59E0B] to-[#FBBF24]',
       features: ['Earn achievements', 'Unlock rewards', 'Build real skills'],
     },
   ];
@@ -66,13 +66,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const Icon = page.icon;
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] relative overflow-hidden flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--bg-base)] relative overflow-hidden flex items-center justify-center p-6">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute w-[800px] h-[800px] rounded-full opacity-25 blur-[120px] transition-all duration-1000"
           style={{
-            background: `radial-gradient(circle, ${page.color.includes('4A5FFF') ? '#4A5FFF' : page.color.includes('50D890') ? '#50D890' : page.color.includes('FF6B35') ? '#FF6B35' : '#9D4EDD'} 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${page.color.includes('4A5FFF') ? '#10B981' : page.color.includes('50D890') ? '#50D890' : page.color.includes('FF6B35') ? '#FF6B35' : '#F59E0B'} 0%, transparent 70%)`,
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)',
@@ -127,7 +127,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                 key={idx}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.08]"
               >
-                <Sparkles className="w-4 h-4 text-[#4A5FFF]" />
+                <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span className="text-white/70 text-sm">{feature}</span>
               </div>
             ))}
@@ -143,7 +143,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               className={cn(
                 "h-2 rounded-full transition-all duration-300",
                 index === currentPage
-                  ? "w-10 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF]"
+                  ? "w-10 bg-gradient-to-r from-[#10B981] to-[#34D399]"
                   : "w-2 bg-white/20 hover:bg-white/30"
               )}
             />
@@ -170,7 +170,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               "hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(74,95,255,0.3)] active:scale-[0.98]"
             )}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#10B981] to-[#34D399]" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
 
             <span className="relative flex items-center gap-2">

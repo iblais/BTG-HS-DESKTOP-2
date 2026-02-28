@@ -182,7 +182,7 @@ export function LeaderboardScreen() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+        <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
       </div>
     );
   }
@@ -192,7 +192,7 @@ export function LeaderboardScreen() {
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Your Rank Card */}
-        <div className="bg-gradient-to-br from-[#4A5FFF] to-[#00BFFF] rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-[#10B981] to-[#34D399] rounded-xl p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-sm">Your Rank</p>
@@ -205,7 +205,7 @@ export function LeaderboardScreen() {
         </div>
 
         {/* Total Players Card */}
-        <div className="bg-[#12162F] border border-white/10 rounded-xl p-6">
+        <div className="bg-[var(--bg-elevated)] border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-sm">Total Players</p>
@@ -216,7 +216,7 @@ export function LeaderboardScreen() {
         </div>
 
         {/* Top Score Card */}
-        <div className="bg-[#12162F] border border-white/10 rounded-xl p-6">
+        <div className="bg-[var(--bg-elevated)] border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-sm">Top Score</p>
@@ -242,7 +242,7 @@ export function LeaderboardScreen() {
             className={cn(
               "px-4 py-2 rounded-lg text-sm font-medium transition-all",
               timeFilter === filter.id
-                ? "bg-[#4A5FFF] text-white"
+                ? "bg-[#10B981] text-white"
                 : "bg-white/5 text-white/60 hover:bg-white/10"
             )}
           >
@@ -280,7 +280,7 @@ export function LeaderboardScreen() {
             <p className="text-white font-semibold mt-3 text-sm truncate max-w-[100px]">
               {getDisplayName(leaderboard[1])}
             </p>
-            <p className="text-[#4A5FFF] font-bold">{leaderboard[1].total_xp.toLocaleString()} XP</p>
+            <p className="text-[#10B981] font-bold">{leaderboard[1].total_xp.toLocaleString()} XP</p>
             <div className="w-full h-20 bg-gray-300/20 rounded-t-lg mt-2" />
           </div>
 
@@ -348,7 +348,7 @@ export function LeaderboardScreen() {
       )}
 
       {/* Leaderboard List */}
-      <div className="bg-[#12162F] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-[var(--bg-elevated)] border border-white/10 rounded-xl overflow-hidden">
         <div className="p-4 border-b border-white/10">
           <h3 className="text-white font-semibold">Rankings</h3>
         </div>
@@ -359,7 +359,7 @@ export function LeaderboardScreen() {
               key={entry.id}
               className={cn(
                 "flex items-center gap-4 p-4 transition-colors",
-                entry.id === currentUserId ? "bg-[#4A5FFF]/10" : "hover:bg-white/5"
+                entry.id === currentUserId ? "bg-[#10B981]/10" : "hover:bg-white/5"
               )}
             >
               {/* Rank */}
@@ -394,11 +394,11 @@ export function LeaderboardScreen() {
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   "font-semibold truncate",
-                  entry.id === currentUserId ? "text-[#4A5FFF]" : "text-white"
+                  entry.id === currentUserId ? "text-[#10B981]" : "text-white"
                 )}>
                   {getDisplayName(entry)}
                   {entry.id === currentUserId && (
-                    <span className="ml-2 text-xs bg-[#4A5FFF] px-2 py-0.5 rounded-full">You</span>
+                    <span className="ml-2 text-xs bg-[#10B981] px-2 py-0.5 rounded-full">You</span>
                   )}
                 </p>
                 <p className="text-white/50 text-sm">Level {entry.current_level}</p>

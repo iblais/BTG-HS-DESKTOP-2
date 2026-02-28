@@ -131,7 +131,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading profile...</p>
         </div>
       </div>
@@ -140,7 +140,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
 
   const stats = [
     { label: 'Total XP', value: profile?.xp?.toLocaleString() || '0', icon: Star, color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20' },
-    { label: 'Level', value: profile?.level || 1, icon: Trophy, color: 'text-[#4A5FFF]', bg: 'bg-[#4A5FFF]/20' },
+    { label: 'Level', value: profile?.level || 1, icon: Trophy, color: 'text-[#10B981]', bg: 'bg-[#10B981]/20' },
     { label: 'Day Streak', value: profile?.streak_days || 0, icon: Flame, color: 'text-[#FF6B35]', bg: 'bg-[#FF6B35]/20' },
     { label: 'Courses', value: 0, icon: BookOpen, color: 'text-[#50D890]', bg: 'bg-[#50D890]/20' },
   ];
@@ -192,7 +192,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
               <img
                 src={profile.avatar_url}
                 alt="Profile"
-                className="w-24 h-24 rounded-2xl object-cover border-2 border-white/10 group-hover:border-[#4A5FFF]/50 transition-colors"
+                className="w-24 h-24 rounded-2xl object-cover border-2 border-white/10 group-hover:border-[#10B981]/50 transition-colors"
               />
             ) : (
               <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#FF6B35] to-[#FF8E53] flex items-center justify-center group-hover:opacity-90 transition-opacity">
@@ -206,11 +206,11 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
               <Camera className="w-8 h-8 text-white" />
             </div>
             {/* Edit badge */}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#4A5FFF] flex items-center justify-center border-2 border-[#0A0E27]">
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#10B981] flex items-center justify-center border-2 border-[var(--bg-base)]">
               <Camera className="w-3.5 h-3.5 text-white" />
             </div>
             {/* Level badge */}
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[#0A0E27]">
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[var(--bg-base)]">
               <span className="text-white text-[10px] font-bold">{profile?.level || 1}</span>
             </div>
           </div>
@@ -225,7 +225,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Enter display name"
-                    className="bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+                    className="bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#10B981]"
                     autoFocus
                   />
                   <button
@@ -279,7 +279,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
             {/* Edit Profile Button - Always visible */}
             <button
               onClick={() => setShowAccountSettings(true)}
-              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#4A5FFF] hover:bg-[#3A4FEF] rounded-xl text-white font-medium transition-colors"
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] rounded-xl text-white font-medium transition-colors"
             >
               <Edit2 className="w-4 h-4" />
               <span>Edit Profile</span>
@@ -337,7 +337,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all",
               language === 'en'
-                ? "bg-[#4A5FFF] text-white"
+                ? "bg-[#10B981] text-white"
                 : "bg-white/[0.05] text-white/60 hover:bg-white/[0.1] hover:text-white"
             )}
           >
@@ -348,7 +348,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all",
               language === 'es'
-                ? "bg-[#4A5FFF] text-white"
+                ? "bg-[#10B981] text-white"
                 : "bg-white/[0.05] text-white/60 hover:bg-white/[0.1] hover:text-white"
             )}
           >

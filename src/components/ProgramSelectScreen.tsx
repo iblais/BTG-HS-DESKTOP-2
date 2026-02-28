@@ -57,9 +57,9 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-12 w-12 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading programs...</p>
         </div>
       </div>
@@ -67,13 +67,13 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-base)] relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-[100px]"
           style={{
-            background: 'radial-gradient(circle, #4A5FFF 0%, transparent 70%)',
+            background: 'radial-gradient(circle, #10B981 0%, transparent 70%)',
             left: '10%',
             top: '20%',
           }}
@@ -102,12 +102,12 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
 
             {/* Welcome Message */}
             <div className="mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4A5FFF] to-[#00BFFF] flex items-center justify-center mb-6 shadow-lg shadow-[#4A5FFF]/30">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#10B981] to-[#34D399] flex items-center justify-center mb-6 shadow-lg shadow-[#10B981]/30">
                 <GraduationCap className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-3xl lg:text-4xl font-black text-white mb-4">
                 Welcome to
-                <span className="block mt-1 bg-gradient-to-r from-[#4A5FFF] via-[#00BFFF] to-[#50D890] bg-clip-text text-transparent">
+                <span className="block mt-1 bg-gradient-to-r from-[#10B981] via-[#34D399] to-[#50D890] bg-clip-text text-transparent">
                   Your Journey
                 </span>
               </h1>
@@ -162,7 +162,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
                         "w-full text-left p-6 rounded-2xl border transition-all duration-300",
                         "bg-white/[0.02] hover:bg-white/[0.04]",
                         isSelected
-                          ? "border-[#4A5FFF] shadow-lg shadow-[#4A5FFF]/20 bg-[#4A5FFF]/[0.08]"
+                          ? "border-[#10B981] shadow-lg shadow-[#10B981]/20 bg-[#10B981]/[0.08]"
                           : "border-white/[0.06] hover:border-white/[0.12]"
                       )}
                     >
@@ -170,7 +170,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
                         <div className={cn(
                           "w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0",
                           isHS
-                            ? "bg-gradient-to-br from-[#4A5FFF] to-[#6B7FFF]"
+                            ? "bg-gradient-to-br from-[#10B981] to-[#34D399]"
                             : "bg-gradient-to-br from-[#FF6B35] to-[#FF8E53]"
                         )}>
                           {isHS ? <BookOpen className="w-7 h-7 text-white" /> : <TrendingUp className="w-7 h-7 text-white" />}
@@ -185,7 +185,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
                             <div className={cn(
                               "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
                               isSelected
-                                ? "border-[#4A5FFF] bg-[#4A5FFF]"
+                                ? "border-[#10B981] bg-[#10B981]"
                                 : "border-white/20"
                             )}>
                               {isSelected && <Check className="w-4 h-4 text-white" />}
@@ -228,7 +228,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
                     !enrolling && "hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(74,95,255,0.3)] active:scale-[0.98]"
                   )}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF]" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#10B981] to-[#34D399]" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
 
                   <span className="relative flex items-center justify-center gap-2">

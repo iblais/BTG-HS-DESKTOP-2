@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import {
   Users, BookOpen, CheckCircle, TrendingUp,
-  ChevronRight, Plus, Search, Loader2,
-  GraduationCap, FileText, Award, BarChart3
+  ChevronRight, ChevronDown, Plus, Search, Loader2,
+  GraduationCap, FileText, Award, BarChart3,
+  Copy, RefreshCw, Trash2, X
 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
 import { Button3D } from '../ui/Button3D';
 import {
   getTeacherClasses,
   getAllTeacherStudents,
+  getClassStudents,
   createClass,
+  generateClassCode,
+  removeStudentFromClass,
   type Class,
   type StudentWithProgress
 } from '@/lib/teacher';
@@ -33,8 +37,15 @@ export function TeacherDashboard({
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [newClassName, setNewClassName] = useState('');
+  const [newClassGrade, setNewClassGrade] = useState('');
+  const [newClassSchool, setNewClassSchool] = useState('');
   const [creating, setCreating] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [expandedClass, setExpandedClass] = useState<string | null>(null);
+  const [classStudents, setClassStudents] = useState<Record<string, StudentWithProgress[]>>({});
+  const [loadingClassStudents, setLoadingClassStudents] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState<string | null>(null);
+  const [removingStudent, setRemovingStudent] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -61,10 +72,16 @@ export function TeacherDashboard({
 
     setCreating(true);
     try {
-      const newClass = await createClass(newClassName.trim());
+      const newClass = await createClass(
+        newClassName.trim(),
+        newClassGrade.trim() || undefined,
+        newClassSchool.trim() || undefined
+      );
       if (newClass) {
         setClasses(prev => [newClass, ...prev]);
         setNewClassName('');
+        setNewClassGrade('');
+        setNewClassSchool('');
         setShowCreateClass(false);
       }
     } catch (err) {
@@ -74,11 +91,79 @@ export function TeacherDashboard({
     }
   };
 
+  const handleExpandClass = async (classId: string) => {
+    if (expandedClass === classId) {
+      setExpandedClass(null);
+      return;
+    }
+
+    setExpandedClass(classId);
+
+    if (!classStudents[classId]) {
+      setLoadingClassStudents(classId);
+      try {
+        const students = await getClassStudents(classId);
+        setClassStudents(prev => ({ ...prev, [classId]: students }));
+      } catch (err) {
+        console.error('Failed to load class students:', err);
+      } finally {
+        setLoadingClassStudents(null);
+      }
+    }
+  };
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleRegenerateCode = async (classId: string) => {
+    setRegenerating(classId);
+    try {
+      const newCode = await generateClassCode(classId);
+      if (newCode) {
+        setClasses(prev => prev.map(cls =>
+          cls.id === classId ? { ...cls, class_code: newCode } : cls
+        ));
+      }
+    } catch (err) {
+      console.error('Failed to regenerate code:', err);
+    } finally {
+      setRegenerating(null);
+    }
+  };
+
+  const handleRemoveStudent = async (studentId: string, classId: string) => {
+    if (!confirm('Remove this student from the class?')) return;
+
+    setRemovingStudent(studentId);
+    try {
+      const result = await removeStudentFromClass(studentId, classId);
+      if (result.success) {
+        // Update local state
+        setClassStudents(prev => ({
+          ...prev,
+          [classId]: (prev[classId] || []).filter(s => s.id !== studentId)
+        }));
+        setClasses(prev => prev.map(cls =>
+          cls.id === classId ? { ...cls, student_count: (cls.student_count || 1) - 1 } : cls
+        ));
+        // Refresh all students
+        const updatedStudents = await getAllTeacherStudents();
+        setStudents(updatedStudents);
+      }
+    } catch (err) {
+      console.error('Failed to remove student:', err);
+    } finally {
+      setRemovingStudent(null);
+    }
+  };
+
   const filteredStudents = students.filter(student => {
     const matchesSearch = searchQuery === '' ||
       student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (student.display_name?.toLowerCase().includes(searchQuery.toLowerCase()));
-
     return matchesSearch;
   });
 
@@ -96,7 +181,7 @@ export function TeacherDashboard({
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading teacher dashboard...</p>
         </div>
       </div>
@@ -113,8 +198,8 @@ export function TeacherDashboard({
               <p className="text-white/50 text-sm">Total Students</p>
               <p className="text-3xl font-bold text-white mt-1">{totalStudents}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#4A5FFF]/20 flex items-center justify-center">
-              <Users className="w-6 h-6 text-[#4A5FFF]" />
+            <div className="w-12 h-12 rounded-xl bg-[#10B981]/20 flex items-center justify-center">
+              <Users className="w-6 h-6 text-[#10B981]" />
             </div>
           </div>
         </GlassCard>
@@ -164,8 +249,8 @@ export function TeacherDashboard({
           onClick={onViewGrading}
           className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-colors text-left"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-[#4A5FFF]" />
+          <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-[#10B981]" />
           </div>
           <div>
             <p className="text-white font-medium">Grade Work</p>
@@ -213,62 +298,202 @@ export function TeacherDashboard({
         </button>
       </div>
 
-      {/* Classes Section */}
-      {classes.length > 0 && (
-        <GlassCard className="p-6">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-[#4A5FFF]" />
-            Your Classes
-          </h3>
+      {/* Classes Section with Join Codes & Roster */}
+      <GlassCard className="p-6">
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <GraduationCap className="w-5 h-5 text-[#10B981]" />
+          Your Classes
+        </h3>
 
-          <div className="grid gap-3">
+        {classes.length === 0 ? (
+          <div className="text-center py-8">
+            <GraduationCap className="w-12 h-12 text-white/20 mx-auto mb-3" />
+            <p className="text-white/50">No classes yet</p>
+            <p className="text-white/30 text-sm mt-1">Create your first class to get started</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
             {classes.map(cls => (
-              <button
-                key={cls.id}
-                onClick={() => setSelectedClass(selectedClass === cls.id ? null : cls.id)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
-                  selectedClass === cls.id
-                    ? 'bg-[#4A5FFF]/20 border-[#4A5FFF]/50'
-                    : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]'
-                } border`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-[#4A5FFF]" />
+              <div key={cls.id} className="rounded-xl border border-white/[0.06] overflow-hidden">
+                {/* Class Header */}
+                <button
+                  onClick={() => handleExpandClass(cls.id)}
+                  className={`w-full flex items-center justify-between p-4 transition-all ${
+                    expandedClass === cls.id
+                      ? 'bg-[#10B981]/10'
+                      : 'bg-white/[0.03] hover:bg-white/[0.06]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-[#10B981]" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white font-medium">{cls.name}</p>
+                      <div className="flex items-center gap-3 text-white/50 text-sm">
+                        <span>{cls.student_count || 0} students</span>
+                        {cls.grade_level && <span>{cls.grade_level}</span>}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="text-white font-medium">{cls.name}</p>
-                    <p className="text-white/50 text-sm">
-                      Created {new Date(cls.created_at).toLocaleDateString()}
-                    </p>
+
+                  <div className="flex items-center gap-3">
+                    {/* Class Code Badge */}
+                    {cls.class_code && (
+                      <div
+                        onClick={(e) => { e.stopPropagation(); handleCopyCode(cls.class_code!); }}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/[0.1] cursor-pointer hover:bg-white/[0.1] transition-colors"
+                      >
+                        <span className="text-[#10B981] font-mono text-sm font-bold">{cls.class_code}</span>
+                        <Copy className="w-3.5 h-3.5 text-white/40" />
+                        {copiedCode === cls.class_code && (
+                          <span className="text-[#50D890] text-xs">Copied!</span>
+                        )}
+                      </div>
+                    )}
+                    {expandedClass === cls.id ? (
+                      <ChevronDown className="w-5 h-5 text-white/40" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-white/40" />
+                    )}
                   </div>
-                </div>
-                <ChevronRight className={`w-5 h-5 text-white/40 transition-transform ${
-                  selectedClass === cls.id ? 'rotate-90' : ''
-                }`} />
-              </button>
+                </button>
+
+                {/* Expanded: Student Roster + Actions */}
+                {expandedClass === cls.id && (
+                  <div className="border-t border-white/[0.06] p-4 bg-white/[0.01]">
+                    {/* Actions Row */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <button
+                        onClick={() => handleRegenerateCode(cls.id)}
+                        disabled={regenerating === cls.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] text-white/60 text-xs hover:bg-white/[0.1] transition-colors"
+                      >
+                        {regenerating === cls.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        )}
+                        Regenerate Code
+                      </button>
+                    </div>
+
+                    {/* Student List */}
+                    {loadingClassStudents === cls.id ? (
+                      <div className="flex items-center justify-center py-6">
+                        <Loader2 className="w-5 h-5 text-[#10B981] animate-spin" />
+                        <span className="ml-2 text-white/50 text-sm">Loading students...</span>
+                      </div>
+                    ) : (classStudents[cls.id] || []).length === 0 ? (
+                      <div className="text-center py-6">
+                        <p className="text-white/40 text-sm">No students in this class yet</p>
+                        <p className="text-white/30 text-xs mt-1">Share the class code with your students</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {(classStudents[cls.id] || []).map(student => (
+                          <div
+                            key={student.id}
+                            className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              {student.avatar_url ? (
+                                <img src={student.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#10B981] to-[#34D399] flex items-center justify-center">
+                                  <span className="text-white text-xs font-bold">
+                                    {(student.display_name || student.email).charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-white text-sm font-medium">
+                                  {student.display_name || student.email.split('@')[0]}
+                                </p>
+                                <p className="text-white/40 text-xs">{student.email}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right text-xs">
+                                <span className="text-white/60">{student.weeks_completed}/18 weeks</span>
+                              </div>
+                              <button
+                                onClick={() => onViewStudent(student.id)}
+                                className="px-3 py-1 rounded-lg bg-[#10B981]/20 text-[#10B981] text-xs hover:bg-[#10B981]/30 transition-colors"
+                              >
+                                View
+                              </button>
+                              <button
+                                onClick={() => handleRemoveStudent(student.id, cls.id)}
+                                disabled={removingStudent === student.id}
+                                className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                              >
+                                {removingStudent === student.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
-        </GlassCard>
-      )}
+        )}
+      </GlassCard>
 
       {/* Create Class Modal */}
       {showCreateClass && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <GlassCard className="w-full max-w-md p-6">
-            <h3 className="text-xl font-bold text-white mb-4">Create New Class</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreateClass(false)}>
+          <GlassCard className="w-full max-w-md p-6" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white">Create New Class</h3>
+              <button onClick={() => setShowCreateClass(false)} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
+                <X className="w-5 h-5 text-white/40" />
+              </button>
+            </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-white/70 text-sm mb-2">Class Name</label>
+                <label className="block text-white/70 text-sm mb-2">Class Name *</label>
                 <input
                   type="text"
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
                   placeholder="e.g., Period 1 - Financial Literacy"
-                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10B981]"
+                  autoFocus
                 />
               </div>
+
+              <div>
+                <label className="block text-white/70 text-sm mb-2">School Name</label>
+                <input
+                  type="text"
+                  value={newClassSchool}
+                  onChange={(e) => setNewClassSchool(e.target.value)}
+                  placeholder="e.g., Lincoln High School"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10B981]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white/70 text-sm mb-2">Grade Level</label>
+                <input
+                  type="text"
+                  value={newClassGrade}
+                  onChange={(e) => setNewClassGrade(e.target.value)}
+                  placeholder="e.g., 10th Grade"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10B981]"
+                />
+              </div>
+
+              <p className="text-white/40 text-xs">A join code will be automatically generated for students.</p>
 
               <div className="flex gap-3">
                 <Button3D
@@ -296,11 +521,11 @@ export function TeacherDashboard({
         </div>
       )}
 
-      {/* Students Section */}
+      {/* All Students Section */}
       <GlassCard className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#4A5FFF]" />
+            <Users className="w-5 h-5 text-[#10B981]" />
             All Students
           </h3>
 
@@ -312,7 +537,7 @@ export function TeacherDashboard({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search students..."
-              className="pl-10 pr-4 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF] text-sm w-64"
+              className="pl-10 pr-4 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#10B981] text-sm w-64"
             />
           </div>
         </div>
@@ -324,7 +549,7 @@ export function TeacherDashboard({
               {searchQuery ? 'No students found' : 'No students enrolled yet'}
             </p>
             <p className="text-white/30 text-sm mt-1">
-              Add students to your classes to see them here
+              Students join your classes using the class code
             </p>
           </div>
         ) : (
@@ -352,7 +577,7 @@ export function TeacherDashboard({
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4A5FFF] to-[#7B8AFF] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#10B981] to-[#34D399] flex items-center justify-center">
                       <span className="text-white text-sm font-bold">
                         {(student.display_name || student.email).charAt(0).toUpperCase()}
                       </span>
@@ -397,7 +622,7 @@ export function TeacherDashboard({
                 <div className="col-span-2 text-center">
                   <button
                     onClick={() => onViewStudent(student.id)}
-                    className="px-4 py-1.5 rounded-lg bg-[#4A5FFF]/20 text-[#4A5FFF] text-sm hover:bg-[#4A5FFF]/30 transition-colors"
+                    className="px-4 py-1.5 rounded-lg bg-[#10B981]/20 text-[#10B981] text-sm hover:bg-[#10B981]/30 transition-colors"
                   >
                     View Work
                   </button>

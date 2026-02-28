@@ -146,7 +146,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
   };
 
   const renderIntro = () => (
-    <div className="min-h-screen bg-[#0A0E27] p-6">
+    <div className="min-h-screen bg-[var(--bg-base)] p-6">
       <div className="flex items-center justify-between mb-8">
         <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
           <ArrowLeft className="w-6 h-6 text-white" />
@@ -220,7 +220,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
     if (!currentItem) return null;
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[var(--bg-base)] p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
@@ -251,7 +251,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
           </div>
           <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] transition-all duration-300"
+              className="h-full bg-gradient-to-r from-[#10B981] to-[#34D399] transition-all duration-300"
               style={{ width: `${((currentItemIndex + 1) / gameItems.length) * 100}%` }}
             />
           </div>
@@ -321,7 +321,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
     else if (percentage >= 60) { grade = 'D'; gradeColor = 'text-orange-400'; }
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[var(--bg-base)] p-6">
         <div className="flex items-center justify-between mb-8">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-6 h-6 text-white" />
@@ -376,7 +376,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
         <div className="space-y-3">
           <button
             onClick={resetGame}
-            className="w-full p-4 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] rounded-xl text-white font-bold flex items-center justify-center gap-2"
+            className="w-full p-4 bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-xl text-white font-bold flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-5 h-5" />
             Play Again

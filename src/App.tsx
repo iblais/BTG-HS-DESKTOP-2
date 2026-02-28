@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { type AuthUser } from '@/lib/auth';
 import { type Enrollment, createEnrollment, getActiveEnrollment } from '@/lib/enrollment';
 import { isTeacher } from '@/lib/teacher';
+import { initDataGuard, onSyncStatusChange, type SyncHealth } from '@/lib/dataGuard';
 import { LoginScreen } from '@/components/LoginScreen';
-// ProgramSelectScreen removed - users are now auto-enrolled
 import { OnboardingScreen } from '@/components/OnboardingScreen';
 import { DashboardScreen } from '@/components/DashboardScreen';
 import { CoursesScreen } from '@/components/CoursesScreen';
 import { GamesScreen } from '@/components/GamesScreen';
 import { LeaderboardScreen } from '@/components/LeaderboardScreen';
 import { ProfileScreen } from '@/components/ProfileScreen';
-import { TeacherPortal } from '@/components/teacher';
-import { Loader2, Home, GraduationCap, Gamepad2, Trophy, User, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { TeacherPortal, TeacherRegistration } from '@/components/teacher';
+import { Loader2, Home, GraduationCap, Gamepad2, Trophy, User, ChevronLeft, ChevronRight, BookOpen, Wifi, WifiOff, CloudOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logo } from '@/assets';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
@@ -54,8 +54,22 @@ function AppContent() {
   // Check if mobile
   const [isMobile, setIsMobile] = useState(false);
 
-  // Track initialization
-  // const initRef = useRef(false);
+  // Sync health state
+  const [syncHealth, setSyncHealth] = useState<SyncHealth>('online');
+  const [pendingWrites, setPendingWrites] = useState(0);
+
+  // Initialize DataGuard
+  useEffect(() => {
+    const cleanup = initDataGuard();
+    const unsubscribe = onSyncStatusChange((health, pending) => {
+      setSyncHealth(health);
+      setPendingWrites(pending);
+    });
+    return () => {
+      cleanup();
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -83,8 +97,6 @@ function AppContent() {
 
       try {
         // STEP 1.5: Manually handle OAuth redirect tokens from URL hash
-        // detectSessionInUrl is disabled to prevent Supabase's internal crash
-        // We handle the OAuth callback entirely ourselves
         const hash = window.location.hash;
         if (hash && hash.includes('access_token=')) {
           const params = new URLSearchParams(hash.substring(1));
@@ -95,20 +107,16 @@ function AppContent() {
 
           if (access_token && refresh_token) {
             try {
-              // Try official setSession first
               const { data, error } = await supabase.auth.setSession({
                 access_token,
                 refresh_token,
               });
               if (error) throw error;
               if (data.session) {
-                // Clear hash to prevent stale token on reload
                 window.history.replaceState(null, '', window.location.pathname);
               }
             } catch (setSessionError) {
               console.warn('setSession failed, storing session manually:', setSessionError);
-              // Fallback: store session directly in localStorage
-              // Supabase reads from this key on getSession()
               const projRef = (import.meta.env.VITE_SUPABASE_URL || '').split('//')[1]?.split('.')[0] || 'unknown';
               const storageKey = `sb-${projRef}-auth-token`;
               const sessionData = {
@@ -119,13 +127,12 @@ function AppContent() {
                 token_type: 'bearer',
               };
               localStorage.setItem(storageKey, JSON.stringify(sessionData));
-              // Clear hash
               window.history.replaceState(null, '', window.location.pathname);
             }
           }
         }
 
-        // STEP 2: Check auth session (will now find the session we just set)
+        // STEP 2: Check auth session
         const { data: { session } } = await supabase.auth.getSession();
 
         if (mounted && session?.user) {
@@ -137,19 +144,14 @@ function AppContent() {
           setUser(authUser);
           setIsLoggedIn(true);
 
-          // If we already have cached enrollment, we're done loading
-          // Just sync with database in background
           if (cachedEnrollment) {
             setAuthLoading(false);
-            // Background sync - don't await
             syncEnrollmentInBackground(authUser.id);
           } else {
-            // No cache - need to check enrollment (but fast)
             await checkEnrollment(authUser.id);
             if (mounted) setAuthLoading(false);
           }
 
-          // These are all non-blocking background operations
           supabase
             .from('users')
             .select('avatar_url, display_name')
@@ -168,7 +170,6 @@ function AppContent() {
             if (mounted) setIsUserTeacher(false);
           });
         } else if (mounted) {
-          // No session - show login
           setAuthLoading(false);
         }
       } catch (error) {
@@ -191,7 +192,6 @@ function AppContent() {
         setUser(authUser);
         setIsLoggedIn(true);
 
-        // Check localStorage first for instant loading
         const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
         if (cachedEnrollment) {
           try {
@@ -208,7 +208,6 @@ function AppContent() {
           if (mounted) setAuthLoading(false);
         }
 
-        // Non-blocking background operations
         supabase
           .from('users')
           .select('avatar_url, display_name')
@@ -245,7 +244,7 @@ function AppContent() {
     };
   }, []);
 
-  // Failsafe for enrollment check - reduced to 1.5 seconds
+  // Failsafe for enrollment check
   useEffect(() => {
     if (enrollmentState !== 'checking') return;
 
@@ -267,7 +266,7 @@ function AppContent() {
     return () => clearTimeout(failsafe);
   }, [enrollmentState]);
 
-  // Auto-enroll new users in HS Beginner program (English)
+  // Auto-enroll new users
   useEffect(() => {
     if (enrollmentState !== 'needs_program' || !user) return;
 
@@ -279,7 +278,6 @@ function AppContent() {
         setEnrollmentState('ready');
       } catch (err) {
         console.error('Auto-enrollment failed:', err);
-        // Still try to proceed with a local-only enrollment
         setEnrollmentState('ready');
       }
     };
@@ -287,21 +285,16 @@ function AppContent() {
     autoEnroll();
   }, [enrollmentState, user]);
 
-  // Background sync - updates localStorage from database without blocking UI
   const syncEnrollmentInBackground = (userId: string) => {
     getActiveEnrollment().then((dbEnrollment) => {
       if (dbEnrollment && dbEnrollment.user_id === userId) {
         setEnrollment(dbEnrollment);
         localStorage.setItem('btg_local_enrollment', JSON.stringify(dbEnrollment));
       }
-    }).catch(() => {
-      // Ignore background sync errors - we already have cached data
-    });
+    }).catch(() => {});
   };
 
-  // Check enrollment - localStorage FIRST for speed, then database
   const checkEnrollment = async (userId: string) => {
-    // ALWAYS check localStorage first - it's instant
     const cachedEnrollment = localStorage.getItem('btg_local_enrollment');
     if (cachedEnrollment) {
       try {
@@ -309,7 +302,6 @@ function AppContent() {
         if (parsed.user_id === userId) {
           setEnrollment(parsed);
           setEnrollmentState('ready');
-          // Sync with database in background
           syncEnrollmentInBackground(userId);
           return;
         }
@@ -318,11 +310,9 @@ function AppContent() {
       }
     }
 
-    // No valid cache - try database with short timeout
     try {
       const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
       const enrollmentPromise = getActiveEnrollment();
-
       const existingEnrollment = await Promise.race([enrollmentPromise, timeoutPromise]);
 
       if (existingEnrollment) {
@@ -331,7 +321,6 @@ function AppContent() {
         return;
       }
 
-      // No enrollment found - needs auto-enrollment
       setEnrollmentState('needs_program');
     } catch (error) {
       console.error('Enrollment check failed:', error);
@@ -352,114 +341,176 @@ function AppContent() {
     setActiveTab('dashboard');
   };
 
-  // Build nav items based on user role
+  // Nav items
   const navItems = [
     { id: 'dashboard' as const, label: t('nav.dashboard'), icon: Home },
     { id: 'courses' as const, label: t('nav.courses'), icon: GraduationCap },
     { id: 'games' as const, label: t('nav.games'), icon: Gamepad2 },
     { id: 'leaderboard' as const, label: t('nav.leaderboard'), icon: Trophy },
     { id: 'profile' as const, label: t('nav.profile'), icon: User },
-    // Teacher portal tab - only shown for teachers
-    ...(isUserTeacher ? [{ id: 'teacher' as const, label: t('nav.teacher'), icon: BookOpen }] : []),
+    { id: 'teacher' as const, label: isUserTeacher ? t('nav.teacher') : 'Teacher', icon: BookOpen },
   ];
 
-  // Loading state
-  if (authLoading) {
+  // Sync status display
+  const getSyncIcon = () => {
+    if (syncHealth === 'offline') return <WifiOff className="w-3 h-3" />;
+    if (syncHealth === 'degraded' || pendingWrites > 0) return <CloudOff className="w-3 h-3" />;
+    return <Wifi className="w-3 h-3" />;
+  };
+
+  const getSyncLabel = () => {
+    if (syncHealth === 'offline') return 'Offline';
+    if (pendingWrites > 0) return `Syncing ${pendingWrites}`;
+    if (syncHealth === 'degraded') return 'Reconnecting';
+    return 'Synced';
+  };
+
+  const getSyncColor = () => {
+    if (syncHealth === 'offline') return 'bg-[var(--danger)]/10 text-[var(--danger)] border-[var(--danger)]/20';
+    if (pendingWrites > 0 || syncHealth === 'degraded') return 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20';
+    return 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20';
+  };
+
+  // Missing Supabase configuration
+  if (!isSupabaseConfigured) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
-          <p className="text-[#9CA3AF]">{t('common.loading')}</p>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--bg-base)' }}>
+        <div className="max-w-md w-full p-8 rounded-2xl text-center" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+          <div className="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.08)' }}>
+            <CloudOff className="w-7 h-7" style={{ color: '#EF4444' }} />
+          </div>
+          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Configuration Required</h2>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
+            Supabase environment variables are missing. Create a <code className="px-1.5 py-0.5 rounded text-xs" style={{ background: 'var(--bg-subtle)', color: 'var(--primary-400)' }}>.env</code> file in the project root:
+          </p>
+          <pre className="text-left text-xs p-4 rounded-xl mb-4 overflow-x-auto" style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)' }}>{`VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here`}</pre>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            Or run: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-subtle)', color: 'var(--primary-400)' }}>npx vercel env pull .env.local</code>
+          </p>
         </div>
       </div>
     );
   }
 
-  // Handle login success
+  // Loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-5">
+          <div className="relative">
+            <div className="absolute inset-0 bg-[var(--primary-500)]/20 rounded-full blur-xl animate-pulse" />
+            <Loader2 className="h-12 w-12 text-[var(--primary-500)] animate-spin relative" />
+          </div>
+          <p className="text-[var(--text-tertiary)] text-sm font-medium">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleLoginSuccess = async (authUser: AuthUser) => {
     setUser(authUser);
     setIsLoggedIn(true);
     await checkEnrollment(authUser.id);
   };
 
-  // Login screen
   if (!isLoggedIn) {
     return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Auto-enrolling (was program selection - now handled automatically)
   if (enrollmentState === 'needs_program') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
-          <p className="text-[#9CA3AF]">Setting up your account...</p>
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-5">
+          <div className="relative">
+            <div className="absolute inset-0 bg-[var(--primary-500)]/20 rounded-full blur-xl animate-pulse" />
+            <Loader2 className="h-12 w-12 text-[var(--primary-500)] animate-spin relative" />
+          </div>
+          <p className="text-[var(--text-tertiary)] text-sm font-medium">Setting up your account...</p>
         </div>
       </div>
     );
   }
 
-  // Onboarding
   if (enrollmentState === 'needs_onboarding') {
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
-  // Checking enrollment state
   if (enrollmentState === 'checking') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
-          <p className="text-[#9CA3AF]">Checking enrollment...</p>
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-5">
+          <div className="relative">
+            <div className="absolute inset-0 bg-[var(--primary-500)]/20 rounded-full blur-xl animate-pulse" />
+            <Loader2 className="h-12 w-12 text-[var(--primary-500)] animate-spin relative" />
+          </div>
+          <p className="text-[var(--text-tertiary)] text-sm font-medium">Checking enrollment...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (enrollmentState === 'error') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
-        <div className="bg-[#12162F] border border-white/10 p-8 rounded-xl text-center max-w-md">
-          <h2 className="text-xl font-bold text-red-500 mb-2">Error</h2>
-          <p className="text-[#9CA3AF] mb-4">Failed to load your enrollment. Please try again.</p>
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center p-4">
+        <div className="frost-card p-8 text-center max-w-md">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[var(--danger)]/15 flex items-center justify-center">
+            <CloudOff className="w-6 h-6 text-[var(--danger)]" />
+          </div>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Connection Error</h2>
+          <p className="text-[var(--text-tertiary)] mb-6 text-sm">Failed to load your enrollment. Please try again.</p>
           <button
             onClick={() => user && checkEnrollment(user.id)}
-            className="px-6 py-2 bg-[#6366F1] text-white rounded-lg hover:bg-[#5558E3] transition-colors"
+            className="px-6 py-2.5 bg-gradient-to-r from-[var(--primary-500)] to-[var(--primary-700)] text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
           >
-            Retry
+            Try Again
           </button>
         </div>
       </div>
     );
   }
 
-  // Calculate sidebar width
-  const sidebarWidth = sidebarCollapsed ? 72 : 240;
+  const sidebarWidth = sidebarCollapsed ? 76 : 260;
 
-  // Main app layout
   return (
-    <div className="min-h-screen bg-[#0A0E27]">
-      {/* Desktop Sidebar - Hidden on mobile */}
+    <div className="min-h-screen bg-[var(--bg-base)]">
+      {/* Desktop Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex fixed top-0 left-0 h-full bg-[#12162F] border-r border-white/10 z-50 flex-col transition-all duration-300",
+          "hidden md:flex fixed top-0 left-0 h-full z-50 flex-col sidebar-transition",
         )}
-        style={{ width: `${sidebarWidth}px` }}
+        style={{
+          width: `${sidebarWidth}px`,
+          background: 'linear-gradient(180deg, #151515 0%, #111111 50%, #0D0D0D 100%)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+          boxShadow: '4px 0 16px rgba(0, 0, 0, 0.4), 1px 0 0 rgba(255, 255, 255, 0.03) inset',
+        }}
       >
         {/* Logo */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center justify-center">
             <img
               src={logo}
               alt="Beyond The Game"
-              className={cn("object-contain transition-all", sidebarCollapsed ? "h-10 w-10" : "h-14")}
+              className={cn("object-contain transition-all duration-300", sidebarCollapsed ? "h-10 w-10" : "h-14")}
             />
           </div>
         </div>
 
+        {/* Sync Status */}
+        <div className="px-3 pt-3">
+          <div className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-semibold border transition-colors",
+            getSyncColor(),
+            sidebarCollapsed && "justify-center px-2"
+          )}>
+            {getSyncIcon()}
+            {!sidebarCollapsed && <span className="uppercase tracking-wider">{getSyncLabel()}</span>}
+          </div>
+        </div>
+
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 mt-2 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -468,40 +519,42 @@ function AppContent() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150",
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
                   isActive
-                    ? "bg-[#6366F1]/10 text-[#6366F1] border-l-[3px] border-[#6366F1] pl-[13px]"
-                    : "text-[#9CA3AF] hover:bg-white/5 hover:text-white"
+                    ? "nav-item-active text-[var(--primary-400)]"
+                    : "text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)]/50 hover:text-[var(--text-secondary)]"
                 )}
               >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[#6366F1]")} />
-                {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[var(--primary-400)]")} />
+                {!sidebarCollapsed && (
+                  <span className="text-sm font-medium">{item.label}</span>
+                )}
               </button>
             );
           })}
         </nav>
 
         {/* Bottom section */}
-        <div className="p-3 border-t border-white/10 space-y-2">
+        <div className="p-3 border-t border-[var(--border-subtle)] space-y-2">
           {/* User info */}
           <div className="flex items-center gap-3 px-3 py-2">
             {userAvatarUrl ? (
               <img
                 src={userAvatarUrl}
                 alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border border-white/10"
+                className="w-9 h-9 rounded-xl object-cover border border-[var(--border-default)] ring-2 ring-[var(--primary-500)]/20"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white text-sm font-bold">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--primary-500)] to-[var(--primary-700)] flex items-center justify-center text-white text-sm font-bold shadow-lg">
                 {(userDisplayName || user?.email || 'U').charAt(0).toUpperCase()}
               </div>
             )}
             {!sidebarCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
+                <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
                   {userDisplayName || user?.email?.split('@')[0] || 'User'}
                 </p>
-                <p className="text-xs text-[#9CA3AF]">
+                <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-medium">
                   High School
                 </p>
               </div>
@@ -511,14 +564,14 @@ function AppContent() {
           {/* Collapse button */}
           <button
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[#9CA3AF] hover:bg-white/5 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[var(--text-muted)] hover:bg-[var(--bg-subtle)]/50 hover:text-[var(--text-secondary)] transition-all"
           >
             {sidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
             ) : (
               <>
                 <ChevronLeft className="h-5 w-5" />
-                <span className="text-sm">Collapse</span>
+                <span className="text-xs font-medium">Collapse</span>
               </>
             )}
           </button>
@@ -533,21 +586,33 @@ function AppContent() {
           paddingBottom: isMobile ? '100px' : '0',
         }}
       >
-        {/* Content wrapper */}
         <div className="p-4 md:p-6 lg:p-8">
           {/* Page Header */}
-          <div className="mb-6 md:mb-8">
-            <h1 className="text-xl md:text-2xl font-bold text-white capitalize">
-              {activeTab === 'teacher' ? 'Teacher Portal' : activeTab === 'leaderboard' ? 'Leaderboard' : t(`nav.${activeTab}`)}
-            </h1>
-            <p className="text-sm md:text-base text-[#9CA3AF]">
-              {activeTab === 'dashboard' && t('dashboard.welcome')}
-              {activeTab === 'courses' && 'Continue your financial literacy journey.'}
-              {activeTab === 'games' && 'Learn through interactive games.'}
-              {activeTab === 'leaderboard' && 'See how you rank against other students.'}
-              {activeTab === 'profile' && 'Manage your account and settings.'}
-              {activeTab === 'teacher' && 'Manage your classes, students, and grading.'}
-            </p>
+          <div className="mb-6 md:mb-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] capitalize tracking-tight">
+                {activeTab === 'teacher' ? 'Teacher Portal' : activeTab === 'leaderboard' ? 'Leaderboard' : t(`nav.${activeTab}`)}
+              </h1>
+              <p className="text-sm text-[var(--text-muted)] mt-0.5">
+                {activeTab === 'dashboard' && t('dashboard.welcome')}
+                {activeTab === 'courses' && 'Continue your financial literacy journey.'}
+                {activeTab === 'games' && 'Learn through interactive games.'}
+                {activeTab === 'leaderboard' && 'See how you rank against other students.'}
+                {activeTab === 'profile' && 'Manage your account and settings.'}
+                {activeTab === 'teacher' && 'Manage your classes, students, and grading.'}
+              </p>
+            </div>
+
+            {/* Mobile sync indicator */}
+            {isMobile && (
+              <div className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border shrink-0",
+                getSyncColor()
+              )}>
+                {getSyncIcon()}
+                <span className="uppercase tracking-wider">{getSyncLabel()}</span>
+              </div>
+            )}
           </div>
 
           {/* Screen Components */}
@@ -578,19 +643,38 @@ function AppContent() {
             />
           )}
 
-          {activeTab === 'teacher' && isUserTeacher && (
-            <TeacherPortal />
+          {activeTab === 'teacher' && (
+            isUserTeacher ? (
+              <TeacherPortal />
+            ) : (
+              <TeacherRegistration
+                onSuccess={() => {
+                  setIsUserTeacher(true);
+                }}
+                onBack={() => setActiveTab('dashboard')}
+              />
+            )
           )}
         </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-[#12162F] border-t border-white/10 z-50"
-        style={{ height: '64px' }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+        style={{ height: '68px' }}
       >
+        {/* 3D elevated background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(0deg, #0D0D0D 0%, #141414 100%)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.04) inset',
+          }}
+        />
+
         <div className={cn(
-          "grid h-full",
+          "relative grid h-full",
           navItems.length === 6 ? "grid-cols-6" : navItems.length === 5 ? "grid-cols-5" : "grid-cols-4"
         )}>
           {navItems.map((item) => {
@@ -601,12 +685,27 @@ function AppContent() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 transition-colors",
-                  isActive ? "text-[#6366F1]" : "text-[#6B7280]"
+                  "relative flex flex-col items-center justify-center gap-1 transition-all duration-200",
+                  isActive
+                    ? "text-[var(--primary-400)]"
+                    : "text-[var(--text-muted)] active:text-[var(--text-tertiary)]"
                 )}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <div
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-xl transition-all",
+                    isActive && "bg-[var(--primary-500)]/10"
+                  )}
+                  style={isActive ? {
+                    boxShadow: '0 0 12px rgba(16, 185, 129, 0.15), 0 0 4px rgba(16, 185, 129, 0.1)',
+                  } : undefined}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-semibold">{item.label}</span>
+                {isActive && (
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--primary-500)]" />
+                )}
               </button>
             );
           })}

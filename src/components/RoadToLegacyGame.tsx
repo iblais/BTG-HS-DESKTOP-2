@@ -1282,7 +1282,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
   };
 
   const renderOnboarding = () => (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #0A0E1A 0%, #1A0B2E 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <button onClick={handleBackWithSave} className="text-white/70 hover:text-white transition-colors">
@@ -1309,7 +1309,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
               key={role.id}
               type="button"
               onClick={() => handleRoleSelect(role)}
-              className={`w-full text-left bg-white rounded-3xl p-6 cursor-pointer transition-all duration-300 active:scale-95 ${
+              className={`w-full text-left bg-[var(--bg-elevated)] rounded-3xl p-6 cursor-pointer transition-all duration-300 active:scale-95 ${
                 selectedRole?.id === role.id ? 'ring-4 ring-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.5)]' : ''
               }`}
               style={{ boxShadow: '0px 8px 40px rgba(0,0,0,0.3)' }}
@@ -1317,7 +1317,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
               {/* Icon */}
               <div className="text-center mb-4">
                 <div className="text-6xl mb-3">{role.emoji}</div>
-                <h3 className="text-black text-xl font-bold" style={{ fontFamily: 'Inter' }}>
+                <h3 className="text-[var(--text-primary)] text-xl font-bold" style={{ fontFamily: 'Inter' }}>
                   {role.name}
                 </h3>
               </div>
@@ -1344,7 +1344,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
               {/* Description */}
               <div className="space-y-1">
                 {role.description.map((desc, index) => (
-                  <p key={index} className="text-gray-600 text-sm text-center" style={{ fontFamily: 'Inter' }}>
+                  <p key={index} className="text-[var(--text-tertiary)] text-sm text-center" style={{ fontFamily: 'Inter' }}>
                     • {desc}
                   </p>
                 ))}
@@ -1392,7 +1392,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
   );
 
   const renderStatsHeader = () => (
-    <div className="bg-[#0A0E1A] px-6 py-4">
+    <div className="bg-[var(--bg-base)] px-6 py-4">
       {/* Stats Row */}
       <div className="flex space-x-3 overflow-x-auto scrollbar-hide mb-4">
         {Object.entries(playerStats).map(([stat, value]) => (
@@ -1432,7 +1432,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
   const renderGameplay = () => {
     if (!currentScenario) {
       return (
-        <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
+        <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
           <div className="text-white text-center">
             <p>Loading scenario...</p>
           </div>
@@ -1441,7 +1441,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
     }
 
     return (
-      <div className="min-h-screen bg-[#0A0E1A]">
+      <div className="min-h-screen bg-[var(--bg-base)]">
         {/* Header with Back Button */}
         <div className="flex items-center justify-between px-6 py-4">
           <button onClick={handleBackWithSave} className="text-white/70 hover:text-white transition-colors">
@@ -1460,7 +1460,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
           <div className="relative w-full max-w-sm">
           {/* Main Card */}
           <div
-            className={`bg-white rounded-3xl p-6 transition-all duration-300 ${
+            className={`bg-[var(--bg-elevated)] rounded-3xl p-6 transition-all duration-300 ${
               cardDirection ? `transform ${
                 cardDirection === 'left' ? 'translate-x-[-100px] rotate-[-15deg]' :
                 cardDirection === 'right' ? 'translate-x-[100px] rotate-[15deg]' :
@@ -1477,8 +1477,8 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
               <div className="text-6xl mb-4">{currentScenario.emoji}</div>
               <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium text-white ${
                 currentScenario.category === 'Financial' ? 'bg-[#10B981]' :
-                currentScenario.category === 'Housing' ? 'bg-[#4A5FFF]' :
-                'bg-[#9B59B6]'
+                currentScenario.category === 'Housing' ? 'bg-[#10B981]' :
+                'bg-[#F59E0B]'
               }`}>
                 {currentScenario.category}
               </div>
@@ -1486,10 +1486,10 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
 
             {/* Scenario */}
             <div className="mb-6">
-              <h2 className="text-black text-xl font-bold text-center mb-4" style={{ fontFamily: 'Inter' }}>
+              <h2 className="text-[var(--text-primary)] text-xl font-bold text-center mb-4" style={{ fontFamily: 'Inter' }}>
                 {currentScenario.title}
               </h2>
-              <p className="text-gray-700 text-base leading-relaxed" style={{ fontFamily: 'Inter' }}>
+              <p className="text-[var(--text-secondary)] text-base leading-relaxed" style={{ fontFamily: 'Inter' }}>
                 {currentScenario.description}
               </p>
               {currentScenario.context && (
@@ -1510,15 +1510,15 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
                   choice.type === 'responsible' ? 'border-[#10B981] hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-[#10B981]/5' :
                   choice.type === 'balanced' ? 'border-[#F59E0B] hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:bg-[#F59E0B]/5' :
                   'border-[#EF4444] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:bg-[#EF4444]/5'
-                } bg-white`}
+                } bg-[var(--bg-elevated)]`}
               >
                 <div className="flex items-center space-x-4">
                   <div className="text-2xl">{choice.emoji}</div>
                   <div className="flex-1 text-left">
-                    <div className="text-black font-semibold text-base" style={{ fontFamily: 'Inter' }}>
+                    <div className="text-[var(--text-primary)] font-semibold text-base" style={{ fontFamily: 'Inter' }}>
                       {choice.title}
                     </div>
-                    <div className="text-gray-600 text-sm mt-1" style={{ fontFamily: 'Inter' }}>
+                    <div className="text-[var(--text-tertiary)] text-sm mt-1" style={{ fontFamily: 'Inter' }}>
                       {choice.description}
                     </div>
                   </div>
@@ -1532,7 +1532,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
       {/* Impact Modal */}
       {showImpactModal && lastChoice && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-6">
-          <div className="bg-white rounded-[32px] p-6 w-full max-w-sm relative" style={{ boxShadow: '0px 16px 64px rgba(0,0,0,0.32)' }}>
+          <div className="bg-[var(--bg-elevated)] rounded-[32px] p-6 w-full max-w-sm relative" style={{ boxShadow: '0px 16px 64px rgba(0,0,0,0.32)' }}>
             {/* Floating Badge */}
             <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl ${
@@ -1546,25 +1546,25 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
 
             {/* Content */}
             <div className="pt-8">
-              <h3 className="text-black text-2xl font-bold text-center mb-5" style={{ fontFamily: 'Inter' }}>
+              <h3 className="text-[var(--text-primary)] text-2xl font-bold text-center mb-5" style={{ fontFamily: 'Inter' }}>
                 {lastChoice.type === 'responsible' ? 'Responsible Choice' :
                  lastChoice.type === 'balanced' ? 'Balanced Approach' : 'Risky Move'}
               </h3>
 
-              <p className="text-gray-700 text-base leading-relaxed text-center mb-8" style={{ fontFamily: 'Inter' }}>
+              <p className="text-[var(--text-secondary)] text-base leading-relaxed text-center mb-8" style={{ fontFamily: 'Inter' }}>
                 {lastChoice.consequences.text}
               </p>
 
               {/* Stat Changes */}
               <div className="mb-6">
-                <h4 className="text-gray-600 text-sm font-semibold mb-3" style={{ fontFamily: 'Inter' }}>
+                <h4 className="text-[var(--text-tertiary)] text-sm font-semibold mb-3" style={{ fontFamily: 'Inter' }}>
                   Impact on Your Life:
                 </h4>
                 <div className="space-y-2">
                   {Object.entries(lastChoice.consequences.statChanges).map(([stat, change]) => (
                     change && (
                       <div key={stat} className="flex items-center justify-between">
-                        <span className="text-gray-700 text-sm" style={{ fontFamily: 'Inter' }}>
+                        <span className="text-[var(--text-secondary)] text-sm" style={{ fontFamily: 'Inter' }}>
                           {getStatIcon(stat)} {stat.charAt(0).toUpperCase() + stat.slice(1)}
                         </span>
                         <span className={`text-sm font-medium ${change > 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
@@ -1578,8 +1578,8 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
 
               {/* Educational Fact */}
               {lastChoice.consequences.educationalFact && (
-                <div className="bg-gray-100 rounded-xl p-4 mb-6">
-                  <p className="text-gray-700 text-sm" style={{ fontFamily: 'Inter' }}>
+                <div className="bg-[var(--bg-base)] rounded-xl p-4 mb-6">
+                  <p className="text-[var(--text-secondary)] text-sm" style={{ fontFamily: 'Inter' }}>
                     💡 {lastChoice.consequences.educationalFact}
                   </p>
                 </div>
@@ -1602,7 +1602,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
   };
 
   const renderResults = () => (
-    <div className="min-h-screen bg-[#0A0E1A]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between px-6 py-4">
         <button onClick={handleBackWithSave} className="text-white/70 hover:text-white transition-colors">
@@ -1698,7 +1698,7 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
           </button>
           <button 
             onClick={handleBackWithSave}
-            className="w-full border-2 border-white text-white font-semibold py-4 rounded-2xl text-base hover:bg-white hover:text-[#0A0E1A] transition-all duration-200"
+            className="w-full border-2 border-white text-white font-semibold py-4 rounded-2xl text-base hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)] transition-all duration-200"
             style={{ fontFamily: 'Inter' }}
           >
             Back to Games

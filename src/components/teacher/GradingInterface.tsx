@@ -222,7 +222,7 @@ export function GradingInterface({
         {/* Student Response */}
         <GlassCard className="p-6">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#4A5FFF]" />
+            <FileText className="w-5 h-5 text-[#10B981]" />
             Student Response
           </h3>
 
@@ -272,13 +272,13 @@ export function GradingInterface({
 
         {/* Auto-Grade Results */}
         {(autoGrade || loadingAutoGrade) && (
-          <GlassCard className="p-6 border border-[#4A5FFF]/30 bg-[#4A5FFF]/5">
+          <GlassCard className="p-6 border border-[#10B981]/30 bg-[#10B981]/5">
             <button
               onClick={() => setShowAutoGrade(!showAutoGrade)}
               className="w-full flex items-center justify-between mb-4"
             >
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Bot className="w-5 h-5 text-[#4A5FFF]" />
+                <Bot className="w-5 h-5 text-[#10B981]" />
                 <Sparkles className="w-4 h-4 text-[#FFD700]" />
                 AI Auto-Grade
               </h3>
@@ -291,7 +291,7 @@ export function GradingInterface({
 
             {loadingAutoGrade ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 text-[#4A5FFF] animate-spin" />
+                <Loader2 className="w-6 h-6 text-[#10B981] animate-spin" />
                 <span className="ml-2 text-white/60">Loading AI grade...</span>
               </div>
             ) : autoGrade && showAutoGrade ? (
@@ -300,7 +300,7 @@ export function GradingInterface({
                 <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                   <div>
                     <p className="text-white/60 text-sm">AI Score</p>
-                    <p className="text-3xl font-bold text-[#4A5FFF]">
+                    <p className="text-3xl font-bold text-[#10B981]">
                       {autoGrade.total_score}/{autoGrade.max_score || 100}
                     </p>
                   </div>
@@ -318,7 +318,7 @@ export function GradingInterface({
                     {Object.entries(autoGrade.rubric_scores).map(([criterion, score]) => (
                       <div key={criterion} className="flex justify-between items-center p-2 rounded bg-white/[0.02]">
                         <span className="text-white/70 text-sm">{criterion}</span>
-                        <span className="text-[#4A5FFF] font-semibold">{score as number}</span>
+                        <span className="text-[#10B981] font-semibold">{score as number}</span>
                       </div>
                     ))}
                   </div>
@@ -434,7 +434,7 @@ export function GradingInterface({
                             Number(e.target.value),
                             criterion.max_points
                           )}
-                          className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#4A5FFF]"
+                          className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#10B981]"
                         />
                         <input
                           type="number"
@@ -446,7 +446,7 @@ export function GradingInterface({
                             Number(e.target.value),
                             criterion.max_points
                           )}
-                          className="w-16 px-2 py-1 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-center focus:outline-none focus:border-[#4A5FFF]"
+                          className="w-16 px-2 py-1 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white text-center focus:outline-none focus:border-[#10B981]"
                         />
                       </div>
 
@@ -465,7 +465,7 @@ export function GradingInterface({
                               )}
                               className={`px-3 py-1 rounded text-xs transition-colors ${
                                 isSelected
-                                  ? 'bg-[#4A5FFF] text-white'
+                                  ? 'bg-[#10B981] text-white'
                                   : 'bg-white/[0.05] text-white/60 hover:bg-white/[0.1]'
                               }`}
                             >
@@ -490,7 +490,7 @@ export function GradingInterface({
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Provide constructive feedback for the student..."
               rows={4}
-              className="w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF] resize-none"
+              className="w-full bg-white/[0.05] border border-white/[0.1] rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10B981] resize-none"
             />
 
             {/* Quick Feedback Templates */}

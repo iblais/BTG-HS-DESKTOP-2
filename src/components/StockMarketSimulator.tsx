@@ -187,7 +187,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   };
 
   const renderIntro = () => (
-    <div className="min-h-screen bg-[#0A0E27] p-6">
+    <div className="min-h-screen bg-[var(--bg-base)] p-6">
       <div className="flex items-center justify-between mb-8">
         <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
           <ArrowLeft className="w-6 h-6 text-white" />
@@ -251,9 +251,9 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   );
 
   const renderPlaying = () => (
-    <div className="min-h-screen bg-[#0A0E27]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Header */}
-      <div className="bg-[#0A0E27] border-b border-white/10 p-4">
+      <div className="bg-[var(--bg-base)] border-b border-white/10 p-4">
         <div className="flex items-center justify-between mb-4">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-5 h-5 text-white" />
@@ -264,7 +264,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
           </div>
           <button
             onClick={advanceDay}
-            className="px-4 py-2 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] rounded-lg text-white text-sm font-bold"
+            className="px-4 py-2 bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-lg text-white text-sm font-bold"
           >
             {day >= maxDays ? 'End Game' : 'Next Day'}
           </button>
@@ -449,7 +449,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
     else { grade = 'F'; message = 'Investing is risky - but you learned something!'; }
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[var(--bg-base)] p-6">
         <div className="flex items-center justify-between mb-8">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-6 h-6 text-white" />
@@ -488,7 +488,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
         <div className="space-y-3">
           <button
             onClick={() => setGameState('intro')}
-            className="w-full p-4 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] rounded-xl text-white font-bold flex items-center justify-center gap-2"
+            className="w-full p-4 bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-xl text-white font-bold flex items-center justify-center gap-2"
           >
             <RefreshCw className="w-5 h-5" />
             Play Again

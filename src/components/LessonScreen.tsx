@@ -2828,8 +2828,8 @@ You've completed this program - now go build the life you want.`,
   // Show loading state if content is initializing
   if (programId === 'HS' && !lessonData && !programContent && !contentLoadError) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#6366F1] animate-spin" />
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10B981] animate-spin" />
       </div>
     );
   }
@@ -2837,9 +2837,9 @@ You've completed this program - now go build the life you want.`,
   // Handle missing lesson content (week not yet available)
   if (!lessonData || !lessonData.sections || lessonData.sections.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center p-6">
         <GlassCard className="max-w-md w-full p-8 text-center">
-          <Lock className="h-12 w-12 text-[#6366F1] mx-auto mb-4" />
+          <Lock className="h-12 w-12 text-[#10B981] mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">
             {language === 'es' ? 'Contenido Próximamente' : 'Content Coming Soon'}
           </h2>
@@ -3029,7 +3029,7 @@ You've completed this program - now go build the life you want.`,
               className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all ${!isUnlocked
                 ? 'bg-white/5 text-white/30 border border-white/10 cursor-not-allowed opacity-50'
                 : currentSection === index
-                  ? 'bg-[#4A5FFF]/20 text-[#4A5FFF] border border-[#4A5FFF]/30'
+                  ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
                   : isCompleted
                     ? 'bg-[#50D890]/20 text-[#50D890] border border-[#50D890]/30'
                     : 'bg-white/5 text-white/60 border border-white/10'
@@ -3053,7 +3053,7 @@ You've completed this program - now go build the life you want.`,
         <div className="flex items-center gap-3 mb-4">
           {(() => {
             const IconComponent = getSectionIcon(currentSectionData.type);
-            return <IconComponent size={20} className="text-[#4A5FFF]" />;
+            return <IconComponent size={20} className="text-[#10B981]" />;
           })()}
           <div>
             <h3 className="text-white font-bold">{currentSectionData.title}</h3>
@@ -3085,15 +3085,15 @@ You've completed this program - now go build the life you want.`,
         )}
 
         {/* Key Points */}
-        <div className="bg-[#4A5FFF]/10 border border-[#4A5FFF]/20 rounded-lg p-4">
-          <h4 className="text-[#4A5FFF] font-bold text-sm mb-3 flex items-center gap-2">
+        <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-lg p-4">
+          <h4 className="text-[#10B981] font-bold text-sm mb-3 flex items-center gap-2">
             <CheckCircle size={16} />
             {t('common.keyTakeaways')}
           </h4>
           <ul className="space-y-2">
             {currentSectionData.keyPoints.map((point: string, index: number) => (
               <li key={index} className="text-white/70 text-sm flex items-start gap-2">
-                <div className="w-1.5 h-1.5 bg-[#4A5FFF] rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-1.5 h-1.5 bg-[#10B981] rounded-full mt-2 flex-shrink-0"></div>
                 <span>{point}</span>
               </li>
             ))}
@@ -3157,10 +3157,10 @@ You've completed this program - now go build the life you want.`,
       </GlassCard>
 
       {/* Activity Section - Always rendered */}
-      <GlassCard className="p-6 border-2 border-[#4A5FFF]/30">
+      <GlassCard className="p-6 border-2 border-[#10B981]/30">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-            <BookOpen size={20} className="text-[#4A5FFF]" />
+          <div className="w-10 h-10 rounded-full bg-[#10B981]/20 flex items-center justify-center">
+            <BookOpen size={20} className="text-[#10B981]" />
           </div>
           <div>
             <h3 className="text-white font-bold">{t('common.activity')}</h3>
@@ -3193,7 +3193,7 @@ You've completed this program - now go build the life you want.`,
                     setActivityError(null);
                   }}
                   placeholder="Write your response here (minimum 200 characters)..."
-                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#4A5FFF]/50 transition-colors"
+                  className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-4 text-white placeholder-white/40 text-sm resize-none focus:outline-none focus:border-[#10B981]/50 transition-colors"
                 />
                 <div className="flex justify-between items-center mt-2">
                   <span className={`text-xs ${activityResponse.length >= 200 ? 'text-[#50D890]' : 'text-white/40'}`}>
@@ -3232,7 +3232,7 @@ You've completed this program - now go build the life you want.`,
           </>
         ) : (
           <div className="bg-white/5 rounded-lg p-6 text-center border border-white/10">
-            <BookOpen size={32} className="mx-auto mb-3 text-[#4A5FFF]/60" />
+            <BookOpen size={32} className="mx-auto mb-3 text-[#10B981]/60" />
             <p className="text-white/80 font-medium">Written Activity</p>
             <p className="text-white/50 text-sm mt-1">{t('common.comingSoon')}</p>
           </div>

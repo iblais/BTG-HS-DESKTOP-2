@@ -145,8 +145,8 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
       budgetLimit: 700,
       minRange: 400,
       maxRange: 1200,
-      color: '#4A5FFF',
-      gradient: 'from-[#4A5FFF] to-[#00BFFF]'
+      color: '#10B981',
+      gradient: 'from-[#10B981] to-[#34D399]'
     },
     {
       id: 'food',
@@ -167,8 +167,8 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
       budgetLimit: 150,
       minRange: 50,
       maxRange: 400,
-      color: '#9B59B6',
-      gradient: 'from-[#9B59B6] to-[#8E44AD]'
+      color: '#F59E0B',
+      gradient: 'from-[#F59E0B] to-[#D97706]'
     },
     {
       id: 'entertainment',
@@ -342,8 +342,8 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
         budgetLimit: 700,
         minRange: 400,
         maxRange: 1200,
-        color: '#4A5FFF',
-        gradient: 'from-[#4A5FFF] to-[#00BFFF]'
+        color: '#10B981',
+        gradient: 'from-[#10B981] to-[#34D399]'
       },
       {
         id: 'food',
@@ -364,8 +364,8 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
         budgetLimit: 150,
         minRange: 50,
         maxRange: 400,
-        color: '#9B59B6',
-        gradient: 'from-[#9B59B6] to-[#8E44AD]'
+        color: '#F59E0B',
+        gradient: 'from-[#F59E0B] to-[#D97706]'
       },
       {
         id: 'entertainment',
@@ -418,7 +418,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
     const accuracy = savingsAmount >= currentMonthData.savingsGoal ? 100 : Math.round((savingsAmount / currentMonthData.savingsGoal) * 100);
     
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[var(--bg-base)] p-6">
         {/* Status Bar */}
         <div className="flex justify-between items-center pt-3 pb-2 text-white text-sm">
           <span>9:41</span>
@@ -444,7 +444,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
             <Award className="w-16 h-16 text-[#FFD700] mx-auto mb-4" />
             <h1 className="text-white mb-2">MONTH {currentMonth} RESULTS</h1>
             
-            <div className="text-4xl font-bold text-[#4A5FFF] mb-2">{monthScore}</div>
+            <div className="text-4xl font-bold text-[#10B981] mb-2">{monthScore}</div>
             <div className="text-white/70">Points Earned</div>
             
             <div className="flex justify-center mt-4">
@@ -464,7 +464,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
               <div className="text-white/70 text-sm">Saved</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-[#4A5FFF]">{accuracy}%</div>
+              <div className="text-2xl font-bold text-[#10B981]">{accuracy}%</div>
               <div className="text-white/70 text-sm">Goal Reached</div>
             </div>
           </div>
@@ -510,7 +510,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] pb-6">
+    <div className="min-h-screen bg-[var(--bg-base)] pb-6">
       {/* Status Bar */}
       <div className="flex justify-between items-center px-6 pt-3 pb-2 text-white text-sm">
         <span>9:41</span>
@@ -645,7 +645,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
                 cx="100"
                 cy="100"
                 r="50"
-                fill="#0A0E27"
+                fill="#0A0A0A"
                 stroke="rgba(255,255,255,0.1)"
                 strokeWidth="2"
               />

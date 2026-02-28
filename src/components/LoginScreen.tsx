@@ -75,15 +75,12 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-6">
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#4A5FFF]/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#FF6B35]/8 rounded-full blur-[120px]" />
-      </div>
-
+    <div
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{ background: 'var(--bg-base)' }}
+    >
       {/* Main Card */}
-      <div className="relative w-full max-w-[420px]">
+      <div className="relative w-full max-w-[420px] z-10">
         {/* Logo */}
         <div className="text-center mb-10">
           <img
@@ -91,17 +88,26 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             alt="Beyond The Game"
             className="h-28 w-auto mx-auto mb-4"
           />
-          <p className="text-[#B8BCC8] text-sm tracking-wide">
+          <p
+            className="text-sm tracking-wide"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             Financial Literacy for Students
           </p>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-[#12162F]/80 backdrop-blur-xl border border-[#2A2F4F] rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-white text-center mb-2">
+        {/* Form Card — frost-card class for premium frosted glass */}
+        <div className="frost-card p-8">
+          <h2
+            className="text-xl font-bold text-center mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h2>
-          <p className="text-[#B8BCC8] text-sm text-center mb-8">
+          <p
+            className="text-sm text-center mb-8"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {isSignUp
               ? 'Start your journey to financial freedom'
               : 'Sign in to continue learning'}
@@ -109,40 +115,71 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-3 rounded-lg bg-[#FF4757]/10 border border-[#FF4757]/20">
-              <p className="text-[#FF4757] text-sm text-center">{error}</p>
+            <div
+              className="mb-6 p-3 rounded-lg"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}
+            >
+              <p className="text-sm text-center" style={{ color: 'var(--danger)' }}>
+                {error}
+              </p>
             </div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[#B8BCC8] text-sm mb-2">Email</label>
+              <label
+                className="block text-sm mb-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 placeholder="you@example.com"
-                className="w-full bg-[#0A0E27] border border-[#2A2F4F] rounded-xl px-4 py-3.5 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
+                className="w-full rounded-xl px-4 py-3.5 focus:outline-none transition-all"
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-primary)',
+                }}
                 disabled={loading}
               />
             </div>
 
             <div>
-              <label className="block text-[#B8BCC8] text-sm mb-2">Password</label>
+              <label
+                className="block text-sm mb-2"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(''); }}
                   placeholder="Enter password"
-                  className="w-full bg-[#0A0E27] border border-[#2A2F4F] rounded-xl px-4 py-3.5 pr-12 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
+                  className="w-full rounded-xl px-4 py-3.5 pr-12 focus:outline-none transition-all"
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-primary)',
+                  }}
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#4A4F6A] hover:text-[#B8BCC8] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -153,12 +190,13 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               type="submit"
               disabled={loading}
               className={cn(
-                "w-full py-3.5 rounded-xl font-semibold text-white mt-6",
-                "bg-gradient-to-r from-[#4A5FFF] to-[#6B7FFF]",
-                "hover:from-[#5A6FFF] hover:to-[#7B8FFF]",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                "transition-all duration-200"
+                "w-full py-3.5 rounded-xl font-semibold mt-6 transition-all duration-200 btn-3d",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
+              style={{
+                background: 'var(--gradient-primary)',
+                color: '#FFFFFF',
+              }}
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -171,10 +209,21 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#2A2F4F]" />
+              <div
+                className="w-full"
+                style={{ borderTop: '1px solid var(--border-default)' }}
+              />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-[#12162F] text-[#4A4F6A] text-sm">or</span>
+              <span
+                className="px-4 text-sm"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                or
+              </span>
             </div>
           </div>
 
@@ -183,7 +232,20 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-[#0A0E27] border border-[#2A2F4F] text-white hover:bg-[#0F1332] hover:border-[#3A3F5F] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-default)',
+              color: 'var(--text-primary)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-subtle)';
+              e.currentTarget.style.borderColor = 'var(--border-emphasis)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--bg-surface)';
+              e.currentTarget.style.borderColor = 'var(--border-default)';
+            }}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -195,20 +257,47 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </button>
 
           {/* Toggle */}
-          <p className="text-center mt-8 text-[#B8BCC8] text-sm">
+          <p
+            className="text-center mt-8 text-sm"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               type="button"
               onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
-              className="text-[#4A5FFF] hover:text-[#6B7FFF] font-medium transition-colors"
+              className="font-medium transition-colors"
+              style={{ color: 'var(--primary-400)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary-500)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--primary-400)')}
             >
               {isSignUp ? 'Sign in' : 'Sign up'}
             </button>
           </p>
         </div>
 
+        {/* Teacher Access */}
+        <div className="text-center mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              // After login, the teacher registration flow is accessible via the teacher portal
+              // For now, just note that teacher registration is available post-login
+              setError('Sign in first, then access Teacher Registration from the Teacher tab');
+            }}
+            className="text-xs font-medium transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary-400)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+          >
+            I'm a Teacher
+          </button>
+        </div>
+
         {/* Footer */}
-        <p className="text-center mt-8 text-[#4A4F6A] text-xs">
+        <p
+          className="text-center mt-8 text-xs"
+          style={{ color: 'var(--text-muted)' }}
+        >
           By continuing, you agree to our Terms of Service
         </p>
       </div>

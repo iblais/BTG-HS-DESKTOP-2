@@ -270,8 +270,8 @@ export function AccountSettingsScreen({
       {/* Profile Section */}
       <GlassCard className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-            <User className="w-5 h-5 text-[#4A5FFF]" />
+          <div className="w-10 h-10 rounded-full bg-[#10B981]/20 flex items-center justify-center">
+            <User className="w-5 h-5 text-[#10B981]" />
           </div>
           <h2 className="text-lg font-bold text-white">Profile Information</h2>
         </div>
@@ -367,7 +367,7 @@ export function AccountSettingsScreen({
               value={profileData.displayName}
               onChange={(e) => setProfileData({ ...profileData, displayName: e.target.value })}
               placeholder="Enter your display name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none transition-colors"
             />
           </div>
 

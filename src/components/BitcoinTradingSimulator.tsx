@@ -193,7 +193,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
     return (
       <div className="w-full flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="w-12 h-12 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading your trading data...</p>
         </div>
       </div>
@@ -219,9 +219,9 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
               </span>
               {/* Cloud sync indicator */}
               {isSyncing ? (
-                <span className="px-2 py-1 bg-[#4A5FFF]/20 border border-[#4A5FFF]/30 rounded-full flex items-center gap-1.5">
-                  <Loader2 className="w-3 h-3 text-[#4A5FFF] animate-spin" />
-                  <span className="text-[10px] font-medium text-[#4A5FFF]">Syncing</span>
+                <span className="px-2 py-1 bg-[#10B981]/20 border border-[#10B981]/30 rounded-full flex items-center gap-1.5">
+                  <Loader2 className="w-3 h-3 text-[#10B981] animate-spin" />
+                  <span className="text-[10px] font-medium text-[#10B981]">Syncing</span>
                 </span>
               ) : navigator.onLine ? (
                 <span className="px-2 py-1 bg-[#50D890]/20 border border-[#50D890]/30 rounded-full flex items-center gap-1.5">
@@ -255,7 +255,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
         {/* Total Value */}
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Wallet className="w-5 h-5 text-[#4A5FFF]" />
+            <Wallet className="w-5 h-5 text-[#10B981]" />
             <span className="text-xs font-bold text-white/60 uppercase tracking-wider">
               Portfolio Value
             </span>
@@ -302,7 +302,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
         {/* Total Trades */}
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-3">
-            <History className="w-5 h-5 text-[#9B59B6]" />
+            <History className="w-5 h-5 text-[#F59E0B]" />
             <span className="text-xs font-bold text-white/60 uppercase tracking-wider">
               Total Trades
             </span>
@@ -329,7 +329,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
                   onClick={() => setTimeframe(tf)}
                   className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                     timeframe === tf
-                      ? 'bg-[#4A5FFF] text-white'
+                      ? 'bg-[#10B981] text-white'
                       : 'text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -388,7 +388,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
                 value={tradeAmount}
                 onChange={(e) => { setTradeAmount(e.target.value); setError(null); }}
                 placeholder={tradeType === 'usd' ? '1000.00' : '0.01'}
-                className="w-full h-12 pl-10 pr-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none focus:ring-2 focus:ring-[#4A5FFF]/20 transition-all"
+                className="w-full h-12 pl-10 pr-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition-all"
               />
             </div>
             {tradeAmount && currentPrice > 0 && (
@@ -457,7 +457,7 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
       {/* Trade History */}
       <GlassCard className="p-6">
         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-          <History className="w-6 h-6 text-[#9B59B6]" />
+          <History className="w-6 h-6 text-[#F59E0B]" />
           Trade History
         </h3>
 

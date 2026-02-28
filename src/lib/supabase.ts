@@ -3,8 +3,16 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\s/g, '')
 const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').replace(/\s/g, '')
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
+  console.error(
+    '[BTG] Missing Supabase environment variables.\n' +
+    'Create a .env file in the project root with:\n' +
+    '  VITE_SUPABASE_URL=https://your-project.supabase.co\n' +
+    '  VITE_SUPABASE_ANON_KEY=your-anon-key-here\n' +
+    'Or pull from Vercel: npx vercel env pull .env.local'
+  );
 }
 
 // Header-sanitizing fetch wrapper to prevent "Invalid value" TypeError
@@ -26,7 +34,10 @@ const safeFetch: typeof fetch = (input, init?) => {
   return fetch(input, init);
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
   auth: {
     autoRefreshToken: true,
     persistSession: true,

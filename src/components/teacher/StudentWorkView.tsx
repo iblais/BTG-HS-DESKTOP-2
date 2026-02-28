@@ -115,7 +115,7 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading student work...</p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
                 className="w-16 h-16 rounded-xl object-cover"
               />
             ) : (
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#4A5FFF] to-[#7B8AFF] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#10B981] to-[#34D399] flex items-center justify-center">
                 <span className="text-white text-2xl font-bold">
                   {(profile.display_name || profile.email).charAt(0).toUpperCase()}
                 </span>
@@ -184,8 +184,8 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-[#4A5FFF]" />
+            <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#10B981]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{totalActivities}</p>
@@ -269,7 +269,7 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
       {/* Activities by Week */}
       <GlassCard className="p-6">
         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#4A5FFF]" />
+          <FileText className="w-5 h-5 text-[#10B981]" />
           Writing Assignments
         </h3>
 
@@ -295,8 +295,8 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
                       className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-                          <span className="text-[#4A5FFF] font-bold">{week}</span>
+                        <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+                          <span className="text-[#10B981] font-bold">{week}</span>
                         </div>
                         <div className="text-left">
                           <p className="text-white font-medium">
@@ -366,8 +366,8 @@ export function StudentWorkView({ studentId, onBack, onGradeActivity }: StudentW
 
                                 {/* Feedback if graded */}
                                 {activityGrade?.feedback && (
-                                  <div className="bg-[#4A5FFF]/10 rounded-lg p-3 mb-3">
-                                    <p className="text-[#4A5FFF] text-xs font-medium mb-1">Teacher Feedback</p>
+                                  <div className="bg-[#10B981]/10 rounded-lg p-3 mb-3">
+                                    <p className="text-[#10B981] text-xs font-medium mb-1">Teacher Feedback</p>
                                     <p className="text-white/70 text-sm">{activityGrade.feedback}</p>
                                   </div>
                                 )}

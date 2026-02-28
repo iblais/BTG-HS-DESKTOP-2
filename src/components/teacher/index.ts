@@ -1,5 +1,6 @@
 export { TeacherPortal } from './TeacherPortal';
 export { TeacherDashboard } from './TeacherDashboard';
+export { TeacherRegistration } from './TeacherRegistration';
 export { StudentWorkView } from './StudentWorkView';
 export { GradingInterface } from './GradingInterface';
 export { GradingQueueView } from './GradingQueueView';

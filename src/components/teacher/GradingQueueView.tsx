@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
 import { supabase } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/auth';
 import { type ActivityResponse, WEEK_TITLES, getAllGrades } from '@/lib/teacher';
 
 interface ActivityWithStudent extends ActivityResponse {
@@ -30,30 +31,41 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
   const loadAllActivities = async () => {
     setLoading(true);
     try {
+      const user = await getCurrentUser();
+      if (!user) { setActivities([]); return; }
 
-      // First check auth status
-      const { data: { session } } = await supabase.auth.getSession();
+      // Get student IDs belonging to this teacher
+      const { data: relationships } = await supabase
+        .from('teacher_students')
+        .select('student_id')
+        .eq('teacher_id', user.id);
 
-      // Get all activity responses (without JOIN - foreign key not set up)
-      const { data: activitiesData, error } = await supabase
-        .from('activity_responses')
-        .select('*')
-        .order('submitted_at', { ascending: false });
+      const studentIds = relationships?.map(r => r.student_id) || [];
 
-      if (error) {
-        console.error('[GradingQueue] Error loading activities:', error.message, error.details, error.hint);
+      // Get activity responses only from teacher's students
+      let activitiesData: typeof activities = [];
+      if (studentIds.length > 0) {
+        const { data, error } = await supabase
+          .from('activity_responses')
+          .select('*')
+          .in('user_id', studentIds)
+          .order('submitted_at', { ascending: false });
+
+        if (error) {
+          console.error('[GradingQueue] Error loading activities:', error.message);
+          setActivities([]);
+          return;
+        }
+        activitiesData = data || [];
+      }
+
+      if (activitiesData.length === 0) {
         setActivities([]);
         return;
       }
-
-      if (!activitiesData || activitiesData.length === 0) {
-        setActivities([]);
-        return;
-      }
-
 
       // Get unique user IDs
-      const userIds = [...new Set(activitiesData.map(a => a.user_id))];
+      const userIds = [...new Set(activitiesData.map((a: { user_id: string }) => a.user_id))];
 
       // Fetch user info separately
       const { data: usersData } = await supabase
@@ -107,7 +119,7 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading all submissions...</p>
         </div>
       </div>
@@ -134,8 +146,8 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
       <div className="grid grid-cols-3 gap-4">
         <GlassCard className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-[#4A5FFF]" />
+            <div className="w-10 h-10 rounded-lg bg-[#10B981]/20 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#10B981]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{activities.length}</p>
@@ -175,7 +187,7 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-md text-sm transition-colors ${
             filter === 'all'
-              ? 'bg-[#4A5FFF] text-white'
+              ? 'bg-[#10B981] text-white'
               : 'text-white/60 hover:text-white'
           }`}
         >

@@ -24,7 +24,7 @@ export function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <RefreshCw className="w-8 h-8 text-white/40 animate-spin" />
       </div>
     );
@@ -32,7 +32,7 @@ export function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
 
   if (!analytics) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-4">
+      <div className="min-h-screen bg-[var(--bg-base)] p-4">
         <button onClick={onBack} className="p-2 rounded-lg bg-white/5">
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
@@ -54,9 +54,9 @@ export function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   const maxXP = Math.max(...analytics.xpHistory.map(h => h.xp), 1);
 
   return (
-    <div className="min-h-screen bg-[#0A0E27]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#0A0E27]/95 backdrop-blur-sm border-b border-white/5 px-4 py-4">
+      <div className="sticky top-0 z-10 bg-[var(--bg-base)]/95 border-b border-white/5 px-4 py-4">
         <div className="flex items-center justify-between">
           <button
             onClick={onBack}

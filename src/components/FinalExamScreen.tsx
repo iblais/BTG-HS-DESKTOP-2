@@ -530,7 +530,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   const getGradeInfo = (score: number) => {
     const percentage = (score / totalQuestions) * 100;
     if (percentage >= 90) return { grade: 'A', color: 'text-[#50D890]', bgColor: 'from-[#50D890] to-[#4ECDC4]', passed: true };
-    if (percentage >= 80) return { grade: 'B', color: 'text-[#4A5FFF]', bgColor: 'from-[#4A5FFF] to-[#00BFFF]', passed: true };
+    if (percentage >= 80) return { grade: 'B', color: 'text-[#10B981]', bgColor: 'from-[#10B981] to-[#34D399]', passed: true };
     if (percentage >= 70) return { grade: 'C', color: 'text-[#FF6B35]', bgColor: 'from-[#FF6B35] to-[#FF8E53]', passed: true };
     if (percentage >= 60) return { grade: 'D', color: 'text-yellow-500', bgColor: 'from-yellow-500 to-yellow-400', passed: false };
     return { grade: 'F', color: 'text-red-500', bgColor: 'from-red-500 to-red-400', passed: false };
@@ -565,12 +565,12 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
 
         {/* Exam Introduction */}
         <div className="glass-card rounded-xl p-8 text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] rounded-full flex items-center justify-center mx-auto mb-6 btn-3d">
+          <div className="w-20 h-20 bg-gradient-to-r from-[#F59E0B] to-[#D97706] rounded-full flex items-center justify-center mx-auto mb-6 btn-3d">
             <Award className="w-10 h-10 text-white" />
           </div>
 
           <h1 className="text-white font-bold text-3xl mb-2">Final Exam</h1>
-          <h2 className="text-[#9B59B6] font-bold text-xl mb-6">Financial Literacy Certification</h2>
+          <h2 className="text-[#F59E0B] font-bold text-xl mb-6">Financial Literacy Certification</h2>
 
           <p className="text-white/70 mb-8 max-w-md mx-auto">
             This comprehensive exam covers all topics from the course. Pass this exam to earn your Financial Literacy Certificate!
@@ -579,7 +579,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
           <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-8">
             <div className="bg-white/5 rounded-xl p-4">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <BookOpen className="w-5 h-5 text-[#4A5FFF]" />
+                <BookOpen className="w-5 h-5 text-[#10B981]" />
                 <span className="text-white font-bold text-lg">{totalQuestions}</span>
               </div>
               <p className="text-white/60 text-sm">Questions</p>
@@ -600,7 +600,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
             </div>
             <div className="bg-white/5 rounded-xl p-4">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <RotateCcw className="w-5 h-5 text-[#9B59B6]" />
+                <RotateCcw className="w-5 h-5 text-[#F59E0B]" />
                 <span className="text-white font-bold text-lg">Unlimited</span>
               </div>
               <p className="text-white/60 text-sm">Retakes</p>
@@ -612,7 +612,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
             <div className="grid grid-cols-2 gap-2 text-sm">
               {['Income & Budgeting', 'Side Hustles', 'Credit', 'Debt Management', 'Banking', 'Investing', 'Career & Brand', 'Financial Planning'].map((topic) => (
                 <div key={topic} className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-[#4A5FFF] rounded-full"></div>
+                  <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
                   <span className="text-white/80">{topic}</span>
                 </div>
               ))}
@@ -622,7 +622,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
 
         <button
           onClick={handleStartExam}
-          className="w-full bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
+          className="w-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
         >
           Start Final Exam
         </button>
@@ -748,7 +748,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-xs text-[#4A5FFF] font-medium">{question.category}</span>
+                        <span className="text-xs text-[#10B981] font-medium">{question.category}</span>
                       </div>
                       <p className="text-white font-medium text-sm">Q{index + 1}: {question.question}</p>
                     </div>
@@ -795,7 +795,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
 
           <button
             onClick={handleComplete}
-            className="w-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300"
+            className="w-full bg-gradient-to-r from-[#10B981] to-[#34D399] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300"
           >
             {passed ? 'Continue' : 'Back to Course'}
           </button>
@@ -833,7 +833,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
       {/* Progress Bar */}
       <div className="w-full bg-white/10 rounded-full h-2">
         <div
-          className="h-2 rounded-full bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] transition-all duration-300"
+          className="h-2 rounded-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] transition-all duration-300"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
@@ -855,7 +855,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
                 onClick={() => handleJumpToQuestion(index)}
                 className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
                   isCurrent
-                    ? 'bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] text-white'
+                    ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white'
                     : isAnswered
                     ? 'bg-[#50D890]/30 text-[#50D890] border border-[#50D890]/50'
                     : 'bg-white/5 text-white/60 hover:bg-white/10'
@@ -871,7 +871,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
       {/* Question */}
       <div className="glass-card rounded-xl p-6">
         <div className="flex items-center space-x-2 mb-4">
-          <span className="text-xs text-[#9B59B6] font-medium bg-[#9B59B6]/20 px-2 py-1 rounded">
+          <span className="text-xs text-[#F59E0B] font-medium bg-[#F59E0B]/20 px-2 py-1 rounded">
             {currentQ?.category}
           </span>
         </div>
@@ -885,14 +885,14 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
               onClick={() => handleAnswerSelect(index)}
               className={`w-full text-left p-4 rounded-xl transition-all duration-300 ${
                 selectedAnswers[currentQuestion] === index
-                  ? 'bg-gradient-to-r from-[#9B59B6]/30 to-[#8E44AD]/30 border-2 border-[#9B59B6]/50'
+                  ? 'bg-gradient-to-r from-[#F59E0B]/30 to-[#D97706]/30 border-2 border-[#F59E0B]/50'
                   : 'bg-white/5 border border-white/10 hover:bg-white/10'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                   selectedAnswers[currentQuestion] === index
-                    ? 'border-[#9B59B6] bg-[#9B59B6]'
+                    ? 'border-[#F59E0B] bg-[#F59E0B]'
                     : 'border-white/30'
                 }`}>
                   {selectedAnswers[currentQuestion] === index && (
@@ -929,7 +929,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
           disabled={selectedAnswers[currentQuestion] === undefined}
           className={`flex-1 py-3 rounded-xl font-bold transition-all duration-300 ${
             selectedAnswers[currentQuestion] !== undefined
-              ? 'bg-gradient-to-r from-[#9B59B6] to-[#8E44AD] text-white btn-3d hover:scale-105'
+              ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white btn-3d hover:scale-105'
               : 'bg-white/5 text-white/30 cursor-not-allowed'
           }`}
         >

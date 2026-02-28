@@ -318,19 +318,20 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             });
         }
 
-        // Save writing prompt responses to activity_grades table
+        // Save writing prompt responses to activity_responses table
         if (writingResponses && writingResponses.length > 0) {
           try {
             for (let i = 0; i < writingResponses.length; i++) {
               await supabase
-                .from('activity_grades')
-                .insert({
+                .from('activity_responses')
+                .upsert({
                   user_id: user.id,
-                  enrollment_id: enrollmentId,
                   week_number: activeWeek,
-                  activity_type: `writing_prompt_${i + 1}`,
-                  response_text: writingResponses[i]
-                });
+                  day_number: i + 1,
+                  response_text: writingResponses[i],
+                  activity_question: `Writing prompt ${i + 1}`,
+                  submitted_at: new Date().toISOString(),
+                }, { onConflict: 'user_id,week_number,day_number' });
             }
           } catch (err) {
             console.warn('Could not save writing responses:', err);
@@ -579,7 +580,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#10B981] animate-spin" />
           <p className="text-white/60">Loading courses...</p>
         </div>
       </div>
@@ -643,11 +644,11 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#9B59B6] to-[#8E44AD] flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center shadow-lg">
               <Award className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white group-hover:text-[#9B59B6] transition-colors">
+              <h3 className="text-xl font-black text-white group-hover:text-[#F59E0B] transition-colors">
                 Final Certification Exam
               </h3>
               <p className="text-[var(--text-tertiary)] text-sm mt-1">
@@ -658,9 +659,9 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           <div className="flex items-center gap-3">
             <div className="text-right hidden md:block">
               <p className="text-white/60 text-sm">Earn your</p>
-              <p className="text-[#9B59B6] font-bold">Financial Literacy Certificate</p>
+              <p className="text-[#F59E0B] font-bold">Financial Literacy Certificate</p>
             </div>
-            <ChevronRight className="w-6 h-6 text-white/40 group-hover:text-[#9B59B6] transition-colors" />
+            <ChevronRight className="w-6 h-6 text-white/40 group-hover:text-[#F59E0B] transition-colors" />
           </div>
         </div>
       </div>
@@ -673,7 +674,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             className="w-full p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4A5FFF] to-[#50D890] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10B981] to-[#50D890] flex items-center justify-center">
                 <Bot className="w-6 h-6 text-white" />
               </div>
               <div className="text-left">
@@ -688,7 +689,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-2xl font-bold text-[#4A5FFF]">
+                <p className="text-2xl font-bold text-[#10B981]">
                   {Math.round(autoGrades.reduce((sum, g) => sum + (g.teacher_adjusted_score ?? g.total_score), 0) / autoGrades.length)}%
                 </p>
                 <p className="text-white/50 text-xs">Average</p>
@@ -897,7 +898,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           onClick={() => setSelectedWeek(null)}
         >
           <div
-            className="bg-[#0A0E27] border border-white/[0.1] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
+            className="bg-[var(--bg-base)] border border-white/[0.1] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
@@ -933,7 +934,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                           className={cn(
                             "flex items-center gap-4 p-4 rounded-xl transition-all",
                             isModuleUnlocked
-                              ? "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#4A5FFF]/30 cursor-pointer active:scale-[0.98]"
+                              ? "bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.08] hover:border-[#10B981]/30 cursor-pointer active:scale-[0.98]"
                               : "bg-white/[0.02] border border-white/[0.03] cursor-not-allowed opacity-50"
                           )}
                         >
@@ -967,7 +968,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleStartLesson(week.number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-semibold hover:opacity-90 transition-opacity"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#10B981] to-[#34D399] text-white font-semibold hover:opacity-90 transition-opacity"
                     >
                       <FileText className="w-5 h-5" />
                       {week.progress > 0 && week.progress < 100 ? 'Continue Lesson' : 'Start Lesson'}

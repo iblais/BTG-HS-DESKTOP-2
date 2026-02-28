@@ -123,8 +123,8 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <GlassCard className="p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#4A5FFF]/20 flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-[#4A5FFF]" />
+            <div className="w-12 h-12 rounded-xl bg-[#10B981]/20 flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-[#10B981]" />
             </div>
             <div>
               <p className="text-3xl font-bold text-white">{CA_FINANCIAL_LITERACY_STANDARDS.length}</p>
@@ -168,7 +168,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search standards..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+            className="w-full pl-10 pr-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#10B981]"
           />
         </div>
 
@@ -176,11 +176,11 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
         <select
           value={selectedCategory || ''}
           onChange={(e) => setSelectedCategory(e.target.value || null)}
-          className="px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white focus:outline-none focus:border-[#4A5FFF] appearance-none cursor-pointer"
+          className="px-4 py-2.5 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white focus:outline-none focus:border-[#10B981] appearance-none cursor-pointer"
         >
-          <option value="" className="bg-[#12162F]">All Categories</option>
+          <option value="" className="bg-[#141414]">All Categories</option>
           {categories.map(cat => (
-            <option key={cat} value={cat} className="bg-[#12162F]">{cat}</option>
+            <option key={cat} value={cat} className="bg-[#141414]">{cat}</option>
           ))}
         </select>
 
@@ -190,7 +190,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
             onClick={() => setViewMode('byWeek')}
             className={`px-4 py-2 rounded-md text-sm transition-colors ${
               viewMode === 'byWeek'
-                ? 'bg-[#4A5FFF] text-white'
+                ? 'bg-[#10B981] text-white'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -200,7 +200,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
             onClick={() => setViewMode('byCategory')}
             className={`px-4 py-2 rounded-md text-sm transition-colors ${
               viewMode === 'byCategory'
-                ? 'bg-[#4A5FFF] text-white'
+                ? 'bg-[#10B981] text-white'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -227,12 +227,12 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        isCompleted ? 'bg-[#50D890]/20' : 'bg-[#4A5FFF]/20'
+                        isCompleted ? 'bg-[#50D890]/20' : 'bg-[#10B981]/20'
                       }`}>
                         {isCompleted ? (
                           <CheckCircle className="w-5 h-5 text-[#50D890]" />
                         ) : (
-                          <span className="text-[#4A5FFF] font-bold">{week}</span>
+                          <span className="text-[#10B981] font-bold">{week}</span>
                         )}
                       </div>
                       <div className="text-left">
@@ -269,7 +269,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
                           className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]"
                         >
                           <div className="flex items-start gap-3">
-                            <span className="px-2 py-1 rounded bg-[#4A5FFF]/20 text-[#4A5FFF] text-xs font-mono whitespace-nowrap">
+                            <span className="px-2 py-1 rounded bg-[#10B981]/20 text-[#10B981] text-xs font-mono whitespace-nowrap">
                               {standard.standard_code}
                             </span>
                             <div>
@@ -332,7 +332,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
                           className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06]"
                         >
                           <div className="flex items-start gap-3">
-                            <span className="px-2 py-1 rounded bg-[#4A5FFF]/20 text-[#4A5FFF] text-xs font-mono whitespace-nowrap">
+                            <span className="px-2 py-1 rounded bg-[#10B981]/20 text-[#10B981] text-xs font-mono whitespace-nowrap">
                               {standard.standard_code}
                             </span>
                             <div>
@@ -362,7 +362,7 @@ ${standards.map(s => `  - ${s.standard_code} (Week ${s.week_number}): ${s.standa
               setSearchQuery('');
               setSelectedCategory(null);
             }}
-            className="mt-2 text-[#4A5FFF] text-sm hover:underline"
+            className="mt-2 text-[#10B981] text-sm hover:underline"
           >
             Clear filters
           </button>

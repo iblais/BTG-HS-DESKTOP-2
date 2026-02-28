@@ -17,7 +17,7 @@ export function PrivacyPolicyScreen({ onBack }: PrivacyPolicyScreenProps) {
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
         <div className="flex items-center gap-3">
-          <Shield className="w-6 h-6 text-[#4A5FFF]" />
+          <Shield className="w-6 h-6 text-[#10B981]" />
           <h1 className="text-2xl font-black text-white">Privacy Policy</h1>
         </div>
       </div>

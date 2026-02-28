@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { guardedWrite, guardedUpsert } from './dataGuard';
 import {
   getSyncQueue,
   removeSyncQueueItem,
@@ -41,23 +42,23 @@ async function processSyncItem(item: SyncQueueItem): Promise<boolean> {
 
     switch (operation) {
       case 'INSERT': {
-        const { error } = await supabase.from(table).insert(data as Record<string, unknown>);
-        if (error) throw error;
+        const { confirmed } = await guardedWrite(table, 'insert', data as Record<string, unknown>);
+        if (!confirmed) console.warn(`[SyncEngine] INSERT to ${table} queued for retry by DataGuard`);
         break;
       }
       case 'UPDATE': {
         const updateData = data as { id: string; updates: Record<string, unknown> };
-        const { error } = await supabase
-          .from(table)
-          .update(updateData.updates)
-          .eq('id', updateData.id);
-        if (error) throw error;
+        const { confirmed } = await guardedWrite(table, 'update', {
+          id: updateData.id,
+          ...updateData.updates,
+        });
+        if (!confirmed) console.warn(`[SyncEngine] UPDATE to ${table} queued for retry by DataGuard`);
         break;
       }
       case 'DELETE': {
         const deleteData = data as { id: string };
-        const { error } = await supabase.from(table).delete().eq('id', deleteData.id);
-        if (error) throw error;
+        const { confirmed } = await guardedWrite(table, 'delete', { id: deleteData.id });
+        if (!confirmed) console.warn(`[SyncEngine] DELETE from ${table} queued for retry by DataGuard`);
         break;
       }
     }
@@ -74,21 +75,21 @@ async function processSyncItem(item: SyncQueueItem): Promise<boolean> {
  */
 async function syncCourseProgress(progress: OfflineCourseProgress): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('course_progress')
-      .upsert({
-        id: progress.id,
-        week_number: progress.weekNumber,
-        lesson_completed: progress.lessonCompleted,
-        quiz_completed: progress.quizCompleted,
-        quiz_attempts: progress.quizAttempts,
-        best_quiz_score: progress.bestQuizScore,
-        updated_at: new Date().toISOString(),
-      });
+    const { confirmed } = await guardedUpsert('course_progress', {
+      id: progress.id,
+      week_number: progress.weekNumber,
+      lesson_completed: progress.lessonCompleted,
+      quiz_completed: progress.quizCompleted,
+      quiz_attempts: progress.quizAttempts,
+      best_quiz_score: progress.bestQuizScore,
+      updated_at: new Date().toISOString(),
+    });
 
-    if (error) throw error;
+    if (!confirmed) {
+      console.warn('[SyncEngine] Course progress queued for retry by DataGuard');
+    }
 
-    // Mark as synced
+    // Mark as synced (DataGuard will handle retries if not confirmed)
     await saveCourseProgress({
       ...progress,
       pendingSync: false,
@@ -107,21 +108,21 @@ async function syncCourseProgress(progress: OfflineCourseProgress): Promise<bool
  */
 async function syncQuizAttempt(attempt: OfflineQuizAttempt): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from('quiz_attempts')
-      .upsert({
-        id: attempt.id,
-        week_number: attempt.weekNumber,
-        score: attempt.score,
-        total_questions: attempt.totalQuestions,
-        passed: attempt.passed,
-        answers: attempt.answers,
-        completed_at: attempt.completedAt,
-      });
+    const { confirmed } = await guardedUpsert('quiz_attempts', {
+      id: attempt.id,
+      week_number: attempt.weekNumber,
+      score: attempt.score,
+      total_questions: attempt.totalQuestions,
+      passed: attempt.passed,
+      answers: attempt.answers,
+      completed_at: attempt.completedAt,
+    });
 
-    if (error) throw error;
+    if (!confirmed) {
+      console.warn('[SyncEngine] Quiz attempt queued for retry by DataGuard');
+    }
 
-    // Mark as synced
+    // Mark as synced (DataGuard will handle retries if not confirmed)
     await saveQuizAttempt({
       ...attempt,
       pendingSync: false,

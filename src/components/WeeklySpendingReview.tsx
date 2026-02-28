@@ -25,9 +25,9 @@ interface WeeklySpendingReviewProps {
 
 const CATEGORIES = [
   { id: 'food', label: 'Food & Groceries', type: 'need' as const, color: '#50D890' },
-  { id: 'transport', label: 'Transportation', type: 'need' as const, color: '#4A5FFF' },
-  { id: 'utilities', label: 'Utilities', type: 'need' as const, color: '#00BFFF' },
-  { id: 'housing', label: 'Housing', type: 'need' as const, color: '#9B59B6' },
+  { id: 'transport', label: 'Transportation', type: 'need' as const, color: '#10B981' },
+  { id: 'utilities', label: 'Utilities', type: 'need' as const, color: '#34D399' },
+  { id: 'housing', label: 'Housing', type: 'need' as const, color: '#F59E0B' },
   { id: 'health', label: 'Health', type: 'need' as const, color: '#FFD700' },
   { id: 'entertainment', label: 'Entertainment', type: 'want' as const, color: '#FF6B35' },
   { id: 'dining', label: 'Dining Out', type: 'want' as const, color: '#FF8E53' },
@@ -173,7 +173,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
               setEditBudget(budget);
               setShowBudgetEdit(!showBudgetEdit);
             }}
-            className="text-[#4A5FFF] text-sm hover:underline"
+            className="text-[#10B981] text-sm hover:underline"
           >
             {showBudgetEdit ? 'Cancel' : 'Edit Budget'}
           </button>
@@ -289,7 +289,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
       {categoryTotals.length > 0 && (
         <GlassCard className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <PieChart className="w-5 h-5 text-[#4A5FFF]" />
+            <PieChart className="w-5 h-5 text-[#10B981]" />
             <h3 className="text-white font-bold">Spending by Category</h3>
           </div>
 
@@ -386,7 +386,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
                   value={newEntry.amount}
                   onChange={(e) => setNewEntry({ ...newEntry, amount: e.target.value })}
                   placeholder="0.00"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
                 />
               </div>
             </div>
@@ -396,7 +396,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
               <select
                 value={newEntry.category}
                 onChange={(e) => setNewEntry({ ...newEntry, category: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#4A5FFF]/50 focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#10B981]/50 focus:outline-none"
               >
                 <optgroup label="Needs">
                   {CATEGORIES.filter(c => c.type === 'need').map(cat => (
@@ -418,7 +418,7 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
                 value={newEntry.description}
                 onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
                 placeholder="e.g., Groceries at Walmart"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#4A5FFF]/50 focus:outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#10B981]/50 focus:outline-none"
               />
             </div>
 

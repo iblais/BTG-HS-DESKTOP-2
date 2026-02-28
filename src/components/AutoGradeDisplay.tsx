@@ -44,8 +44,8 @@ export function AutoGradeDisplay({
 
   if (loading) {
     return (
-      <div className={`flex items-center gap-2 p-4 rounded-xl bg-[#4A5FFF]/10 border border-[#4A5FFF]/20 ${className}`}>
-        <Loader2 className="w-5 h-5 text-[#4A5FFF] animate-spin" />
+      <div className={`flex items-center gap-2 p-4 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 ${className}`}>
+        <Loader2 className="w-5 h-5 text-[#10B981] animate-spin" />
         <span className="text-white/60 text-sm">Checking for grade...</span>
       </div>
     );
@@ -75,15 +75,15 @@ export function AutoGradeDisplay({
   const finalPercentage = Math.round((finalScore / (autoGrade.max_score || 100)) * 100);
 
   return (
-    <div className={`rounded-xl bg-gradient-to-br from-[#4A5FFF]/10 to-[#50D890]/5 border border-[#4A5FFF]/30 overflow-hidden ${className}`}>
+    <div className={`rounded-xl bg-gradient-to-br from-[#10B981]/10 to-[#50D890]/5 border border-[#10B981]/30 overflow-hidden ${className}`}>
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#4A5FFF]/20 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-[#4A5FFF]" />
+          <div className="w-10 h-10 rounded-full bg-[#10B981]/20 flex items-center justify-center">
+            <Bot className="w-5 h-5 text-[#10B981]" />
           </div>
           <div className="text-left">
             <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export function AutoGradeDisplay({
                 {Object.entries(autoGrade.rubric_scores).map(([criterion, score]) => (
                   <div key={criterion} className="flex justify-between items-center p-2 rounded bg-white/[0.03]">
                     <span className="text-white/70 text-sm">{criterion}</span>
-                    <span className="text-[#4A5FFF] font-semibold text-sm">{score as number}/25</span>
+                    <span className="text-[#10B981] font-semibold text-sm">{score as number}/25</span>
                   </div>
                 ))}
               </div>

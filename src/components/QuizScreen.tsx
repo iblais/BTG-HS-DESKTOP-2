@@ -2585,7 +2585,7 @@ export function QuizScreen({
   const getGradeInfo = (score: number) => {
     const percentage = (score / totalQuestions) * 100;
     if (percentage >= 90) return { grade: 'A', color: 'text-[#50D890]', passed: true };
-    if (percentage >= 80) return { grade: 'B', color: 'text-[#4A5FFF]', passed: true };
+    if (percentage >= 80) return { grade: 'B', color: 'text-[#10B981]', passed: true };
     if (percentage >= 70) return { grade: 'C', color: 'text-[#FF6B35]', passed: true };
     if (percentage >= 60) return { grade: 'D', color: 'text-[#FF6B35]', passed: true };
     return { grade: 'F', color: 'text-red-500', passed: false };
@@ -2654,12 +2654,12 @@ export function QuizScreen({
 
         {/* Quiz Introduction */}
         <div className="glass-card rounded-xl p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] rounded-full flex items-center justify-center mx-auto mb-4 btn-3d">
+          <div className="w-16 h-16 bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-full flex items-center justify-center mx-auto mb-4 btn-3d">
             <Target className="w-8 h-8 text-white" />
           </div>
 
           <h1 className="text-white font-bold text-2xl mb-2">Quiz Time!</h1>
-          <h2 className="text-[#4A5FFF] font-bold text-lg mb-4">{weekTitle}</h2>
+          <h2 className="text-[#10B981] font-bold text-lg mb-4">{weekTitle}</h2>
 
           <div className="space-y-3 text-left">
             <div className="flex items-center space-x-3">
@@ -2677,11 +2677,11 @@ export function QuizScreen({
               <span className="text-white/80">10 minutes for multiple choice</span>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#4A5FFF] rounded-full"></div>
+              <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
               <span className="text-white/80">70% required to pass</span>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-[#9B59B6] rounded-full"></div>
+              <div className="w-2 h-2 bg-[#F59E0B] rounded-full"></div>
               <span className="text-white/80">Unlimited retakes allowed</span>
             </div>
           </div>
@@ -2689,7 +2689,7 @@ export function QuizScreen({
 
         <button
           onClick={handleStartQuiz}
-          className="w-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
+          className="w-full bg-gradient-to-r from-[#10B981] to-[#34D399] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300 text-center"
         >
           Start Quiz
         </button>
@@ -2925,7 +2925,7 @@ export function QuizScreen({
 
           <button
             onClick={handleComplete}
-            className="w-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300"
+            className="w-full bg-gradient-to-r from-[#10B981] to-[#34D399] text-white font-bold py-4 rounded-xl btn-3d hover:scale-105 transition-all duration-300"
           >
             {passed ? 'Continue Learning' : 'Back to Course'}
           </button>
@@ -2956,7 +2956,7 @@ export function QuizScreen({
       {/* Progress Bar */}
       <div className="w-full bg-white/10 rounded-full h-2">
         <div
-          className="h-2 rounded-full bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] transition-all duration-300"
+          className="h-2 rounded-full bg-gradient-to-r from-[#10B981] to-[#34D399] transition-all duration-300"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
@@ -2972,14 +2972,14 @@ export function QuizScreen({
               onClick={() => handleAnswerSelect(index)}
               className={`w-full text-left p-4 rounded-xl transition-all duration-300 ${
                 selectedAnswers[currentQuestion] === index
-                  ? 'bg-gradient-to-r from-[#4A5FFF]/30 to-[#00BFFF]/30 border-2 border-[#4A5FFF]/50'
+                  ? 'bg-gradient-to-r from-[#10B981]/30 to-[#34D399]/30 border-2 border-[#10B981]/50'
                   : 'bg-white/5 border border-white/10 hover:bg-white/10'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                   selectedAnswers[currentQuestion] === index
-                    ? 'border-[#4A5FFF] bg-[#4A5FFF]'
+                    ? 'border-[#10B981] bg-[#10B981]'
                     : 'border-white/30'
                 }`}>
                   {selectedAnswers[currentQuestion] === index && (
@@ -3016,7 +3016,7 @@ export function QuizScreen({
           disabled={selectedAnswers[currentQuestion] === undefined}
           className={`flex-1 py-3 rounded-xl font-bold transition-all duration-300 ${
             selectedAnswers[currentQuestion] !== undefined
-              ? 'bg-gradient-to-r from-[#4A5FFF] to-[#00BFFF] text-white btn-3d hover:scale-105'
+              ? 'bg-gradient-to-r from-[#10B981] to-[#34D399] text-white btn-3d hover:scale-105'
               : 'bg-white/5 text-white/30 cursor-not-allowed'
           }`}
         >
