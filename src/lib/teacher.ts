@@ -251,6 +251,7 @@ export async function isTeacher(): Promise<boolean> {
     const teacherEmails = [
       'itsblais@gmail.com',
       'creditchampionz@gmail.com',
+      'mikewashceo@gmail.com',
     ];
     if (teacherEmails.includes(user.email.toLowerCase())) {
       return true;
