@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { type AuthUser } from '@/lib/auth';
 import { type Enrollment, createEnrollment, getActiveEnrollment } from '@/lib/enrollment';
 import { isTeacher } from '@/lib/teacher';
@@ -422,28 +422,6 @@ function AppContent() {
     if (pendingWrites > 0 || syncHealth === 'degraded') return 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/20';
     return 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/20';
   };
-
-  // Missing Supabase configuration
-  if (!isSupabaseConfigured) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--bg-base)' }}>
-        <div className="max-w-md w-full p-8 rounded-2xl text-center" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
-          <div className="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.08)' }}>
-            <CloudOff className="w-7 h-7" style={{ color: '#EF4444' }} />
-          </div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Configuration Required</h2>
-          <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
-            Supabase environment variables are missing. Create a <code className="px-1.5 py-0.5 rounded text-xs" style={{ background: 'var(--bg-subtle)', color: 'var(--primary-400)' }}>.env</code> file in the project root:
-          </p>
-          <pre className="text-left text-xs p-4 rounded-xl mb-4 overflow-x-auto" style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)' }}>{`VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here`}</pre>
-          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-            Or run: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-subtle)', color: 'var(--primary-400)' }}>npx vercel env pull .env.local</code>
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // Loading state
   if (authLoading) {
