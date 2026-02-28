@@ -1,4 +1,3 @@
-import { supabase } from './supabase';
 import { guardedWrite, guardedUpsert } from './dataGuard';
 import {
   getSyncQueue,

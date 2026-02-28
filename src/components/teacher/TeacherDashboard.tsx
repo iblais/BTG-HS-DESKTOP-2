@@ -450,7 +450,7 @@ export function TeacherDashboard({
       {/* Create Class Modal */}
       {showCreateClass && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreateClass(false)}>
-          <GlassCard className="w-full max-w-md p-6" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <div className="w-full max-w-md p-6 glass-card rounded-2xl" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-white">Create New Class</h3>
               <button onClick={() => setShowCreateClass(false)} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
@@ -517,7 +517,7 @@ export function TeacherDashboard({
                 </Button3D>
               </div>
             </div>
-          </GlassCard>
+          </div>
         </div>
       )}
 

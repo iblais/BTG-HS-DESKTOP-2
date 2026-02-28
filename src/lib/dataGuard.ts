@@ -317,8 +317,8 @@ async function flushWAL(): Promise<void> {
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      // Check health before attempting
-      if (currentHealth === 'offline') break;
+      // Check health before attempting (re-read as it may change during async ops)
+      if ((currentHealth as SyncHealth) === 'offline') break;
 
       const success = await executeWrite(op);
 

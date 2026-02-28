@@ -435,7 +435,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             sectionIndex + 1,
             activityResponse.response_text,
             activityResponse.activity_question
-          ).then((result) => {
+          ).then(() => {
             // Auto-grade completed
           }).catch((err) => {
             console.error('[CoursesScreen] Auto-grading error:', err);
