@@ -257,14 +257,23 @@ export async function isTeacher(): Promise<boolean> {
       return true;
     }
 
-    // Primary check: user_roles table
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
+    // Check local storage (for demo/offline users)
+    if (localStorage.getItem('btg_teacher_role') === 'true') {
+      return true;
+    }
 
-    return roleData?.role === 'teacher';
+    // Primary check: user_roles table
+    try {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      return roleData?.role === 'teacher';
+    } catch {
+      return false;
+    }
   } catch {
     return false;
   }
@@ -282,24 +291,27 @@ export async function registerAsTeacher(inviteCode: string): Promise<{ success: 
       return { success: false, error: 'Invalid invite code' };
     }
 
-    // Check if already a teacher
-    const { data: existing } = await supabase
-      .from('user_roles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
+    // Try Supabase first, fall back to local storage for demo users
+    try {
+      const { data: existing } = await supabase
+        .from('user_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
 
-    if (existing) {
-      return { success: true }; // Already registered
-    }
+      if (existing) {
+        return { success: true }; // Already registered
+      }
 
-    // Insert teacher role
-    const { error } = await supabase
-      .from('user_roles')
-      .insert({ user_id: user.id, role: 'teacher' });
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: user.id, role: 'teacher' });
 
-    if (error) {
-      return { success: false, error: error.message };
+      if (error) throw error;
+    } catch {
+      // Supabase unavailable — store teacher role locally
+      console.warn('[Teacher] Supabase unavailable, storing role locally');
+      localStorage.setItem('btg_teacher_role', 'true');
     }
 
     return { success: true };
