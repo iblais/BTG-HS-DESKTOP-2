@@ -499,7 +499,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
   const weeks: Week[] = Array.from({ length: totalWeeks }, (_, i) => {
     const num = i + 1;
-    const info = weekTitles[num] || { title: `Week ${num}`, description: 'Coming soon' };
+    const info = weekTitles[num] || { title: `Week ${num}`, description: 'Financial literacy fundamentals' };
     return {
       number: num,
       title: info.title,

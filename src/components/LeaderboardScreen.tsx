@@ -261,11 +261,11 @@ export function LeaderboardScreen() {
                 <img
                   src={leaderboard[1].avatar_url}
                   alt=""
-                  className="w-16 h-16 rounded-full border-4 border-gray-300"
+                  className="w-16 h-16 rounded-full border-4 border-white/30"
                 />
               ) : (
                 <div className={cn(
-                  "w-16 h-16 rounded-full bg-gradient-to-br flex items-center justify-center border-4 border-gray-300",
+                  "w-16 h-16 rounded-full bg-gradient-to-br flex items-center justify-center border-4 border-white/30",
                   getAvatarColor(leaderboard[1].id)
                 )}>
                   <span className="text-white font-bold text-xl">
@@ -273,7 +273,7 @@ export function LeaderboardScreen() {
                   </span>
                 </div>
               )}
-              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-800 font-bold text-sm">
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm border border-white/30">
                 2
               </div>
             </div>
@@ -281,7 +281,7 @@ export function LeaderboardScreen() {
               {getDisplayName(leaderboard[1])}
             </p>
             <p className="text-[#10B981] font-bold">{leaderboard[1].total_xp.toLocaleString()} XP</p>
-            <div className="w-full h-20 bg-gray-300/20 rounded-t-lg mt-2" />
+            <div className="w-full h-20 bg-white/10 rounded-t-lg mt-2" />
           </div>
 
           {/* 1st Place */}

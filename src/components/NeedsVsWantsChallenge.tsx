@@ -259,10 +259,10 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
 
         {/* Card */}
         <div className={`relative transition-all duration-300 ${showFeedback ? 'scale-95 opacity-80' : ''}`}>
-          <div className="bg-white rounded-3xl p-8 text-center shadow-2xl">
+          <div className="frost-card rounded-3xl p-8 text-center">
             <div className="text-7xl mb-6">{currentItem.emoji}</div>
-            <h2 className="text-gray-900 text-2xl font-bold mb-2">{currentItem.name}</h2>
-            <p className="text-gray-500 text-sm">Is this a NEED or a WANT?</p>
+            <h2 className="text-[var(--text-primary)] text-2xl font-bold mb-2">{currentItem.name}</h2>
+            <p className="text-[var(--text-muted)] text-sm">Is this a NEED or a WANT?</p>
           </div>
 
           {/* Feedback Overlay */}

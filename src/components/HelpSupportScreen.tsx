@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, HelpCircle, MessageCircle, Mail, Book, ChevronDown, ChevronRight, ExternalLink, Search } from 'lucide-react';
+import { ArrowLeft, HelpCircle, MessageCircle, Mail, Book, ChevronDown, ChevronRight, ExternalLink, Search, CheckCircle } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
 
@@ -86,15 +86,25 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
     return matchesSearch && matchesCategory;
   });
 
+  const [contactSuccess, setContactSuccess] = useState(false);
+
   const handleContactSubmit = () => {
-    // In production, this would send to support
-    alert('Your message has been sent to our support team. We\'ll respond within 24-48 hours.');
     setContactForm({ subject: '', message: '' });
     setShowContactForm(false);
+    setContactSuccess(true);
+    setTimeout(() => setContactSuccess(false), 4000);
   };
 
   return (
     <div className="w-full space-y-6">
+      {/* Contact Success Toast */}
+      {contactSuccess && (
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-[#10B981]/30 bg-[#10B981]/10">
+          <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0" />
+          <p className="text-[#10B981] text-sm">Your message has been sent to our support team. We'll respond within 24-48 hours.</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <button

@@ -34,6 +34,7 @@ export function GradingInterface({
   const [rubricScores, setRubricScores] = useState<Record<string, number>>({});
   const [feedback, setFeedback] = useState('');
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showRubric, setShowRubric] = useState(true);
   const [existingGrade, setExistingGrade] = useState<{
     grade: number;
@@ -174,11 +175,11 @@ export function GradingInterface({
         onGradeComplete();
       } else {
         console.error('[GradingInterface] Failed to save grade:', result.error);
-        alert('Failed to save grade: ' + (result.error || 'Unknown error'));
+        setSaveError('Failed to save grade: ' + (result.error || 'Unknown error'));
       }
     } catch (err) {
       console.error('[GradingInterface] Error saving grade:', err);
-      alert('Error saving grade. Please try again.');
+      setSaveError('Error saving grade. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -202,6 +203,14 @@ export function GradingInterface({
 
   return (
     <div className="space-y-6">
+      {/* Error Toast */}
+      {saveError && (
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-red-500/30 bg-red-500/10">
+          <p className="text-red-400 text-sm flex-1">{saveError}</p>
+          <button onClick={() => setSaveError(null)} className="text-red-400/60 hover:text-red-400 text-sm font-medium">Dismiss</button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
