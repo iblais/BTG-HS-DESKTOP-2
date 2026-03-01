@@ -142,7 +142,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
     { label: 'Total XP', value: profile?.xp?.toLocaleString() || '0', icon: Star, color: 'text-[#FFD700]', bg: 'bg-[#FFD700]/20' },
     { label: 'Level', value: profile?.level || 1, icon: Trophy, color: 'text-[#10B981]', bg: 'bg-[#10B981]/20' },
     { label: 'Day Streak', value: profile?.streak_days || 0, icon: Flame, color: 'text-[#FF6B35]', bg: 'bg-[#FF6B35]/20' },
-    { label: 'Courses', value: 0, icon: BookOpen, color: 'text-[#50D890]', bg: 'bg-[#50D890]/20' },
+    { label: 'Courses', value: 1, icon: BookOpen, color: 'text-[#50D890]', bg: 'bg-[#50D890]/20' },
   ];
 
   const settingsSections: Array<{

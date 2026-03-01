@@ -150,9 +150,6 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
       // Also check quiz completion in localStorage
       const quizKey = `btg_quiz_complete_${week}`;
       if (localStorage.getItem(quizKey)) {
-        if (!activities[week]) {
-          activities[week] = [false, false, false, false, false];
-        }
         // Mark all activities as complete if quiz is done
         activities[week] = [true, true, true, true];
       }

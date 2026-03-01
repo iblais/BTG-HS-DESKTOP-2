@@ -165,7 +165,7 @@ export function GamesScreen() {
           onSaveProgress={(progress) => saveGameScore('road-to-legacy', progress.playerStats?.money || 0, true, progress)}
         />;
       default:
-        setActiveGame(null);
+        return null;
     }
   }
 

@@ -46,6 +46,7 @@ export function TeacherDashboard({
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState<string | null>(null);
   const [removingStudent, setRemovingStudent] = useState<string | null>(null);
+  const [confirmRemoveStudent, setConfirmRemoveStudent] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -135,8 +136,11 @@ export function TeacherDashboard({
   };
 
   const handleRemoveStudent = async (studentId: string, classId: string) => {
-    if (!confirm('Remove this student from the class?')) return;
-
+    if (confirmRemoveStudent !== studentId) {
+      setConfirmRemoveStudent(studentId);
+      return;
+    }
+    setConfirmRemoveStudent(null);
     setRemovingStudent(studentId);
     try {
       const result = await removeStudentFromClass(studentId, classId);
@@ -423,17 +427,34 @@ export function TeacherDashboard({
                               >
                                 View
                               </button>
-                              <button
-                                onClick={() => handleRemoveStudent(student.id, cls.id)}
-                                disabled={removingStudent === student.id}
-                                className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                              >
-                                {removingStudent === student.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                )}
-                              </button>
+                              {confirmRemoveStudent === student.id ? (
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => handleRemoveStudent(student.id, cls.id)}
+                                    className="px-2 py-1 rounded-lg bg-red-500/80 text-white text-xs hover:bg-red-500 transition-colors"
+                                  >
+                                    Remove
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmRemoveStudent(null)}
+                                    className="px-2 py-1 rounded-lg text-white/60 text-xs hover:text-white border border-white/20 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleRemoveStudent(student.id, cls.id)}
+                                  disabled={removingStudent === student.id}
+                                  className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                >
+                                  {removingStudent === student.id ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))}

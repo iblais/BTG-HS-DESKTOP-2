@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, HelpCircle, MessageCircle, Mail, Book, ChevronDown, ChevronRight, ExternalLink, Search, CheckCircle } from 'lucide-react';
+import { ArrowLeft, HelpCircle, MessageCircle, Mail, Book, ChevronDown, ChevronRight, Search, CheckCircle } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
 
@@ -286,27 +286,14 @@ export function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
         </div>
 
         <div className="space-y-3">
-          <a
-            href="#"
-            className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
-          >
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <span className="text-white">Getting Started Guide</span>
-            <ExternalLink className="w-5 h-5 text-white/40" />
-          </a>
-          <a
-            href="#"
-            className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            <span className="text-white">Video Tutorials</span>
-            <ExternalLink className="w-5 h-5 text-white/40" />
-          </a>
-          <a
-            href="#"
-            className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
-          >
+            <span className="text-white/30 text-xs">Built into lessons</span>
+          </div>
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
             <span className="text-white">Financial Glossary</span>
-            <ExternalLink className="w-5 h-5 text-white/40" />
-          </a>
+            <span className="text-white/30 text-xs">In each week's content</span>
+          </div>
         </div>
       </GlassCard>
     </div>

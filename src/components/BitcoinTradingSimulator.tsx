@@ -168,17 +168,22 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
     }
   };
 
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
   const handleReset = async () => {
-    if (confirm('Reset your trading simulator? This will erase all trades and progress.')) {
-      setIsSyncing(true);
-      try {
-        await bitcoinStorage.clear();
-        setState(DEFAULT_STATE);
-      } catch (error) {
-        console.error('Failed to reset simulator:', error);
-      } finally {
-        setIsSyncing(false);
-      }
+    if (!showResetConfirm) {
+      setShowResetConfirm(true);
+      return;
+    }
+    setShowResetConfirm(false);
+    setIsSyncing(true);
+    try {
+      await bitcoinStorage.clear();
+      setState(DEFAULT_STATE);
+    } catch (error) {
+      console.error('Failed to reset simulator:', error);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -240,14 +245,32 @@ export function BitcoinTradingSimulator({ onBack, onSaveProgress }: BitcoinTradi
             </p>
           </div>
         </div>
-        <button
-          onClick={handleReset}
-          disabled={isSyncing}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-red-400 border border-white/20 hover:border-red-500/50 rounded-xl transition-all disabled:opacity-50"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Reset
-        </button>
+        {showResetConfirm ? (
+          <div className="flex items-center gap-2">
+            <span className="text-red-400 text-xs">Erase all progress?</span>
+            <button
+              onClick={handleReset}
+              className="px-3 py-1.5 text-xs font-medium text-white bg-red-500/80 hover:bg-red-500 rounded-lg transition-colors"
+            >
+              Yes, Reset
+            </button>
+            <button
+              onClick={() => setShowResetConfirm(false)}
+              className="px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white border border-white/20 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleReset}
+            disabled={isSyncing}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/60 hover:text-red-400 border border-white/20 hover:border-red-500/50 rounded-xl transition-all disabled:opacity-50"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Portfolio Summary */}

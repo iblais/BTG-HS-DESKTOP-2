@@ -58,8 +58,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     } catch {
       // Absolute last resort — create a demo user directly and log in
       console.warn('[Login] All auth methods failed, using direct fallback');
-      localStorage.setItem('btg_demo_user', JSON.stringify({ id: `demo-${Date.now()}`, email }));
-      onLoginSuccess({ id: `demo-${Date.now()}`, email, isNewUser: false });
+      const demoId = `demo-${Date.now()}`;
+      localStorage.setItem('btg_demo_user', JSON.stringify({ id: demoId, email }));
+      onLoginSuccess({ id: demoId, email, isNewUser: false });
     }
 
     setLoading(false);

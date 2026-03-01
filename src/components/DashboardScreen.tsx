@@ -737,22 +737,22 @@ export function DashboardScreen({
           <div className="space-y-5 md:space-y-6">
             {[
               {
-                name: "Complete 3 modules",
-                done: 2,
-                total: 3,
+                name: "Complete a lesson",
+                done: courseProgress.length > 0 ? 1 : 0,
+                total: 1,
                 gradient: "from-[var(--success)] to-[var(--accent-500)]",
                 color: "var(--success)",
               },
               {
-                name: "Play 2 games",
-                done: 1,
-                total: 2,
+                name: "Explore the games",
+                done: 0,
+                total: 1,
                 gradient: "from-[var(--secondary-400)] to-[#F97316]",
                 color: "var(--secondary-500)",
               },
               {
-                name: "Score 80%+ on quiz",
-                done: 0,
+                name: "Pass a quiz with 80%+",
+                done: courseProgress.filter(w => w.score >= 80).length > 0 ? 1 : 0,
                 total: 1,
                 gradient: "from-[var(--primary-500)] to-[var(--primary-700)]",
                 color: "var(--primary-500)",
@@ -880,17 +880,24 @@ export function DashboardScreen({
         </div>
         <div className="space-y-2 md:space-y-3">
           {[
-            {
+            ...(courseProgress.filter(w => w.completed).length > 0 ? [{
+              icon: CheckCircle,
+              text: `Completed ${courseProgress.filter(w => w.completed).length} week${courseProgress.filter(w => w.completed).length > 1 ? 's' : ''}`,
+              time: "Recently",
+              color: "var(--success-light)",
+              bgColor: "var(--success)",
+            }] : []),
+            ...(courseProgress.length > 0 ? [{
               icon: BookOpen,
-              text: "Started your training journey",
-              time: "Just now",
+              text: `Started ${courseProgress.length} week${courseProgress.length > 1 ? 's' : ''} of lessons`,
+              time: "Recently",
               color: "var(--primary-400)",
               bgColor: "var(--primary-500)",
-            },
+            }] : []),
             {
               icon: CheckCircle,
               text: "Enrolled in financial literacy program",
-              time: "Today",
+              time: "Start",
               color: "var(--success-light)",
               bgColor: "var(--success)",
             },
