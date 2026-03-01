@@ -631,6 +631,26 @@ function AppContent() {
         }}
       >
         <div className="p-4 md:p-6 lg:p-8">
+          {/* Mobile Top Bar with Logo */}
+          {isMobile && (
+            <div className="flex items-center justify-between mb-4 -mt-1">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={logo}
+                  alt="Beyond The Game"
+                  className="h-9 w-auto object-contain"
+                />
+              </div>
+              <div className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border shrink-0",
+                getSyncColor()
+              )}>
+                {getSyncIcon()}
+                <span className="uppercase tracking-wider">{getSyncLabel()}</span>
+              </div>
+            </div>
+          )}
+
           {/* Page Header */}
           <div className="mb-6 md:mb-8 flex items-start justify-between">
             <div>
@@ -646,17 +666,6 @@ function AppContent() {
                 {activeTab === 'teacher' && 'Manage your classes, students, and grading.'}
               </p>
             </div>
-
-            {/* Mobile sync indicator */}
-            {isMobile && (
-              <div className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold border shrink-0",
-                getSyncColor()
-              )}>
-                {getSyncIcon()}
-                <span className="uppercase tracking-wider">{getSyncLabel()}</span>
-              </div>
-            )}
           </div>
 
           {/* Screen Components */}
