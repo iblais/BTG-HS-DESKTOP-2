@@ -138,11 +138,11 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
 
     // 1. First check localStorage for all weeks (1-18)
     for (let week = 1; week <= 18; week++) {
-      for (let section = 0; section < 5; section++) {
+      for (let section = 0; section < 4; section++) {
         const localKey = `btg_activity_${week}_${section}`;
         if (localStorage.getItem(localKey)) {
           if (!activities[week]) {
-            activities[week] = [false, false, false, false, false];
+            activities[week] = [false, false, false, false];
           }
           activities[week][section] = true;
         }
@@ -154,7 +154,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           activities[week] = [false, false, false, false, false];
         }
         // Mark all activities as complete if quiz is done
-        activities[week] = [true, true, true, true, true];
+        activities[week] = [true, true, true, true];
       }
     }
 
@@ -172,7 +172,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             if (!activities[item.week_number]) {
               activities[item.week_number] = [false, false, false, false, false];
             }
-            if (item.day_number >= 1 && item.day_number <= 5) {
+            if (item.day_number >= 1 && item.day_number <= 4) {
               activities[item.week_number][item.day_number - 1] = true;
             }
           });
@@ -479,8 +479,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
     const activities = weekActivities[weekNum];
     if (activities) {
       const completedCount = activities.filter(a => a).length;
-      // 5 activities = 50% (lesson), quiz adds another 50%
-      return Math.round((completedCount / 5) * 50);
+      // 4 activities = 50% (lesson), quiz adds another 50%
+      return Math.round((completedCount / 4) * 50);
     }
 
     return progress?.score || 0;

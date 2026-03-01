@@ -426,7 +426,7 @@ export function DashboardScreen({
           {/* Stat trio */}
           <div className="grid grid-cols-3 gap-2.5 md:gap-4">
             {/* XP Card */}
-            <div className="stat-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--primary-500)]/20 cursor-pointer group overflow-hidden">
+            <div className="stat-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--primary-500)]/20 group overflow-hidden">
               {/* Subtle mesh overlay */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-[var(--primary-500)]/5 to-transparent" />
               <div className="relative z-10">
@@ -443,7 +443,7 @@ export function DashboardScreen({
             </div>
 
             {/* Streak Card */}
-            <div className="stat-glow fire-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--secondary-500)]/20 cursor-pointer group overflow-hidden">
+            <div className="stat-glow fire-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--secondary-500)]/20 group overflow-hidden">
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-[var(--secondary-400)]/5 to-transparent" />
               <div className="relative z-10">
                 <div className="w-9 h-9 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 rounded-xl bg-gradient-to-br from-[var(--secondary-400)] to-[#F97316] flex items-center justify-center shadow-lg shadow-[var(--secondary-500)]/20 float-icon">
@@ -459,7 +459,7 @@ export function DashboardScreen({
             </div>
 
             {/* Level Card */}
-            <div className="stat-glow success-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--success)]/20 cursor-pointer group overflow-hidden">
+            <div className="stat-glow success-glow relative text-center p-3 md:p-5 bg-[var(--bg-base)] rounded-xl md:rounded-2xl border border-[var(--success)]/20 group overflow-hidden">
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-[var(--success)]/5 to-transparent" />
               <div className="relative z-10">
                 <div className="w-9 h-9 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 rounded-xl bg-gradient-to-br from-[var(--success)] to-[var(--accent-500)] flex items-center justify-center shadow-lg shadow-[var(--success)]/20 float-icon">
@@ -823,7 +823,7 @@ export function DashboardScreen({
                 <div
                   key={badge.id}
                   className={cn(
-                    "badge-3d flex flex-col items-center p-2.5 md:p-5 rounded-xl md:rounded-2xl cursor-pointer",
+                    "badge-3d flex flex-col items-center p-2.5 md:p-5 rounded-xl md:rounded-2xl",
                     earned
                       ? "bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--bg-base)] badge-earned-glow border border-[var(--secondary-400)]/15"
                       : "bg-[var(--bg-base)]/40 border border-[var(--border-subtle)] hover:border-[var(--border-default)]",

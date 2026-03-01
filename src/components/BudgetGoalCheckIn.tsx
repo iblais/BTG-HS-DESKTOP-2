@@ -19,28 +19,31 @@ interface BudgetGoalCheckInProps {
 }
 
 export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
+  const defaultGoals: BudgetGoal[] = [
+    {
+      id: '1',
+      name: 'Emergency Fund',
+      targetAmount: 1000,
+      currentAmount: 350,
+      deadline: '2025-06-01',
+      category: 'emergency',
+      createdAt: '2025-01-01'
+    },
+    {
+      id: '2',
+      name: 'New Laptop',
+      targetAmount: 800,
+      currentAmount: 200,
+      deadline: '2025-08-01',
+      category: 'purchase',
+      createdAt: '2025-01-01'
+    }
+  ];
+
   const [goals, setGoals] = useState<BudgetGoal[]>(() => {
     const saved = localStorage.getItem('budgetGoals');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: '1',
-        name: 'Emergency Fund',
-        targetAmount: 1000,
-        currentAmount: 350,
-        deadline: '2025-06-01',
-        category: 'emergency',
-        createdAt: '2025-01-01'
-      },
-      {
-        id: '2',
-        name: 'New Laptop',
-        targetAmount: 800,
-        currentAmount: 200,
-        deadline: '2025-08-01',
-        category: 'purchase',
-        createdAt: '2025-01-01'
-      }
-    ];
+    if (!saved) return defaultGoals;
+    try { return JSON.parse(saved); } catch { return defaultGoals; }
   });
 
   const [showAddGoal, setShowAddGoal] = useState(false);
@@ -62,11 +65,13 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
 
   const handleAddGoal = () => {
     if (!newGoal.name || !newGoal.targetAmount || !newGoal.deadline) return;
+    const parsedTarget = parseFloat(newGoal.targetAmount);
+    if (isNaN(parsedTarget) || parsedTarget <= 0) return;
 
     const goal: BudgetGoal = {
       id: Date.now().toString(),
       name: newGoal.name,
-      targetAmount: parseFloat(newGoal.targetAmount),
+      targetAmount: parsedTarget,
       currentAmount: parseFloat(newGoal.currentAmount) || 0,
       deadline: newGoal.deadline,
       category: newGoal.category,
@@ -80,7 +85,7 @@ export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
 
   const handleCheckIn = (goalId: string) => {
     const amount = parseFloat(checkInAmount[goalId] || '0');
-    if (isNaN(amount) || amount === 0) return;
+    if (isNaN(amount) || amount <= 0) return;
 
     const updatedGoals = goals.map(goal => {
       if (goal.id === goalId) {

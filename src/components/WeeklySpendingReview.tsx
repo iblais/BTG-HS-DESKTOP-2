@@ -39,12 +39,14 @@ const CATEGORIES = [
 export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
   const [entries, setEntries] = useState<SpendingEntry[]>(() => {
     const saved = localStorage.getItem('weeklySpending');
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    try { return JSON.parse(saved); } catch { return []; }
   });
 
   const [budget, setBudget] = useState<WeeklyBudget>(() => {
     const saved = localStorage.getItem('weeklyBudget');
-    return saved ? JSON.parse(saved) : { needs: 300, wants: 150, savings: 100 };
+    if (!saved) return { needs: 300, wants: 150, savings: 100 };
+    try { return JSON.parse(saved); } catch { return { needs: 300, wants: 150, savings: 100 }; }
   });
 
   const [showAddEntry, setShowAddEntry] = useState(false);
@@ -103,11 +105,13 @@ export function WeeklySpendingReview({ onClose }: WeeklySpendingReviewProps) {
 
   const handleAddEntry = () => {
     if (!newEntry.amount || !newEntry.category) return;
+    const parsedAmount = parseFloat(newEntry.amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) return;
 
     const category = CATEGORIES.find(c => c.id === newEntry.category);
     const entry: SpendingEntry = {
       id: Date.now().toString(),
-      amount: parseFloat(newEntry.amount),
+      amount: parsedAmount,
       category: newEntry.category,
       description: newEntry.description || category?.label || '',
       date: new Date().toISOString(),

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface RoadToLegacyGameProps {
   onBack: () => void;
@@ -1257,7 +1258,9 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
     const newStats = { ...playerStats };
     Object.entries(choice.consequences.statChanges).forEach(([stat, change]) => {
       if (change && stat in newStats) {
-        newStats[stat as keyof PlayerStats] = Math.max(0, Math.min(100, newStats[stat as keyof PlayerStats] + change));
+        // Money uses a larger range (0-1000), other stats use 0-100
+        const maxVal = stat === 'money' ? 1000 : 100;
+        newStats[stat as keyof PlayerStats] = Math.max(0, Math.min(maxVal, newStats[stat as keyof PlayerStats] + change));
       }
     });
     setPlayerStats(newStats);
@@ -1643,8 +1646,11 @@ export const RoadToLegacyGame: React.FC<RoadToLegacyGameProps> = ({ onBack, save
                   {stat === 'coachTrust' ? 'Coach Trust' : stat}
                 </span>
               </div>
-              <div className="text-[#10B981] text-xs" style={{ fontFamily: 'Inter' }}>
-                +{Math.max(0, value - (selectedRole?.startingStats[stat as keyof PlayerStats] || 0))} from start
+              <div className={cn(
+                "text-xs",
+                value - (selectedRole?.startingStats[stat as keyof PlayerStats] || 0) >= 0 ? "text-[#10B981]" : "text-red-400"
+              )} style={{ fontFamily: 'Inter' }}>
+                {value - (selectedRole?.startingStats[stat as keyof PlayerStats] || 0) >= 0 ? '+' : ''}{value - (selectedRole?.startingStats[stat as keyof PlayerStats] || 0)} from start
               </div>
             </div>
           ))}

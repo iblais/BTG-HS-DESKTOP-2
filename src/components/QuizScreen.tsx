@@ -2583,7 +2583,7 @@ export function QuizScreen({
   };
 
   const getGradeInfo = (score: number) => {
-    const percentage = (score / totalQuestions) * 100;
+    const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
     if (percentage >= 90) return { grade: 'A', color: 'text-[#50D890]', passed: true };
     if (percentage >= 80) return { grade: 'B', color: 'text-[#10B981]', passed: true };
     if (percentage >= 70) return { grade: 'C', color: 'text-[#FF6B35]', passed: true };
@@ -2788,7 +2788,7 @@ export function QuizScreen({
   if (showResults) {
     const score = calculateScore();
     const { grade, color, passed } = getGradeInfo(score);
-    const percentage = Math.round((score / totalQuestions) * 100);
+    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
 
     return (
       <div className="w-full space-y-6 pb-6 md:pb-0">
@@ -2936,7 +2936,7 @@ export function QuizScreen({
 
   // Quiz screen
   const currentQ = questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+  const progress = totalQuestions > 0 ? ((currentQuestion + 1) / totalQuestions) * 100 : 0;
 
   return (
     <div className="w-full space-y-6 pb-6 md:pb-0">

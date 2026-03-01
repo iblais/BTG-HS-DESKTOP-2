@@ -173,7 +173,7 @@ export function GamesScreen() {
     <div className="w-full space-y-4 md:space-y-8 pb-6 md:pb-0">
       {/* Header Stats - EXCITING VERSION */}
       <div className="grid grid-cols-3 gap-2 md:gap-5">
-        <div className="stat-glow bg-[var(--bg-elevated)] border border-[var(--primary-500)]/20 rounded-xl p-3 md:p-6 cursor-pointer">
+        <div className="stat-glow bg-[var(--bg-elevated)] border border-[var(--primary-500)]/20 rounded-xl p-3 md:p-6">
           <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-[var(--primary-500)] to-[var(--primary-600)] flex items-center justify-center mb-2 md:mb-4 shadow-lg shadow-[var(--primary-500)]/30">
             <Gamepad2 className="w-5 h-5 md:w-7 md:h-7 text-white float-icon" />
           </div>
@@ -181,7 +181,7 @@ export function GamesScreen() {
           <p className="text-[var(--text-tertiary)] text-[10px] md:text-sm mt-1 md:mt-2 uppercase tracking-wider font-semibold">Games</p>
         </div>
 
-        <div className="stat-glow fire-glow bg-[var(--bg-elevated)] border border-[var(--secondary-500)]/20 rounded-xl p-3 md:p-6 cursor-pointer">
+        <div className="stat-glow fire-glow bg-[var(--bg-elevated)] border border-[var(--secondary-500)]/20 rounded-xl p-3 md:p-6">
           <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-[var(--secondary-400)] to-[#F97316] flex items-center justify-center mb-2 md:mb-4 shadow-lg shadow-[var(--secondary-500)]/30">
             <Trophy className="w-5 h-5 md:w-7 md:h-7 text-white float-icon" />
           </div>
@@ -189,7 +189,7 @@ export function GamesScreen() {
           <p className="text-[var(--text-tertiary)] text-[10px] md:text-sm mt-1 md:mt-2 uppercase tracking-wider font-semibold">Scores</p>
         </div>
 
-        <div className="stat-glow success-glow bg-[var(--bg-elevated)] border border-[var(--success)]/20 rounded-xl p-3 md:p-6 cursor-pointer">
+        <div className="stat-glow success-glow bg-[var(--bg-elevated)] border border-[var(--success)]/20 rounded-xl p-3 md:p-6">
           <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-[var(--success)] to-[var(--success-dark)] flex items-center justify-center mb-2 md:mb-4 shadow-lg shadow-[var(--success)]/30">
             <Target className="w-5 h-5 md:w-7 md:h-7 text-white float-icon" />
           </div>

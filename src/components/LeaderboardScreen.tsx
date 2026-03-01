@@ -17,18 +17,15 @@ interface LeaderboardEntry {
   rank_change: number; // positive = moved up, negative = moved down, 0 = no change
 }
 
-type TimeFilter = 'all_time' | 'this_week' | 'this_month';
-
 export function LeaderboardScreen() {
   const [loading, setLoading] = useState(true);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all_time');
 
   useEffect(() => {
     loadLeaderboard();
-  }, [timeFilter]);
+  }, []);
 
   const loadLeaderboard = async () => {
     try {
@@ -128,7 +125,7 @@ export function LeaderboardScreen() {
           streak_days: userData?.streak_days || 0,
           weeks_completed: weeksCompletedMap[p.id] || 0,
           rank: index + 1,
-          rank_change: Math.floor(Math.random() * 5) - 2, // Simulated rank change for now
+          rank_change: 0,
         };
       });
 
@@ -227,28 +224,6 @@ export function LeaderboardScreen() {
             <Flame className="w-12 h-12 text-orange-400/30" />
           </div>
         </div>
-      </div>
-
-      {/* Time Filter */}
-      <div className="flex gap-2">
-        {[
-          { id: 'all_time', label: 'All Time' },
-          { id: 'this_month', label: 'This Month' },
-          { id: 'this_week', label: 'This Week' },
-        ].map((filter) => (
-          <button
-            key={filter.id}
-            onClick={() => setTimeFilter(filter.id as TimeFilter)}
-            className={cn(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-              timeFilter === filter.id
-                ? "bg-[#10B981] text-white"
-                : "bg-white/5 text-white/60 hover:bg-white/10"
-            )}
-          >
-            {filter.label}
-          </button>
-        ))}
       </div>
 
       {/* Top 3 Podium */}

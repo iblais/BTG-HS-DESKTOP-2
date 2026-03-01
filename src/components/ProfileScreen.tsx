@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase';
 import { type Enrollment } from '@/lib/enrollment';
 import {
   Mail, Calendar, Trophy, Star, Flame, BookOpen,
-  LogOut, ChevronRight, Edit2, Shield, Bell,
-  Download, Trash2, Loader2, Check, Settings, Camera, Globe
+  LogOut, ChevronRight, Edit2,
+  Trash2, Loader2, Check, Settings, Camera, Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AccountSettingsScreen } from './AccountSettingsScreen';
@@ -159,15 +159,23 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
       title: 'Account',
       items: [
         { icon: Settings, label: 'Account Settings', description: 'Profile, password, and security', action: () => setShowAccountSettings(true) },
-        { icon: Bell, label: 'Notifications', description: 'Manage notification preferences' },
-        { icon: Shield, label: 'Privacy & Security', description: 'Password and security settings' },
       ]
     },
     {
       title: 'Data',
       items: [
-        { icon: Download, label: 'Download Data', description: 'Export your progress and data' },
-        { icon: Trash2, label: 'Clear Cache', description: 'Clear offline data cache', danger: true },
+        { icon: Trash2, label: 'Clear Cache', description: 'Clear offline data cache', danger: true, action: () => {
+          localStorage.removeItem('weeklySpending');
+          localStorage.removeItem('weeklyBudget');
+          localStorage.removeItem('budgetGoals');
+          // Clear course caches
+          for (let i = 1; i <= 18; i++) {
+            for (let s = 0; s < 5; s++) {
+              localStorage.removeItem(`btg_activity_${i}_${s}`);
+            }
+          }
+          window.location.reload();
+        }},
       ]
     }
   ];
