@@ -306,27 +306,6 @@ export async function isTeacher(): Promise<boolean> {
   }
 }
 
-async function getCurrentTeacherRecord(): Promise<Teacher | null> {
-  const user = await getCurrentUser();
-  if (!user) return null;
-
-  const { data: byUserId } = await supabase
-    .from('teachers')
-    .select('id, user_id, email, created_at')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (byUserId) return byUserId as Teacher;
-
-  const { data: byEmail } = await supabase
-    .from('teachers')
-    .select('id, user_id, email, created_at')
-    .eq('email', user.email)
-    .maybeSingle();
-
-  return (byEmail as Teacher | null) || null;
-}
-
 interface TeacherRoster {
   teacherId: string;
   classesById: Map<string, Class>;
@@ -337,12 +316,17 @@ interface TeacherRoster {
 
 async function getTeacherRoster(): Promise<TeacherRoster | null> {
   try {
-    const teacher = await getCurrentTeacherRecord();
-    if (!teacher) return null;
+    const user = await getCurrentUser();
+    if (!user) return null;
 
-    const { data: classRows, error: classError } = await supabase.rpc('get_teacher_classes');
+    // 1. Get all classes owned by this teacher
+    const { data: classRows, error: classError } = await supabase
+      .from('classes')
+      .select('*')
+      .eq('teacher_id', user.id);
+
     if (classError) {
-      console.error('[Teacher] get_teacher_classes RPC error:', classError);
+      console.error('[Teacher] Error fetching classes:', classError);
       return null;
     }
 
@@ -352,7 +336,7 @@ async function getTeacherRoster(): Promise<TeacherRoster | null> {
 
     if (classIds.length === 0) {
       return {
-        teacherId: teacher.id,
+        teacherId: user.id,
         classesById,
         classIds,
         studentIds: [],
@@ -360,16 +344,21 @@ async function getTeacherRoster(): Promise<TeacherRoster | null> {
       };
     }
 
-    const { data: mapRows, error: mapError } = await supabase.rpc('get_teacher_student_class_map');
+    // 2. Get all student enrollments mapping to these classes
+    const { data: mapRows, error: mapError } = await supabase
+      .from('teacher_students')
+      .select('student_id, class_id')
+      .in('class_id', classIds);
+
     if (mapError) {
-      console.error('[Teacher] get_teacher_student_class_map RPC error:', mapError);
+      console.error('[Teacher] Error fetching teacher_students:', mapError);
       return null;
     }
 
     const studentToClassIds = new Map<string, string[]>();
     for (const row of mapRows || []) {
-      const studentId = row.student_id as string;
-      const classId = row.class_id as string;
+      const studentId = row.student_id;
+      const classId = row.class_id;
       const mapped = studentToClassIds.get(studentId) || [];
       if (!mapped.includes(classId)) {
         mapped.push(classId);
@@ -378,7 +367,7 @@ async function getTeacherRoster(): Promise<TeacherRoster | null> {
     }
 
     return {
-      teacherId: teacher.id,
+      teacherId: user.id,
       classesById,
       classIds,
       studentIds: Array.from(studentToClassIds.keys()),
@@ -389,6 +378,9 @@ async function getTeacherRoster(): Promise<TeacherRoster | null> {
     return null;
   }
 }
+
+
+
 
 export async function canTeacherAccessStudent(studentId: string): Promise<boolean> {
   const roster = await getTeacherRoster();
