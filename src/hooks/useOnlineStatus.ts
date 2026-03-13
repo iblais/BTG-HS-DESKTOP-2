@@ -16,27 +16,6 @@ export function useOnlineStatus(): OnlineStatus {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
 
-  // Handle online/offline events
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      // Auto-sync when coming back online
-      syncNow();
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
   // Manual sync function
   const syncNow = useCallback(async () => {
     if (!navigator.onLine || isSyncing) return;
@@ -56,6 +35,27 @@ export function useOnlineStatus(): OnlineStatus {
       setIsSyncing(false);
     }
   }, [isSyncing]);
+
+  // Handle online/offline events
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      // Auto-sync when coming back online
+      syncNow();
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [syncNow]);
 
   return {
     isOnline,

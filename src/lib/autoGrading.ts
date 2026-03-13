@@ -167,7 +167,7 @@ function fallbackGrading(response: string, rubric: RubricCriterion[]): GradingRe
   const charCount = response.length;
 
   // Base score on length (minimum 200 chars required)
-  let lengthScore = Math.min(1, charCount / 500); // Full credit at 500+ chars
+  const lengthScore = Math.min(1, charCount / 500); // Full credit at 500+ chars
 
   // Check for financial keywords
   const financialKeywords = [

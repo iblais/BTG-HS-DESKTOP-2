@@ -14,6 +14,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => {
     const context = useContext(LanguageContext);
     if (!context) {
@@ -87,6 +88,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     };
 
     // Load dictionaries
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [strings, setStrings] = useState<any>(null);
 
     useEffect(() => {
@@ -111,7 +113,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         for (const k of keys) {
             if (value && typeof value === 'object' && k in value) {
-                value = value[k];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                value = (value as any)[k];
             } else {
                 return key; // Fallback to key if not found
             }
