@@ -258,6 +258,15 @@ export async function isTeacher(): Promise<boolean> {
     const user = await getCurrentUser();
     if (!user) return false;
 
+    // Check for teacher emails (hardcoded for now - can be moved to env or database)
+    const teacherEmails = [
+      'itsblais@gmail.com',
+      'creditchampionz@gmail.com',
+    ];
+    if (teacherEmails.includes(user.email.toLowerCase())) {
+      return true;
+    }
+
     // Primary source of truth: teachers table (supports self-created teacher accounts by email/user id mapping)
     const { data: teacherByUserId } = await supabase
       .from('teachers')
