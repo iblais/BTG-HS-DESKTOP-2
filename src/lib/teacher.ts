@@ -424,16 +424,24 @@ export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
     if (!user) return [];
 
     const roster = await getTeacherRoster();
-    if (!roster || roster.studentIds.length === 0) return [];
+    const isAdmin = ['itsblais@gmail.com', 'creditchampionz@gmail.com'].includes(user.email.toLowerCase());
+    
+    if (!isAdmin && (!roster || roster.studentIds.length === 0)) return [];
 
-    // Manually query all the students in the roster
-    const { data: students, error: usersErr } = await supabase
+    // Query students based on role
+    let query = supabase
       .from('users')
-      .select('id, email, display_name, avatar_url, created_at, last_active')
-      .in('id', roster.studentIds)
-      .order('created_at', { ascending: false });
+      .select('id, email, display_name, avatar_url, created_at, last_active');
+      
+    if (!isAdmin) {
+      query = query.in('id', roster!.studentIds);
+    } else {
+      query = query.neq('id', user.id).limit(1000);
+    }
 
-    if (usersErr || !students) return [];
+    const { data: students, error: usersErr } = await query.order('created_at', { ascending: false });
+
+    if (usersErr || !students || students.length === 0) return [];
 
     const studentsWithProgress: StudentWithProgress[] = await Promise.all(
       students.map(async (student) => {
@@ -457,8 +465,8 @@ export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
           : 0;
 
         // Determine class IDs and names for this student based on roster
-        const classIds = roster.studentToClassIds.get(student.id) || [];
-        const classNames = classIds.map(classId => roster.classesById.get(classId)?.name || 'Unknown Class');
+        const classIds = roster?.studentToClassIds.get(student.id) || [];
+        const classNames = classIds.map(classId => roster?.classesById.get(classId)?.name || 'Unknown Class');
 
         return {
           id: student.id,
@@ -818,30 +826,43 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
 
 export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueActivity[]> {
   try {
-    const roster = await getTeacherRoster();
-    if (!roster || roster.studentIds.length === 0) return [];
+    const user = await getCurrentUser();
+    if (!user) return [];
 
-    const [activitiesResult, usersResult, gradesMap] = await Promise.all([
-      supabase
-        .from('activity_responses')
-        .select('*')
-        .in('user_id', roster.studentIds)
-        .order('submitted_at', { ascending: false }),
-      supabase
-        .from('users')
-        .select('id, email, display_name')
-        .in('id', roster.studentIds),
+    const roster = await getTeacherRoster();
+    const isAdmin = ['itsblais@gmail.com', 'creditchampionz@gmail.com'].includes(user.email.toLowerCase());
+
+    if (!isAdmin && (!roster || roster.studentIds.length === 0)) return [];
+
+    let activitiesQuery = supabase
+      .from('activity_responses')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+
+    if (!isAdmin) {
+      activitiesQuery = activitiesQuery.in('user_id', roster!.studentIds);
+    }
+
+    const [activitiesResult, gradesMap] = await Promise.all([
+      activitiesQuery,
       getAllGrades(),
     ]);
 
-    if (activitiesResult.error || !activitiesResult.data) {
-      console.error('[Teacher] Error loading grading queue:', activitiesResult.error);
+    if (activitiesResult.error || !activitiesResult.data || activitiesResult.data.length === 0) {
+      if (activitiesResult.error) console.error('[Teacher] Error loading grading queue:', activitiesResult.error);
       return [];
     }
 
+    // Get unique user IDs to fetch their profiles
+    const userIds = Array.from(new Set(activitiesResult.data.map(a => a.user_id)));
+    const { data: usersData } = await supabase
+      .from('users')
+      .select('id, email, display_name')
+      .in('id', userIds);
+
     const usersMap = new Map<string, { email: string; display_name: string | null }>();
-    for (const user of usersResult.data || []) {
-      usersMap.set(user.id, { email: user.email, display_name: user.display_name });
+    for (const u of usersData || []) {
+      usersMap.set(u.id, { email: u.email, display_name: u.display_name });
     }
 
     return activitiesResult.data.map((activity) => {
@@ -849,7 +870,7 @@ export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueAc
       // But inside gradesMap.has(gradeKey) it expects `${student_id}-${week_number}-${day_number}`
       const gradeKey = `${activity.user_id}-${activity.week_number}-${activity.day_number}`;
       const userInfo = usersMap.get(activity.user_id);
-      const classIds = roster.studentToClassIds.get(activity.user_id) || [];
+      const classIds = roster?.studentToClassIds.get(activity.user_id) || [];
 
       return {
         ...activity,
@@ -857,7 +878,7 @@ export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueAc
         student_name: userInfo?.display_name || null,
         class_ids: classIds,
         class_names: classIds
-          .map((classId) => roster.classesById.get(classId)?.name)
+          .map((classId) => roster?.classesById.get(classId)?.name)
           .filter((name): name is string => Boolean(name)),
         is_graded: gradesMap.has(gradeKey),
       };
