@@ -306,35 +306,105 @@ export async function isTeacher(): Promise<boolean> {
   }
 }
 
+async function getCurrentTeacherRecord(): Promise<Teacher | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
 
+  const { data: byUserId } = await supabase
+    .from('teachers')
+    .select('id, user_id, email, created_at')
+    .eq('user_id', user.id)
+    .maybeSingle();
 
+  if (byUserId) return byUserId as Teacher;
 
-export async function canTeacherAccessStudent(_studentId: string): Promise<boolean> {
-  return await isTeacher();
+  const { data: byEmail } = await supabase
+    .from('teachers')
+    .select('id, user_id, email, created_at')
+    .eq('email', user.email)
+    .maybeSingle();
+
+  return (byEmail as Teacher | null) || null;
+}
+
+interface TeacherRoster {
+  teacherId: string;
+  classesById: Map<string, Class>;
+  classIds: string[];
+  studentIds: string[];
+  studentToClassIds: Map<string, string[]>;
+}
+
+async function getTeacherRoster(): Promise<TeacherRoster | null> {
+  try {
+    const teacher = await getCurrentTeacherRecord();
+    if (!teacher) return null;
+
+    const { data: classRows, error: classError } = await supabase.rpc('get_teacher_classes');
+    if (classError) {
+      console.error('[Teacher] get_teacher_classes RPC error:', classError);
+      return null;
+    }
+
+    const classList = (classRows || []) as Class[];
+    const classIds = classList.map((cls) => cls.id);
+    const classesById = new Map<string, Class>(classList.map((cls) => [cls.id, cls]));
+
+    if (classIds.length === 0) {
+      return {
+        teacherId: teacher.id,
+        classesById,
+        classIds,
+        studentIds: [],
+        studentToClassIds: new Map(),
+      };
+    }
+
+    const { data: mapRows, error: mapError } = await supabase.rpc('get_teacher_student_class_map');
+    if (mapError) {
+      console.error('[Teacher] get_teacher_student_class_map RPC error:', mapError);
+      return null;
+    }
+
+    const studentToClassIds = new Map<string, string[]>();
+    for (const row of mapRows || []) {
+      const studentId = row.student_id as string;
+      const classId = row.class_id as string;
+      const mapped = studentToClassIds.get(studentId) || [];
+      if (!mapped.includes(classId)) {
+        mapped.push(classId);
+        studentToClassIds.set(studentId, mapped);
+      }
+    }
+
+    return {
+      teacherId: teacher.id,
+      classesById,
+      classIds,
+      studentIds: Array.from(studentToClassIds.keys()),
+      studentToClassIds,
+    };
+  } catch (err) {
+    console.error('[Teacher] Failed to build roster:', err);
+    return null;
+  }
+}
+
+export async function canTeacherAccessStudent(studentId: string): Promise<boolean> {
+  const roster = await getTeacherRoster();
+  if (!roster) return false;
+  return roster.studentIds.includes(studentId);
 }
 
 // Get teacher's classes
 export async function getTeacherClasses(): Promise<Class[]> {
   try {
-    const user = await getCurrentUser();
-    if (!user) return [];
+    const roster = await getTeacherRoster();
+    if (!roster) return [];
 
-    // First get teacher record
-    const { data: teacherData } = await supabase
-      .from('teachers')
-      .select('id')
-      .eq('email', user.email)
-      .maybeSingle();
-
-    if (!teacherData) return [];
-
-    const { data: classes } = await supabase
-      .from('classes')
-      .select('*')
-      .eq('teacher_id', teacherData.id)
-      .order('created_at', { ascending: false });
-
-    return classes || [];
+    return Array.from(roster.classesById.values()).sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
   } catch (err) {
     console.error('Failed to get teacher classes:', err);
     return [];
@@ -344,103 +414,39 @@ export async function getTeacherClasses(): Promise<Class[]> {
 // Get students in a class
 export async function getClassStudents(classId: string): Promise<StudentWithProgress[]> {
   try {
-    const { data: enrollments } = await supabase
-      .from('class_enrollments')
-      .select('student_id')
-      .eq('class_id', classId);
+    const roster = await getTeacherRoster();
+    if (!roster || !roster.classIds.includes(classId)) return [];
 
-    if (!enrollments || enrollments.length === 0) return [];
-
-    const studentIds = enrollments.map((e: any) => e.student_id);
-
-    // Get student profiles
     const all = await getAllTeacherStudents();
-    return all.filter((student) => studentIds.includes(student.id));
+    return all.filter((student) => student.class_ids.includes(classId));
   } catch (err) {
     console.error('Failed to get class students:', err);
     return [];
   }
 }
 
-// Get all students for a teacher (all users in the system)
+// Get all students for a teacher (only students enrolled in teacher-owned classes)
 export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
   try {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      console.log('[Teacher] No current user found');
-      return [];
-    }
-
-    console.log('[Teacher] Current user:', currentUser.email, currentUser.id);
-
-    // First check if there are ANY users at all (including self)
-    const { data: allUsers, error: countError } = await supabase
-      .from('users')
-      .select('id, email')
-      .limit(100);
-
-    console.log('[Teacher] Total users in database:', allUsers?.length || 0, countError?.message || 'no error');
-    if (allUsers) {
-      console.log('[Teacher] User list:', allUsers.map(u => u.email));
-    }
-
-    // Get ALL users from the database (except the current teacher)
-    const { data: students, error } = await supabase
-      .from('users')
-      .select('id, email, display_name, avatar_url, created_at')
-      .neq('id', currentUser.id)
-      .order('created_at', { ascending: false });
-
-    console.log('[Teacher] Students (excluding self):', students?.length || 0, error?.message || 'no error');
-
+    const { data, error } = await supabase.rpc('get_teacher_students_progress');
     if (error) {
-      console.error('[Teacher] Error fetching users:', error);
+      console.error('[Teacher] get_teacher_students_progress RPC error:', error);
       return [];
     }
 
-    if (!students || students.length === 0) {
-      console.log('[Teacher] No students found in database');
-      return [];
-    }
-
-    // Get progress data for each student
-    const studentsWithProgress: StudentWithProgress[] = await Promise.all(
-      students.map(async (student) => {
-        // Get course progress
-        const { data: progress } = await supabase
-          .from('course_progress')
-          .select('week_number, quiz_completed, best_quiz_score')
-          .eq('user_id', student.id);
-
-        // Get activity count
-        const { data: activities } = await supabase
-          .from('activity_responses')
-          .select('id')
-          .eq('user_id', student.id);
-
-        const weeksCompleted = progress?.filter(p => p.quiz_completed).length || 0;
-        const totalActivities = activities?.length || 0;
-        const quizScores = progress?.filter(p => p.best_quiz_score !== null).map(p => p.best_quiz_score) || [];
-        const averageQuizScore = quizScores.length > 0
-          ? Math.round(quizScores.reduce((a, b) => a + b, 0) / quizScores.length)
-          : 0;
-
-        return {
-          id: student.id,
-          email: student.email,
-          display_name: student.display_name,
-          avatar_url: student.avatar_url,
-          created_at: student.created_at,
-          class_ids: [],
-          class_names: [],
-          weeks_completed: weeksCompleted,
-          total_activities: totalActivities,
-          average_quiz_score: averageQuizScore,
-        };
-      })
-    );
-
-    return studentsWithProgress;
+    return ((data || []) as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      email: String(row.email || ''),
+      display_name: (row.display_name as string | null) || null,
+      avatar_url: (row.avatar_url as string | null) || null,
+      created_at: String(row.created_at || new Date().toISOString()),
+      class_ids: ((row.class_ids as string[] | null) || []).filter(Boolean),
+      class_names: ((row.class_names as string[] | null) || []).filter(Boolean),
+      weeks_completed: Number(row.weeks_completed || 0),
+      total_activities: Number(row.total_activities || 0),
+      average_quiz_score: Number(row.average_quiz_score || 0),
+      last_active: (row.last_active as string | undefined) || undefined,
+    }));
   } catch (err) {
     console.error('Failed to get all teacher students:', err);
     return [];
@@ -703,10 +709,15 @@ export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
   if (!user) return gradesMap;
 
   try {
+    const roster = await getTeacherRoster();
+    if (!roster || roster.studentIds.length === 0) return gradesMap;
+
     // Query all grades from database
     const { data, error } = await supabase
       .from('activity_grades')
-      .select('*');
+      .select('*')
+      .eq('teacher_id', user.id)
+      .in('student_id', roster.studentIds);
 
     if (data && !error) {
       data.forEach(grade => {
@@ -802,16 +813,19 @@ export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueAc
     }
 
     // Fallback path for environments that do not yet have the queue RPC.
-    const students = await getAllTeacherStudents();
-    const studentIds = students.map(s => s.id);
-    if (studentIds.length === 0) return [];
+    const roster = await getTeacherRoster();
+    if (!roster || roster.studentIds.length === 0) return [];
 
-    const [activitiesResult, gradesMap] = await Promise.all([
+    const [activitiesResult, usersResult, gradesMap] = await Promise.all([
       supabase
         .from('activity_responses')
         .select('*')
-        .in('user_id', studentIds)
+        .in('user_id', roster.studentIds)
         .order('submitted_at', { ascending: false }),
+      supabase
+        .from('users')
+        .select('id, email, display_name')
+        .in('id', roster.studentIds),
       getAllGrades(),
     ]);
 
@@ -821,20 +835,23 @@ export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueAc
     }
 
     const usersMap = new Map<string, { email: string; display_name: string | null }>();
-    for (const student of students) {
-      usersMap.set(student.id, { email: student.email, display_name: student.display_name });
+    for (const user of usersResult.data || []) {
+      usersMap.set(user.id, { email: user.email, display_name: user.display_name });
     }
 
     return activitiesResult.data.map((activity) => {
       const gradeKey = `${activity.user_id}-${activity.week_number}-${activity.day_number}`;
       const userInfo = usersMap.get(activity.user_id);
+      const classIds = roster.studentToClassIds.get(activity.user_id) || [];
 
       return {
         ...activity,
         student_email: userInfo?.email || 'Unknown',
         student_name: userInfo?.display_name || null,
-        class_ids: [],
-        class_names: [],
+        class_ids: classIds,
+        class_names: classIds
+          .map((classId) => roster.classesById.get(classId)?.name)
+          .filter((name): name is string => Boolean(name)),
         is_graded: gradesMap.has(gradeKey),
       };
     });
@@ -898,8 +915,8 @@ export async function createClass(name: string, _gradeLevel?: string): Promise<C
 // Add student to class
 export async function addStudentToClass(classId: string, studentEmail: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const classes = await getTeacherClasses();
-    if (!classes.find(c => c.id === classId)) {
+    const roster = await getTeacherRoster();
+    if (!roster || !roster.classIds.includes(classId)) {
       return { success: false, error: 'You do not have access to this class' };
     }
 
