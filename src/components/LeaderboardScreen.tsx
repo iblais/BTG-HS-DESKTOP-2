@@ -205,7 +205,7 @@ export function LeaderboardScreen() {
         </div>
 
         {/* Total Players Card */}
-        <div className="bg-[#12162F] border border-white/10 rounded-xl p-6">
+        <div className="bg-[#0D0F12] border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-sm">Total Players</p>
@@ -216,7 +216,7 @@ export function LeaderboardScreen() {
         </div>
 
         {/* Top Score Card */}
-        <div className="bg-[#12162F] border border-white/10 rounded-xl p-6">
+        <div className="bg-[#0D0F12] border border-white/10 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/70 text-sm">Top Score</p>
@@ -348,7 +348,7 @@ export function LeaderboardScreen() {
       )}
 
       {/* Leaderboard List */}
-      <div className="bg-[#12162F] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-[#0D0F12] border border-white/10 rounded-xl overflow-hidden">
         <div className="p-4 border-b border-white/10">
           <h3 className="text-white font-semibold">Rankings</h3>
         </div>

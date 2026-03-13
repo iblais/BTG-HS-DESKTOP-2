@@ -146,7 +146,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
   };
 
   const renderIntro = () => (
-    <div className="min-h-screen bg-[#0A0E27] p-6">
+    <div className="min-h-screen bg-[#050505] p-6">
       <div className="flex items-center justify-between mb-8">
         <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
           <ArrowLeft className="w-6 h-6 text-white" />
@@ -220,7 +220,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
     if (!currentItem) return null;
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[#050505] p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
@@ -321,7 +321,7 @@ export const NeedsVsWantsChallenge: React.FC<NeedsVsWantsChallengeProps> = ({ on
     else if (percentage >= 60) { grade = 'D'; gradeColor = 'text-orange-400'; }
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[#050505] p-6">
         <div className="flex items-center justify-between mb-8">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-6 h-6 text-white" />

@@ -187,7 +187,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   };
 
   const renderIntro = () => (
-    <div className="min-h-screen bg-[#0A0E27] p-6">
+    <div className="min-h-screen bg-[#050505] p-6">
       <div className="flex items-center justify-between mb-8">
         <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
           <ArrowLeft className="w-6 h-6 text-white" />
@@ -251,9 +251,9 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
   );
 
   const renderPlaying = () => (
-    <div className="min-h-screen bg-[#0A0E27]">
+    <div className="min-h-screen bg-[#050505]">
       {/* Header */}
-      <div className="bg-[#0A0E27] border-b border-white/10 p-4">
+      <div className="bg-[#050505] border-b border-white/10 p-4">
         <div className="flex items-center justify-between mb-4">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-5 h-5 text-white" />
@@ -449,7 +449,7 @@ export const StockMarketSimulator: React.FC<StockMarketSimulatorProps> = ({ onBa
     else { grade = 'F'; message = 'Investing is risky - but you learned something!'; }
 
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[#050505] p-6">
         <div className="flex items-center justify-between mb-8">
           <button onClick={onBack} className="p-2 rounded-lg bg-white/10">
             <ArrowLeft className="w-6 h-6 text-white" />

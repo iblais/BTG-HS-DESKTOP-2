@@ -2826,8 +2826,8 @@ You've completed this program - now go build the life you want.`,
   // Show loading state if content is initializing
   if (programId === 'HS' && !lessonData && !programContent) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#6366F1] animate-spin" />
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10B981] animate-spin" />
       </div>
     );
   }

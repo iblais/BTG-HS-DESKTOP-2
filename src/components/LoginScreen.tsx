@@ -75,7 +75,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#4A5FFF]/10 rounded-full blur-[150px]" />
@@ -97,7 +97,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
         </div>
 
         {/* Form Card */}
-        <div className="bg-[#12162F]/80 backdrop-blur-xl border border-[#2A2F4F] rounded-2xl p-8">
+        <div className="bg-[#0D0F12]/80 backdrop-blur-xl border border-[#2A2F4F] rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white text-center mb-2">
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h2>
@@ -123,7 +123,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 placeholder="you@example.com"
-                className="w-full bg-[#0A0E27] border border-[#2A2F4F] rounded-xl px-4 py-3.5 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
+                className="w-full bg-[#050505] border border-[#2A2F4F] rounded-xl px-4 py-3.5 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
                 disabled={loading}
               />
             </div>
@@ -136,7 +136,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(''); }}
                   placeholder="Enter password"
-                  className="w-full bg-[#0A0E27] border border-[#2A2F4F] rounded-xl px-4 py-3.5 pr-12 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
+                  className="w-full bg-[#050505] border border-[#2A2F4F] rounded-xl px-4 py-3.5 pr-12 text-white placeholder-[#4A4F6A] focus:outline-none focus:border-[#4A5FFF] transition-colors"
                   disabled={loading}
                 />
                 <button
@@ -174,7 +174,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               <div className="w-full border-t border-[#2A2F4F]" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-[#12162F] text-[#4A4F6A] text-sm">or</span>
+              <span className="px-4 bg-[#0D0F12] text-[#4A4F6A] text-sm">or</span>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-[#0A0E27] border border-[#2A2F4F] text-white hover:bg-[#0F1332] hover:border-[#3A3F5F] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-[#050505] border border-[#2A2F4F] text-white hover:bg-[#0F1332] hover:border-[#3A3F5F] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

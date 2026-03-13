@@ -204,11 +204,11 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
               <Camera className="w-8 h-8 text-white" />
             </div>
             {/* Edit badge */}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#4A5FFF] flex items-center justify-center border-2 border-[#0A0E27]">
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#4A5FFF] flex items-center justify-center border-2 border-[#050505]">
               <Camera className="w-3.5 h-3.5 text-white" />
             </div>
             {/* Level badge */}
-            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[#0A0E27]">
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] flex items-center justify-center border-2 border-[#050505]">
               <span className="text-white text-[10px] font-bold">{profile?.level || 1}</span>
             </div>
           </div>

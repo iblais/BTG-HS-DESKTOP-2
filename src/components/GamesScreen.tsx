@@ -399,7 +399,7 @@ export function GamesScreen() {
           onClick={() => setSelectedGame(null)}
         >
           <div
-            className="bg-[#0A0E27] border-t md:border border-white/[0.1] rounded-t-2xl md:rounded-2xl max-w-lg w-full p-4 md:p-6 max-h-[80vh] overflow-y-auto"
+            className="bg-[#050505] border-t md:border border-white/[0.1] rounded-t-2xl md:rounded-2xl max-w-lg w-full p-4 md:p-6 max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {

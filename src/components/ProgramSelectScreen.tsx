@@ -57,7 +57,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 text-[#4A5FFF] animate-spin" />
           <p className="text-white/60">Loading programs...</p>
@@ -67,7 +67,7 @@ export function ProgramSelectScreen({ onEnrollmentCreated, userEmail }: ProgramS
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] relative overflow-hidden">
+    <div className="min-h-screen bg-[#050505] relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div

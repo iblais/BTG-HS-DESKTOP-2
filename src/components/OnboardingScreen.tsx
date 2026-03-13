@@ -66,7 +66,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const Icon = page.icon;
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] relative overflow-hidden flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#050505] relative overflow-hidden flex items-center justify-center p-6">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div

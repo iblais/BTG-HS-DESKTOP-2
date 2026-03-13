@@ -899,7 +899,7 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
           onClick={() => setSelectedWeek(null)}
         >
           <div
-            className="bg-[#0A0E27] border border-white/[0.1] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
+            className="bg-[#050505] border border-white/[0.1] rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {

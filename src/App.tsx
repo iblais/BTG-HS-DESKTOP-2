@@ -369,9 +369,9 @@ function AppContent() {
   // Loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <Loader2 className="h-12 w-12 text-[#10B981] animate-spin" />
           <p className="text-[#9CA3AF]">{t('common.loading')}</p>
         </div>
       </div>
@@ -393,9 +393,9 @@ function AppContent() {
   // Auto-enrolling (was program selection - now handled automatically)
   if (enrollmentState === 'needs_program') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <Loader2 className="h-12 w-12 text-[#10B981] animate-spin" />
           <p className="text-[#9CA3AF]">Setting up your account...</p>
         </div>
       </div>
@@ -410,9 +410,9 @@ function AppContent() {
   // Checking enrollment state
   if (enrollmentState === 'checking') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-[#6366F1] animate-spin" />
+          <Loader2 className="h-12 w-12 text-[#10B981] animate-spin" />
           <p className="text-[#9CA3AF]">Checking enrollment...</p>
         </div>
       </div>
@@ -422,13 +422,13 @@ function AppContent() {
   // Error state
   if (enrollmentState === 'error') {
     return (
-      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
-        <div className="bg-[#12162F] border border-white/10 p-8 rounded-xl text-center max-w-md">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
+        <div className="bg-[#0D0F12] border border-white/10 p-8 rounded-xl text-center max-w-md">
           <h2 className="text-xl font-bold text-red-500 mb-2">Error</h2>
           <p className="text-[#9CA3AF] mb-4">Failed to load your enrollment. Please try again.</p>
           <button
             onClick={() => user && checkEnrollment(user.id)}
-            className="px-6 py-2 bg-[#6366F1] text-white rounded-lg hover:bg-[#5558E3] transition-colors"
+            className="px-6 py-2 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-colors"
           >
             Retry
           </button>
@@ -442,11 +442,11 @@ function AppContent() {
 
   // Main app layout
   return (
-    <div className="min-h-screen bg-[#0A0E27]">
+    <div className="min-h-screen bg-[#050505]">
       {/* Desktop Sidebar - Hidden on mobile */}
       <aside
         className={cn(
-          "hidden md:flex fixed top-0 left-0 h-full bg-[#12162F] border-r border-white/10 z-50 flex-col transition-all duration-300",
+          "hidden md:flex fixed top-0 left-0 h-full bg-[#0D0F12] border-r border-white/10 z-50 flex-col transition-all duration-300",
         )}
         style={{ width: `${sidebarWidth}px` }}
       >
@@ -473,11 +473,11 @@ function AppContent() {
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-150",
                   isActive
-                    ? "bg-[#6366F1]/10 text-[#6366F1] border-l-[3px] border-[#6366F1] pl-[13px]"
+                    ? "bg-[#10B981]/10 text-[#10B981] border-l-[3px] border-[#10B981] pl-[13px]"
                     : "text-[#9CA3AF] hover:bg-white/5 hover:text-white"
                 )}
               >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[#6366F1]")} />
+                <Icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-[#10B981]")} />
                 {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
               </button>
             );
@@ -589,7 +589,7 @@ function AppContent() {
 
       {/* Mobile Bottom Navigation */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 bg-[#12162F] border-t border-white/10 z-50"
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0D0F12] border-t border-white/10 z-50"
         style={{ height: '64px' }}
       >
         <div className={cn(
@@ -605,7 +605,7 @@ function AppContent() {
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-1 transition-colors",
-                  isActive ? "text-[#6366F1]" : "text-[#6B7280]"
+                  isActive ? "text-[#10B981]" : "text-[#6B7280]"
                 )}
               >
                 <Icon className="w-5 h-5" />

@@ -418,7 +418,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
     const accuracy = savingsAmount >= currentMonthData.savingsGoal ? 100 : Math.round((savingsAmount / currentMonthData.savingsGoal) * 100);
     
     return (
-      <div className="min-h-screen bg-[#0A0E27] p-6">
+      <div className="min-h-screen bg-[#050505] p-6">
         {/* Status Bar */}
         <div className="flex justify-between items-center pt-3 pb-2 text-white text-sm">
           <span>9:41</span>
@@ -510,7 +510,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] pb-6">
+    <div className="min-h-screen bg-[#050505] pb-6">
       {/* Status Bar */}
       <div className="flex justify-between items-center px-6 pt-3 pb-2 text-white text-sm">
         <span>9:41</span>
@@ -645,7 +645,7 @@ export const BudgetBuilderGame: React.FC<BudgetBuilderGameProps> = ({ onBack, sa
                 cx="100"
                 cy="100"
                 r="50"
-                fill="#0A0E27"
+                fill="#050505"
                 stroke="rgba(255,255,255,0.1)"
                 strokeWidth="2"
               />
