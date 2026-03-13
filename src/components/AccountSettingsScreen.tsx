@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff, Loader2, X } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, Camera, LogOut, Trash2, CheckCircle, AlertTriangle, Eye, EyeOff, Loader2, X, Globe } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { Button3D } from './ui/Button3D';
 import { signOut, getCurrentUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { uploadAvatar, deleteAvatar, createPreviewUrl, revokePreviewUrl } from '@/lib/avatarUpload';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AccountSettingsScreenProps {
   onBack: () => void;
@@ -23,6 +24,7 @@ export function AccountSettingsScreen({
   initialAvatarUrl,
   onProfileUpdate
 }: AccountSettingsScreenProps) {
+  const { language, setLanguage } = useLanguage();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -394,6 +396,44 @@ export function AccountSettingsScreen({
           >
             {isLoading ? 'Updating...' : 'Update Profile'}
           </Button3D>
+        </div>
+      </GlassCard>
+
+      {/* Preferences Section */}
+      <GlassCard className="p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-[#9D4EDD]/20 flex items-center justify-center">
+            <Globe className="w-5 h-5 text-[#9D4EDD]" />
+          </div>
+          <h2 className="text-lg font-bold text-white">Preferences</h2>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-white/60 text-sm mb-2">Language / Idioma</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setLanguage('en')}
+                className={`flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
+                  language === 'en'
+                    ? 'bg-[#4A5FFF]/20 border-[#4A5FFF] text-white'
+                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                }`}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setLanguage('es')}
+                className={`flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
+                  language === 'es'
+                    ? 'bg-[#4A5FFF]/20 border-[#4A5FFF] text-white'
+                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                }`}
+              >
+                Español
+              </button>
+            </div>
+          </div>
         </div>
       </GlassCard>
 

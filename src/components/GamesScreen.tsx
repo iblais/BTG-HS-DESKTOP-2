@@ -395,7 +395,7 @@ export function GamesScreen() {
       {/* Game Launch Modal */}
       {selectedGame && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-6"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-end md:items-center justify-center p-0 md:p-6"
           onClick={() => setSelectedGame(null)}
         >
           <div

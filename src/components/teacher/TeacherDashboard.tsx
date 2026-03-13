@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Users, BookOpen, CheckCircle, TrendingUp,
   ChevronRight, Plus, Search, Loader2,
-  GraduationCap, FileText, Award, BarChart3
+  GraduationCap, FileText, Award, BarChart3, Sparkles
 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
 import { Button3D } from '../ui/Button3D';
@@ -10,6 +10,7 @@ import {
   getTeacherClasses,
   getAllTeacherStudents,
   createClass,
+  addStudentToClass,
   type Class,
   type StudentWithProgress
 } from '@/lib/teacher';
@@ -35,6 +36,10 @@ export function TeacherDashboard({
   const [newClassName, setNewClassName] = useState('');
   const [creating, setCreating] = useState(false);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [studentEmail, setStudentEmail] = useState('');
+  const [addingStudent, setAddingStudent] = useState(false);
+  const [addStudentError, setAddStudentError] = useState<string | null>(null);
+  const [addStudentSuccess, setAddStudentSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -49,6 +54,7 @@ export function TeacherDashboard({
       ]);
       setClasses(classesData);
       setStudents(studentsData);
+      setSelectedClass((prev) => prev ?? classesData[0]?.id ?? null);
     } catch (err) {
       console.error('Failed to load teacher data:', err);
     } finally {
@@ -74,13 +80,48 @@ export function TeacherDashboard({
     }
   };
 
+  const handleAddStudent = async () => {
+    if (!selectedClass || !studentEmail.trim()) return;
+
+    setAddingStudent(true);
+    setAddStudentError(null);
+    setAddStudentSuccess(null);
+
+    try {
+      const result = await addStudentToClass(selectedClass, studentEmail.trim());
+      if (!result.success) {
+        setAddStudentError(result.error || 'Failed to add student to class');
+        return;
+      }
+
+      setStudentEmail('');
+      setAddStudentSuccess('Student added to class successfully');
+      await loadData();
+    } catch (err) {
+      console.error('Failed to add student to class:', err);
+      setAddStudentError('Failed to add student to class');
+    } finally {
+      setAddingStudent(false);
+    }
+  };
+
   const filteredStudents = students.filter(student => {
     const matchesSearch = searchQuery === '' ||
       student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (student.display_name?.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    return matchesSearch;
+    const matchesClass = !selectedClass || student.class_ids.includes(selectedClass);
+
+    return matchesSearch && matchesClass;
   });
+  const classStudentCounts = classes.reduce<Record<string, number>>((acc, cls) => {
+    acc[cls.id] = students.filter((s) => s.class_ids.includes(cls.id)).length;
+    return acc;
+  }, {});
+
+  const selectedClassName = selectedClass
+    ? classes.find((cls) => cls.id === selectedClass)?.name || 'Selected Class'
+    : null;
 
   // Calculate stats
   const totalStudents = students.length;
@@ -91,12 +132,16 @@ export function TeacherDashboard({
   const averageQuizScore = students.length > 0
     ? Math.round(students.reduce((sum, s) => sum + s.average_quiz_score, 0) / students.length)
     : 0;
+  const studentsNeedingAttention = students.filter((s) => s.average_quiz_score < 70 || s.total_activities === 0).length;
+  const completionRate = students.length > 0
+    ? Math.round((students.filter((s) => s.weeks_completed >= 1).length / students.length) * 100)
+    : 0;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#14D9C4] animate-spin" />
           <p className="text-white/60">Loading teacher dashboard...</p>
         </div>
       </div>
@@ -105,6 +150,29 @@ export function TeacherDashboard({
 
   return (
     <div className="space-y-6">
+      <GlassCard className="p-6 md:p-7 bg-gradient-to-r from-[#14D9C4]/20 via-[#14D9C4]/10 to-transparent border-[#14D9C4]/30">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <p className="text-[#99F6E4] text-xs uppercase tracking-[0.15em] font-bold mb-2">Teacher Command Center</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Your High School Cohorts At A Glance</h2>
+            <p className="text-white/60 text-sm mt-2">Track progress, grade faster, and keep every class on pace.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 min-w-[260px]">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              <p className="text-white/40 text-xs">Completion</p>
+              <p className="text-white text-xl font-bold">{completionRate}%</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              <p className="text-white/40 text-xs">Needs Attention</p>
+              <p className="text-[#FFD700] text-xl font-bold">{studentsNeedingAttention}</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 inline-flex items-center gap-2 text-xs text-[#99F6E4] bg-[#14D9C4]/15 border border-[#14D9C4]/30 rounded-full px-3 py-1.5">
+          <Sparkles className="w-3.5 h-3.5" />
+          Live class operations and grading workflow
+        </div>
+      </GlassCard>
       {/* Stats Overview */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GlassCard className="p-5">
@@ -113,8 +181,8 @@ export function TeacherDashboard({
               <p className="text-white/50 text-sm">Total Students</p>
               <p className="text-3xl font-bold text-white mt-1">{totalStudents}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#4A5FFF]/20 flex items-center justify-center">
-              <Users className="w-6 h-6 text-[#4A5FFF]" />
+            <div className="w-12 h-12 rounded-xl bg-[#14D9C4]/20 flex items-center justify-center">
+              <Users className="w-6 h-6 text-[#14D9C4]" />
             </div>
           </div>
         </GlassCard>
@@ -164,8 +232,8 @@ export function TeacherDashboard({
           onClick={onViewGrading}
           className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] transition-colors text-left"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-[#4A5FFF]" />
+          <div className="w-10 h-10 rounded-lg bg-[#14D9C4]/20 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-[#14D9C4]" />
           </div>
           <div>
             <p className="text-white font-medium">Grade Work</p>
@@ -217,7 +285,7 @@ export function TeacherDashboard({
       {classes.length > 0 && (
         <GlassCard className="p-6">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-[#4A5FFF]" />
+            <GraduationCap className="w-5 h-5 text-[#14D9C4]" />
             Your Classes
           </h3>
 
@@ -228,18 +296,18 @@ export function TeacherDashboard({
                 onClick={() => setSelectedClass(selectedClass === cls.id ? null : cls.id)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
                   selectedClass === cls.id
-                    ? 'bg-[#4A5FFF]/20 border-[#4A5FFF]/50'
+                    ? 'bg-[#14D9C4]/20 border-[#14D9C4]/50'
                     : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06]'
                 } border`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-[#4A5FFF]" />
+                  <div className="w-10 h-10 rounded-lg bg-[#14D9C4]/20 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-[#14D9C4]" />
                   </div>
                   <div className="text-left">
                     <p className="text-white font-medium">{cls.name}</p>
                     <p className="text-white/50 text-sm">
-                      Created {new Date(cls.created_at).toLocaleDateString()}
+                      Created {new Date(cls.created_at).toLocaleDateString()} • {classStudentCounts[cls.id] || 0} students
                     </p>
                   </div>
                 </div>
@@ -266,7 +334,7 @@ export function TeacherDashboard({
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
                   placeholder="e.g., Period 1 - Financial Literacy"
-                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4]"
                 />
               </div>
 
@@ -297,115 +365,259 @@ export function TeacherDashboard({
       )}
 
       {/* Students Section */}
-      <GlassCard className="p-6">
-        <div className="flex items-center justify-between mb-4">
+      <GlassCard className="p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#4A5FFF]" />
-            All Students
+            <Users className="w-5 h-5 text-[#14D9C4]" />
+            {selectedClassName ? `${selectedClassName} Students` : 'All Students'}
           </h3>
 
           {/* Search */}
-          <div className="relative">
+          <div className="relative w-full md:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search students..."
-              className="pl-10 pr-4 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF] text-sm w-64"
+              className="pl-10 pr-4 py-2 bg-white/[0.05] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4] text-sm w-full md:w-72"
             />
           </div>
         </div>
+
+        {/* Class Filter Pills */}
+        {classes.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setSelectedClass(null)}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                selectedClass === null
+                  ? 'bg-[#14D9C4]/20 border-[#14D9C4]/50 text-[#99F6E4]'
+                  : 'bg-white/[0.02] border-white/[0.08] text-white/60 hover:text-white'
+              }`}
+            >
+              All Classes
+            </button>
+            {classes.map((cls) => (
+              <button
+                key={cls.id}
+                onClick={() => setSelectedClass(cls.id)}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                  selectedClass === cls.id
+                    ? 'bg-[#14D9C4]/20 border-[#14D9C4]/50 text-[#99F6E4]'
+                    : 'bg-white/[0.02] border-white/[0.08] text-white/60 hover:text-white'
+                }`}
+              >
+                {cls.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+
+        {/* Quick Enrollment */}
+        {classes.length > 0 && selectedClass && (
+          <div className="mb-5 p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
+            <p className="text-white/70 text-sm mb-2">
+              Add student to <span className="text-white font-medium">{selectedClassName}</span> by email
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={studentEmail}
+                onChange={(e) => {
+                  setStudentEmail(e.target.value);
+                  setAddStudentError(null);
+                  setAddStudentSuccess(null);
+                }}
+                placeholder="student@school.edu"
+                className="flex-1 bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4]"
+              />
+              <Button3D
+                variant="primary"
+                onClick={handleAddStudent}
+                disabled={addingStudent || !studentEmail.trim()}
+                className="sm:w-[170px]"
+              >
+                {addingStudent ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add Student'}
+              </Button3D>
+            </div>
+            {addStudentError && <p className="text-[#FF6B35] text-sm mt-2">{addStudentError}</p>}
+            {addStudentSuccess && <p className="text-[#50D890] text-sm mt-2">{addStudentSuccess}</p>}
+          </div>
+        )}
 
         {filteredStudents.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-white/20 mx-auto mb-3" />
             <p className="text-white/50">
-              {searchQuery ? 'No students found' : 'No students enrolled yet'}
+              {searchQuery ? 'No students found' : selectedClassName ? `No students in ${selectedClassName}` : 'No students enrolled yet'}
             </p>
             <p className="text-white/30 text-sm mt-1">
               Add students to your classes to see them here
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {/* Header */}
-            <div className="grid grid-cols-12 gap-4 px-4 py-2 text-white/50 text-sm font-medium">
-              <div className="col-span-4">Student</div>
-              <div className="col-span-2 text-center">Progress</div>
-              <div className="col-span-2 text-center">Activities</div>
-              <div className="col-span-2 text-center">Quiz Avg</div>
-              <div className="col-span-2 text-center">Actions</div>
-            </div>
+          <>
+            <div className="hidden lg:block space-y-2">
+              {/* Header */}
+              <div className="grid grid-cols-12 gap-4 px-4 py-2 text-white/50 text-sm font-medium">
+                <div className="col-span-4">Student</div>
+                <div className="col-span-2 text-center">Progress</div>
+                <div className="col-span-2 text-center">Activities</div>
+                <div className="col-span-2 text-center">Quiz Avg</div>
+                <div className="col-span-2 text-center">Actions</div>
+              </div>
 
-            {/* Student Rows */}
-            {filteredStudents.map(student => (
-              <div
-                key={student.id}
-                className="grid grid-cols-12 gap-4 items-center px-4 py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-              >
-                <div className="col-span-4 flex items-center gap-3">
-                  {student.avatar_url ? (
-                    <img
-                      src={student.avatar_url}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4A5FFF] to-[#7B8AFF] flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">
-                        {(student.display_name || student.email).charAt(0).toUpperCase()}
+              {/* Student Rows */}
+              {filteredStudents.map(student => (
+                <div
+                  key={student.id}
+                  className="grid grid-cols-12 gap-4 items-center px-4 py-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                >
+                  <div className="col-span-4 flex items-center gap-3">
+                    {student.avatar_url ? (
+                      <img
+                        src={student.avatar_url}
+                        alt=""
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#14D9C4] to-[#67E8F9] flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">
+                          {(student.display_name || student.email).charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-white font-medium">
+                        {student.display_name || student.email.split('@')[0]}
+                      </p>
+                      <p className="text-white/40 text-sm">{student.email}</p>
+                      <p className="text-white/30 text-xs">
+                        {student.class_names.length > 0 ? student.class_names.join(' • ') : 'Unassigned class'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 text-center">
+                    <div className="inline-flex items-center gap-2">
+                      <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#50D890] rounded-full transition-all"
+                          style={{ width: `${(student.weeks_completed / 18) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-white/70 text-sm">
+                        {student.weeks_completed}/18
                       </span>
                     </div>
-                  )}
-                  <div>
-                    <p className="text-white font-medium">
-                      {student.display_name || student.email.split('@')[0]}
-                    </p>
-                    <p className="text-white/40 text-sm">{student.email}</p>
                   </div>
-                </div>
 
-                <div className="col-span-2 text-center">
-                  <div className="inline-flex items-center gap-2">
-                    <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#50D890] rounded-full transition-all"
-                        style={{ width: `${(student.weeks_completed / 18) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-white/70 text-sm">
-                      {student.weeks_completed}/18
+                  <div className="col-span-2 text-center">
+                    <span className="text-white/70">{student.total_activities}</span>
+                  </div>
+
+                  <div className="col-span-2 text-center">
+                    <span className={`font-medium ${
+                      student.average_quiz_score >= 70 ? 'text-[#50D890]' :
+                      student.average_quiz_score >= 50 ? 'text-[#FFD700]' :
+                      'text-[#FF6B35]'
+                    }`}>
+                      {student.average_quiz_score}%
                     </span>
                   </div>
-                </div>
 
-                <div className="col-span-2 text-center">
-                  <span className="text-white/70">{student.total_activities}</span>
+                  <div className="col-span-2 text-center">
+                    <button
+                      onClick={() => onViewStudent(student.id)}
+                      className="px-4 py-1.5 rounded-lg bg-[#14D9C4]/20 text-[#14D9C4] text-sm hover:bg-[#14D9C4]/30 transition-colors"
+                    >
+                      View Work
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
 
-                <div className="col-span-2 text-center">
-                  <span className={`font-medium ${
-                    student.average_quiz_score >= 70 ? 'text-[#50D890]' :
-                    student.average_quiz_score >= 50 ? 'text-[#FFD700]' :
-                    'text-[#FF6B35]'
-                  }`}>
-                    {student.average_quiz_score}%
-                  </span>
-                </div>
-
-                <div className="col-span-2 text-center">
-                  <button
-                    onClick={() => onViewStudent(student.id)}
-                    className="px-4 py-1.5 rounded-lg bg-[#4A5FFF]/20 text-[#4A5FFF] text-sm hover:bg-[#4A5FFF]/30 transition-colors"
+            <div className="lg:hidden space-y-3">
+              {filteredStudents.map(student => {
+                const progressPercent = Math.round((student.weeks_completed / 18) * 100);
+                return (
+                  <div
+                    key={student.id}
+                    className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4"
                   >
-                    View Work
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {student.avatar_url ? (
+                          <img
+                            src={student.avatar_url}
+                            alt=""
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#14D9C4] to-[#67E8F9] flex items-center justify-center shrink-0">
+                            <span className="text-white text-sm font-bold">
+                              {(student.display_name || student.email).charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-white font-medium truncate">
+                            {student.display_name || student.email.split('@')[0]}
+                          </p>
+                          <p className="text-white/40 text-sm truncate">{student.email}</p>
+                        </div>
+                      </div>
+                      <span className={`text-sm font-semibold px-2 py-1 rounded-md ${
+                        student.average_quiz_score >= 70 ? 'text-[#50D890] bg-[#50D890]/10' :
+                        student.average_quiz_score >= 50 ? 'text-[#FFD700] bg-[#FFD700]/10' :
+                        'text-[#FF6B35] bg-[#FF6B35]/10'
+                      }`}>
+                        {student.average_quiz_score}%
+                      </span>
+                    </div>
+
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between text-xs text-white/50 mb-1">
+                        <span>Course Progress</span>
+                        <span>{student.weeks_completed}/18 weeks</span>
+                      </div>
+                      <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#50D890] rounded-full transition-all"
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      <div className="rounded-lg border border-white/[0.08] bg-black/20 px-3 py-2">
+                        <p className="text-white/40 text-xs">Activities</p>
+                        <p className="text-white font-semibold">{student.total_activities}</p>
+                      </div>
+                      <div className="rounded-lg border border-white/[0.08] bg-black/20 px-3 py-2">
+                        <p className="text-white/40 text-xs">Classes</p>
+                        <p className="text-white font-semibold truncate">
+                          {student.class_names.length > 0 ? student.class_names.join(', ') : 'Unassigned'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onViewStudent(student.id)}
+                      className="mt-3 w-full px-4 py-2 rounded-lg bg-[#14D9C4]/20 text-[#99F6E4] text-sm hover:bg-[#14D9C4]/30 transition-colors"
+                    >
+                      View Work
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
+
       </GlassCard>
     </div>
   );

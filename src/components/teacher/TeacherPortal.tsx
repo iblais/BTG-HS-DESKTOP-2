@@ -6,7 +6,7 @@ import { GradingQueueView } from './GradingQueueView';
 import { RubricManager } from './RubricManager';
 import { StandardsView } from './StandardsView';
 import { supabase } from '@/lib/supabase';
-import { type ActivityResponse } from '@/lib/teacher';
+import { canTeacherAccessStudent, type ActivityResponse } from '@/lib/teacher';
 
 type PortalView = 'dashboard' | 'student' | 'grading' | 'queue' | 'rubrics' | 'standards';
 
@@ -27,6 +27,12 @@ export function TeacherPortal() {
   }, []);
 
   const handleViewStudent = async (studentId: string) => {
+    const canAccess = await canTeacherAccessStudent(studentId);
+    if (!canAccess) {
+      alert('You do not have access to this student.');
+      return;
+    }
+
     setSelectedStudentId(studentId);
 
     // Get student name

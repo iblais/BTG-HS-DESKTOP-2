@@ -4,14 +4,14 @@ import {
   ChevronRight, Loader2, User, Calendar
 } from 'lucide-react';
 import { GlassCard } from '../ui/GlassCard';
-import { supabase } from '@/lib/supabase';
-import { type ActivityResponse, WEEK_TITLES, getAllGrades } from '@/lib/teacher';
+import {
+  type ActivityResponse,
+  type TeacherQueueActivity,
+  WEEK_TITLES,
+  getTeacherGradingQueueActivities
+} from '@/lib/teacher';
 
-interface ActivityWithStudent extends ActivityResponse {
-  student_email: string;
-  student_name: string | null;
-  is_graded: boolean;
-}
+type ActivityWithStudent = TeacherQueueActivity;
 
 interface GradingQueueViewProps {
   onBack: () => void;
@@ -30,70 +30,8 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
   const loadAllActivities = async () => {
     setLoading(true);
     try {
-      console.log('[GradingQueue] Loading all activities...');
-
-      // First check auth status
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('[GradingQueue] Current session:', session?.user?.email || 'NO SESSION');
-
-      // Get all activity responses (without JOIN - foreign key not set up)
-      const { data: activitiesData, error } = await supabase
-        .from('activity_responses')
-        .select('*')
-        .order('submitted_at', { ascending: false });
-
-      if (error) {
-        console.error('[GradingQueue] Error loading activities:', error.message, error.details, error.hint);
-        setActivities([]);
-        return;
-      }
-
-      if (!activitiesData || activitiesData.length === 0) {
-        console.log('[GradingQueue] No activities found');
-        setActivities([]);
-        return;
-      }
-
-      console.log('[GradingQueue] Found activities:', activitiesData.length);
-
-      // Get unique user IDs
-      const userIds = [...new Set(activitiesData.map(a => a.user_id))];
-      console.log('[GradingQueue] Fetching info for', userIds.length, 'users');
-
-      // Fetch user info separately
-      const { data: usersData } = await supabase
-        .from('users')
-        .select('id, email, display_name')
-        .in('id', userIds);
-
-      // Create a map of user info
-      const usersMap = new Map<string, { email: string; display_name: string | null }>();
-      if (usersData) {
-        usersData.forEach(user => {
-          usersMap.set(user.id, { email: user.email, display_name: user.display_name });
-        });
-      }
-
-      // Get all grades at once (efficient batch query)
-      const gradesMap = await getAllGrades();
-      console.log('[GradingQueue] Loaded grades:', gradesMap.size);
-
-      // Combine activities with user info and grade status
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const activitiesWithGrades: ActivityWithStudent[] = activitiesData.map((activity: any) => {
-        const gradeKey = `${activity.user_id}-${activity.week_number}-${activity.day_number}`;
-        const grade = gradesMap.get(gradeKey);
-        const userInfo = usersMap.get(activity.user_id);
-        return {
-          ...activity,
-          student_email: userInfo?.email || 'Unknown',
-          student_name: userInfo?.display_name || null,
-          is_graded: !!grade,
-        };
-      });
-
-      setActivities(activitiesWithGrades);
-      console.log('[GradingQueue] Activities loaded successfully:', activitiesWithGrades.length);
+      const activitiesData = await getTeacherGradingQueueActivities();
+      setActivities(activitiesData);
     } catch (err) {
       console.error('[GradingQueue] Failed to load activities:', err);
     } finally {
@@ -114,7 +52,7 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-[#4A5FFF] animate-spin" />
+          <Loader2 className="h-10 w-10 text-[#14D9C4] animate-spin" />
           <p className="text-white/60">Loading all submissions...</p>
         </div>
       </div>
@@ -141,8 +79,8 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
       <div className="grid grid-cols-3 gap-4">
         <GlassCard className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#4A5FFF]/20 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-[#4A5FFF]" />
+            <div className="w-10 h-10 rounded-lg bg-[#14D9C4]/20 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#14D9C4]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{activities.length}</p>
@@ -182,7 +120,7 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
           onClick={() => setFilter('all')}
           className={`px-4 py-2 rounded-md text-sm transition-colors ${
             filter === 'all'
-              ? 'bg-[#4A5FFF] text-white'
+              ? 'bg-[#14D9C4] text-white'
               : 'text-white/60 hover:text-white'
           }`}
         >
@@ -258,6 +196,9 @@ export function GradingQueueView({ onBack, onGradeActivity }: GradingQueueViewPr
                   </div>
                   <p className="text-white/60 text-sm truncate">
                     {WEEK_TITLES[activity.week_number] || 'Financial Literacy'}
+                  </p>
+                  <p className="text-white/40 text-xs truncate">
+                    {activity.class_names.length > 0 ? activity.class_names.join(' • ') : 'Unassigned class'}
                   </p>
                   <div className="flex items-center gap-2 mt-1 text-xs text-white/40">
                     <Calendar className="w-3 h-3" />

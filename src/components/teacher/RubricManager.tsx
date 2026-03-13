@@ -139,7 +139,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                   <div className="flex items-center gap-2">
                     <p className="text-white font-medium">{rubric.name}</p>
                     {rubric.id === DEFAULT_WRITING_RUBRIC.id && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#4A5FFF]/20 text-[#4A5FFF] text-xs">
+                      <span className="px-2 py-0.5 rounded-full bg-[#14D9C4]/20 text-[#14D9C4] text-xs">
                         Default
                       </span>
                     )}
@@ -199,7 +199,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                         {criterion.description}
                       </div>
                       <div className="col-span-2 text-center">
-                        <span className="px-3 py-1 rounded-full bg-[#4A5FFF]/20 text-[#4A5FFF] text-sm font-medium">
+                        <span className="px-3 py-1 rounded-full bg-[#14D9C4]/20 text-[#14D9C4] text-sm font-medium">
                           {criterion.max_points}
                         </span>
                       </div>
@@ -247,7 +247,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                   value={newRubricName}
                   onChange={(e) => setNewRubricName(e.target.value)}
                   placeholder="e.g., Essay Writing Rubric"
-                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4]"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                   value={newRubricDescription}
                   onChange={(e) => setNewRubricDescription(e.target.value)}
                   placeholder="Brief description of when to use this rubric"
-                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF]"
+                  className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4]"
                 />
               </div>
 
@@ -269,7 +269,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                   <label className="text-white/70 text-sm">Criteria</label>
                   <button
                     onClick={handleAddCriterion}
-                    className="flex items-center gap-1 text-[#4A5FFF] text-sm hover:text-[#6B7AFF]"
+                    className="flex items-center gap-1 text-[#14D9C4] text-sm hover:text-[#6B7AFF]"
                   >
                     <Plus className="w-4 h-4" />
                     Add Criterion
@@ -286,14 +286,14 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                             value={criterion.name}
                             onChange={(e) => handleCriterionChange(index, 'name', e.target.value)}
                             placeholder="Criterion name"
-                            className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF] text-sm"
+                            className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4] text-sm"
                           />
                           <input
                             type="text"
                             value={criterion.description}
                             onChange={(e) => handleCriterionChange(index, 'description', e.target.value)}
                             placeholder="Description of what to look for"
-                            className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#4A5FFF] text-sm"
+                            className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg px-3 py-2 text-white placeholder-white/30 focus:outline-none focus:border-[#14D9C4] text-sm"
                           />
                         </div>
                         <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ export function RubricManager({ onBack }: RubricManagerProps) {
                               max="100"
                               value={criterion.max_points}
                               onChange={(e) => handleCriterionChange(index, 'max_points', Number(e.target.value))}
-                              className="w-16 bg-white/[0.05] border border-white/[0.1] rounded-lg px-2 py-2 text-white text-center focus:outline-none focus:border-[#4A5FFF] text-sm"
+                              className="w-16 bg-white/[0.05] border border-white/[0.1] rounded-lg px-2 py-2 text-white text-center focus:outline-none focus:border-[#14D9C4] text-sm"
                             />
                           </div>
                           {newCriteria.length > 1 && (

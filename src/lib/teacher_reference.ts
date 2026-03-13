@@ -1,0 +1,1000 @@
+import { supabase } from './supabase';
+import { getCurrentUser } from './auth';
+
+// Types for teacher portal
+export interface Teacher {
+  id: string;
+  user_id: string;
+  email: string;
+  name?: string;
+  school?: string;
+  created_at: string;
+}
+
+export interface Class {
+  id: string;
+  teacher_id: string;
+  name: string;
+  code?: string;
+  grade_level?: string;
+  created_at: string;
+}
+
+export interface ClassEnrollment {
+  id: string;
+  class_id: string;
+  student_id: string;
+  enrolled_at?: string;
+}
+
+export interface StudentWithProgress {
+  id: string;
+  email: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  class_ids: string[];
+  class_names: string[];
+  // Progress data
+  weeks_completed: number;
+  total_activities: number;
+  average_quiz_score: number;
+  last_active?: string;
+}
+
+export interface ActivityResponse {
+  id: string;
+  user_id: string;
+  week_number: number;
+  day_number: number;
+  module_number: number;
+  response_text: string;
+  submitted_at: string;
+  created_at: string;
+  // Grade info (if graded)
+  grade?: number;
+  feedback?: string;
+  graded_at?: string;
+  graded_by?: string;
+}
+
+export interface TeacherQueueActivity extends ActivityResponse {
+  student_email: string;
+  student_name: string | null;
+  class_ids: string[];
+  class_names: string[];
+  is_graded: boolean;
+}
+
+export interface GradingRubric {
+  id: string;
+  name: string;
+  description?: string;
+  criteria: RubricCriterion[];
+  total_points: number;
+  created_by?: string;
+  created_at: string;
+}
+
+export interface RubricCriterion {
+  name: string;
+  description: string;
+  max_points: number;
+}
+
+export interface AssignmentGrade {
+  id: string;
+  activity_response_id: string;
+  teacher_id: string;
+  student_id: string;
+  week_number: number;
+  day_number: number;
+  grade: number;
+  max_grade: number;
+  feedback?: string;
+  rubric_id?: string;
+  rubric_scores?: Record<string, number>;
+  graded_at: string;
+}
+
+export interface LessonStandard {
+  week_number: number;
+  lesson_number: number;
+  standard_code: string;
+  standard_description: string;
+  category: string;
+}
+
+// California State Standards for Financial Literacy
+export const CA_FINANCIAL_LITERACY_STANDARDS: LessonStandard[] = [
+  // Week 1: Income, Expenses, Savings
+  { week_number: 1, lesson_number: 1, standard_code: 'CA.HSS.12.1.1', standard_description: 'Understand sources of income including wages, salaries, and other earnings', category: 'Personal Finance' },
+  { week_number: 1, lesson_number: 2, standard_code: 'CA.HSS.12.1.2', standard_description: 'Identify and categorize different types of expenses', category: 'Personal Finance' },
+  { week_number: 1, lesson_number: 3, standard_code: 'CA.HSS.12.1.3', standard_description: 'Explain the importance of saving and strategies for saving money', category: 'Personal Finance' },
+  { week_number: 1, lesson_number: 4, standard_code: 'CA.HSS.12.1.4', standard_description: 'Apply the concepts of income, expenses, and savings to personal financial planning', category: 'Personal Finance' },
+
+  // Week 2: Budgeting
+  { week_number: 2, lesson_number: 1, standard_code: 'CA.HSS.12.2.1', standard_description: 'Define budgeting and explain its importance in financial planning', category: 'Budgeting' },
+  { week_number: 2, lesson_number: 2, standard_code: 'CA.HSS.12.2.2', standard_description: 'Create a personal budget using the 50/30/20 rule', category: 'Budgeting' },
+  { week_number: 2, lesson_number: 3, standard_code: 'CA.HSS.12.2.3', standard_description: 'Track spending and adjust budget accordingly', category: 'Budgeting' },
+  { week_number: 2, lesson_number: 4, standard_code: 'CA.HSS.12.2.4', standard_description: 'Use technology tools to manage personal finances', category: 'Budgeting' },
+
+  // Week 3: Banking
+  { week_number: 3, lesson_number: 1, standard_code: 'CA.HSS.12.3.1', standard_description: 'Compare different types of financial institutions', category: 'Banking' },
+  { week_number: 3, lesson_number: 2, standard_code: 'CA.HSS.12.3.2', standard_description: 'Understand checking and savings accounts', category: 'Banking' },
+  { week_number: 3, lesson_number: 3, standard_code: 'CA.HSS.12.3.3', standard_description: 'Evaluate fees and services of financial institutions', category: 'Banking' },
+  { week_number: 3, lesson_number: 4, standard_code: 'CA.HSS.12.3.4', standard_description: 'Practice using banking services safely and securely', category: 'Banking' },
+
+  // Week 4: Credit Basics
+  { week_number: 4, lesson_number: 1, standard_code: 'CA.HSS.12.4.1', standard_description: 'Define credit and explain how it works', category: 'Credit' },
+  { week_number: 4, lesson_number: 2, standard_code: 'CA.HSS.12.4.2', standard_description: 'Understand credit scores and factors that affect them', category: 'Credit' },
+  { week_number: 4, lesson_number: 3, standard_code: 'CA.HSS.12.4.3', standard_description: 'Compare different types of credit products', category: 'Credit' },
+  { week_number: 4, lesson_number: 4, standard_code: 'CA.HSS.12.4.4', standard_description: 'Analyze the costs and benefits of using credit', category: 'Credit' },
+
+  // Week 5: Credit Cards
+  { week_number: 5, lesson_number: 1, standard_code: 'CA.HSS.12.5.1', standard_description: 'Understand how credit cards work and their terms', category: 'Credit' },
+  { week_number: 5, lesson_number: 2, standard_code: 'CA.HSS.12.5.2', standard_description: 'Calculate interest charges and minimum payments', category: 'Credit' },
+  { week_number: 5, lesson_number: 3, standard_code: 'CA.HSS.12.5.3', standard_description: 'Develop responsible credit card usage habits', category: 'Credit' },
+  { week_number: 5, lesson_number: 4, standard_code: 'CA.HSS.12.5.4', standard_description: 'Identify and avoid credit card debt traps', category: 'Credit' },
+
+  // Week 6: Loans
+  { week_number: 6, lesson_number: 1, standard_code: 'CA.HSS.12.6.1', standard_description: 'Understand different types of loans (personal, auto, student)', category: 'Loans' },
+  { week_number: 6, lesson_number: 2, standard_code: 'CA.HSS.12.6.2', standard_description: 'Calculate loan payments and total interest costs', category: 'Loans' },
+  { week_number: 6, lesson_number: 3, standard_code: 'CA.HSS.12.6.3', standard_description: 'Evaluate loan terms and compare offers', category: 'Loans' },
+  { week_number: 6, lesson_number: 4, standard_code: 'CA.HSS.12.6.4', standard_description: 'Develop strategies for managing and paying off debt', category: 'Loans' },
+
+  // Week 7: Investing Basics
+  { week_number: 7, lesson_number: 1, standard_code: 'CA.HSS.12.7.1', standard_description: 'Define investing and explain the risk-return relationship', category: 'Investing' },
+  { week_number: 7, lesson_number: 2, standard_code: 'CA.HSS.12.7.2', standard_description: 'Understand compound interest and time value of money', category: 'Investing' },
+  { week_number: 7, lesson_number: 3, standard_code: 'CA.HSS.12.7.3', standard_description: 'Compare different investment vehicles (stocks, bonds, mutual funds)', category: 'Investing' },
+  { week_number: 7, lesson_number: 4, standard_code: 'CA.HSS.12.7.4', standard_description: 'Explain the importance of diversification', category: 'Investing' },
+
+  // Week 8: Stock Market
+  { week_number: 8, lesson_number: 1, standard_code: 'CA.HSS.12.8.1', standard_description: 'Understand how the stock market works', category: 'Investing' },
+  { week_number: 8, lesson_number: 2, standard_code: 'CA.HSS.12.8.2', standard_description: 'Analyze stock performance using basic metrics', category: 'Investing' },
+  { week_number: 8, lesson_number: 3, standard_code: 'CA.HSS.12.8.3', standard_description: 'Understand market volatility and long-term investing', category: 'Investing' },
+  { week_number: 8, lesson_number: 4, standard_code: 'CA.HSS.12.8.4', standard_description: 'Practice making informed investment decisions', category: 'Investing' },
+
+  // Week 9: Retirement Planning
+  { week_number: 9, lesson_number: 1, standard_code: 'CA.HSS.12.9.1', standard_description: 'Understand the importance of early retirement planning', category: 'Retirement' },
+  { week_number: 9, lesson_number: 2, standard_code: 'CA.HSS.12.9.2', standard_description: 'Compare retirement account types (401k, IRA, Roth IRA)', category: 'Retirement' },
+  { week_number: 9, lesson_number: 3, standard_code: 'CA.HSS.12.9.3', standard_description: 'Calculate retirement savings goals', category: 'Retirement' },
+  { week_number: 9, lesson_number: 4, standard_code: 'CA.HSS.12.9.4', standard_description: 'Understand employer benefits and matching contributions', category: 'Retirement' },
+
+  // Week 10: Insurance
+  { week_number: 10, lesson_number: 1, standard_code: 'CA.HSS.12.10.1', standard_description: 'Understand the purpose and types of insurance', category: 'Insurance' },
+  { week_number: 10, lesson_number: 2, standard_code: 'CA.HSS.12.10.2', standard_description: 'Evaluate health insurance options and coverage', category: 'Insurance' },
+  { week_number: 10, lesson_number: 3, standard_code: 'CA.HSS.12.10.3', standard_description: 'Understand auto and renters insurance', category: 'Insurance' },
+  { week_number: 10, lesson_number: 4, standard_code: 'CA.HSS.12.10.4', standard_description: 'Calculate insurance needs and compare policies', category: 'Insurance' },
+
+  // Week 11: Taxes
+  { week_number: 11, lesson_number: 1, standard_code: 'CA.HSS.12.11.1', standard_description: 'Understand the U.S. tax system and types of taxes', category: 'Taxes' },
+  { week_number: 11, lesson_number: 2, standard_code: 'CA.HSS.12.11.2', standard_description: 'Read and understand a W-2 form and pay stub', category: 'Taxes' },
+  { week_number: 11, lesson_number: 3, standard_code: 'CA.HSS.12.11.3', standard_description: 'File a basic tax return', category: 'Taxes' },
+  { week_number: 11, lesson_number: 4, standard_code: 'CA.HSS.12.11.4', standard_description: 'Understand tax deductions and credits', category: 'Taxes' },
+
+  // Week 12: Consumer Protection
+  { week_number: 12, lesson_number: 1, standard_code: 'CA.HSS.12.12.1', standard_description: 'Identify consumer rights and protections', category: 'Consumer Protection' },
+  { week_number: 12, lesson_number: 2, standard_code: 'CA.HSS.12.12.2', standard_description: 'Recognize and avoid financial scams and fraud', category: 'Consumer Protection' },
+  { week_number: 12, lesson_number: 3, standard_code: 'CA.HSS.12.12.3', standard_description: 'Protect personal financial information', category: 'Consumer Protection' },
+  { week_number: 12, lesson_number: 4, standard_code: 'CA.HSS.12.12.4', standard_description: 'Understand dispute resolution processes', category: 'Consumer Protection' },
+
+  // Week 13: Housing
+  { week_number: 13, lesson_number: 1, standard_code: 'CA.HSS.12.13.1', standard_description: 'Compare renting vs. buying a home', category: 'Housing' },
+  { week_number: 13, lesson_number: 2, standard_code: 'CA.HSS.12.13.2', standard_description: 'Understand lease agreements and tenant rights', category: 'Housing' },
+  { week_number: 13, lesson_number: 3, standard_code: 'CA.HSS.12.13.3', standard_description: 'Calculate housing affordability', category: 'Housing' },
+  { week_number: 13, lesson_number: 4, standard_code: 'CA.HSS.12.13.4', standard_description: 'Understand mortgages and the home buying process', category: 'Housing' },
+
+  // Week 14: Career & Income
+  { week_number: 14, lesson_number: 1, standard_code: 'CA.HSS.12.14.1', standard_description: 'Explore career options and earning potential', category: 'Career' },
+  { week_number: 14, lesson_number: 2, standard_code: 'CA.HSS.12.14.2', standard_description: 'Understand employee benefits and compensation packages', category: 'Career' },
+  { week_number: 14, lesson_number: 3, standard_code: 'CA.HSS.12.14.3', standard_description: 'Negotiate salary and benefits', category: 'Career' },
+  { week_number: 14, lesson_number: 4, standard_code: 'CA.HSS.12.14.4', standard_description: 'Plan for career advancement and income growth', category: 'Career' },
+
+  // Week 15: Entrepreneurship
+  { week_number: 15, lesson_number: 1, standard_code: 'CA.HSS.12.15.1', standard_description: 'Understand entrepreneurship and business ownership', category: 'Entrepreneurship' },
+  { week_number: 15, lesson_number: 2, standard_code: 'CA.HSS.12.15.2', standard_description: 'Develop a basic business plan', category: 'Entrepreneurship' },
+  { week_number: 15, lesson_number: 3, standard_code: 'CA.HSS.12.15.3', standard_description: 'Understand startup costs and funding options', category: 'Entrepreneurship' },
+  { week_number: 15, lesson_number: 4, standard_code: 'CA.HSS.12.15.4', standard_description: 'Manage business finances and cash flow', category: 'Entrepreneurship' },
+
+  // Week 16: Financial Goals
+  { week_number: 16, lesson_number: 1, standard_code: 'CA.HSS.12.16.1', standard_description: 'Set SMART financial goals', category: 'Financial Planning' },
+  { week_number: 16, lesson_number: 2, standard_code: 'CA.HSS.12.16.2', standard_description: 'Create short-term and long-term financial plans', category: 'Financial Planning' },
+  { week_number: 16, lesson_number: 3, standard_code: 'CA.HSS.12.16.3', standard_description: 'Track progress toward financial goals', category: 'Financial Planning' },
+  { week_number: 16, lesson_number: 4, standard_code: 'CA.HSS.12.16.4', standard_description: 'Adjust financial plans based on life changes', category: 'Financial Planning' },
+
+  // Week 17: Financial Decision Making
+  { week_number: 17, lesson_number: 1, standard_code: 'CA.HSS.12.17.1', standard_description: 'Apply decision-making frameworks to financial choices', category: 'Decision Making' },
+  { week_number: 17, lesson_number: 2, standard_code: 'CA.HSS.12.17.2', standard_description: 'Evaluate opportunity costs and trade-offs', category: 'Decision Making' },
+  { week_number: 17, lesson_number: 3, standard_code: 'CA.HSS.12.17.3', standard_description: 'Avoid emotional and impulsive financial decisions', category: 'Decision Making' },
+  { week_number: 17, lesson_number: 4, standard_code: 'CA.HSS.12.17.4', standard_description: 'Seek professional financial advice when needed', category: 'Decision Making' },
+
+  // Week 18: Building Wealth
+  { week_number: 18, lesson_number: 1, standard_code: 'CA.HSS.12.18.1', standard_description: 'Understand wealth building strategies', category: 'Wealth Building' },
+  { week_number: 18, lesson_number: 2, standard_code: 'CA.HSS.12.18.2', standard_description: 'Develop multiple income streams', category: 'Wealth Building' },
+  { week_number: 18, lesson_number: 3, standard_code: 'CA.HSS.12.18.3', standard_description: 'Understand generational wealth and legacy planning', category: 'Wealth Building' },
+  { week_number: 18, lesson_number: 4, standard_code: 'CA.HSS.12.18.4', standard_description: 'Create a comprehensive personal financial plan', category: 'Wealth Building' },
+];
+
+// Default grading rubric for writing assignments
+export const DEFAULT_WRITING_RUBRIC: GradingRubric = {
+  id: 'default-writing-rubric',
+  name: 'Writing Assignment Rubric',
+  description: 'Standard rubric for grading weekly writing assignments',
+  total_points: 100,
+  created_at: new Date().toISOString(),
+  criteria: [
+    {
+      name: 'Understanding of Concept',
+      description: 'Demonstrates clear understanding of the financial concept being discussed',
+      max_points: 30,
+    },
+    {
+      name: 'Real-World Application',
+      description: 'Effectively connects concepts to real-world scenarios and personal experiences',
+      max_points: 25,
+    },
+    {
+      name: 'Critical Thinking',
+      description: 'Shows analysis, evaluation, and original thinking about the topic',
+      max_points: 20,
+    },
+    {
+      name: 'Writing Quality',
+      description: 'Clear, organized writing with proper grammar and structure',
+      max_points: 15,
+    },
+    {
+      name: 'Completeness',
+      description: 'Addresses all parts of the prompt with sufficient detail',
+      max_points: 10,
+    },
+  ],
+};
+
+// Check if current user is a teacher
+export async function isTeacher(): Promise<boolean> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return false;
+
+    // Primary source of truth: teachers table (supports self-created teacher accounts by email/user id mapping)
+    const { data: teacherByUserId } = await supabase
+      .from('teachers')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (teacherByUserId) return true;
+
+    const { data: teacherByEmail } = await supabase
+      .from('teachers')
+      .select('id')
+      .eq('email', user.email)
+      .maybeSingle();
+
+    if (teacherByEmail) return true;
+
+    // Optional role table fallback
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (roleData?.role === 'teacher') return true;
+
+    // Optional profile role fallback
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    return profileData?.role === 'teacher';
+  } catch {
+    return false;
+  }
+}
+
+async function getCurrentTeacherRecord(): Promise<Teacher | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const { data: byUserId } = await supabase
+    .from('teachers')
+    .select('id, user_id, email, created_at')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (byUserId) return byUserId as Teacher;
+
+  const { data: byEmail } = await supabase
+    .from('teachers')
+    .select('id, user_id, email, created_at')
+    .eq('email', user.email)
+    .maybeSingle();
+
+  return (byEmail as Teacher | null) || null;
+}
+
+interface TeacherRoster {
+  teacherId: string;
+  classesById: Map<string, Class>;
+  classIds: string[];
+  studentIds: string[];
+  studentToClassIds: Map<string, string[]>;
+}
+
+async function getTeacherRoster(): Promise<TeacherRoster | null> {
+  try {
+    const teacher = await getCurrentTeacherRecord();
+    if (!teacher) return null;
+
+    const { data: classRows, error: classError } = await supabase.rpc('get_teacher_classes');
+    if (classError) {
+      console.error('[Teacher] get_teacher_classes RPC error:', classError);
+      return null;
+    }
+
+    const classList = (classRows || []) as Class[];
+    const classIds = classList.map((cls) => cls.id);
+    const classesById = new Map<string, Class>(classList.map((cls) => [cls.id, cls]));
+
+    if (classIds.length === 0) {
+      return {
+        teacherId: teacher.id,
+        classesById,
+        classIds,
+        studentIds: [],
+        studentToClassIds: new Map(),
+      };
+    }
+
+    const { data: mapRows, error: mapError } = await supabase.rpc('get_teacher_student_class_map');
+    if (mapError) {
+      console.error('[Teacher] get_teacher_student_class_map RPC error:', mapError);
+      return null;
+    }
+
+    const studentToClassIds = new Map<string, string[]>();
+    for (const row of mapRows || []) {
+      const studentId = row.student_id as string;
+      const classId = row.class_id as string;
+      const mapped = studentToClassIds.get(studentId) || [];
+      if (!mapped.includes(classId)) {
+        mapped.push(classId);
+        studentToClassIds.set(studentId, mapped);
+      }
+    }
+
+    return {
+      teacherId: teacher.id,
+      classesById,
+      classIds,
+      studentIds: Array.from(studentToClassIds.keys()),
+      studentToClassIds,
+    };
+  } catch (err) {
+    console.error('[Teacher] Failed to build roster:', err);
+    return null;
+  }
+}
+
+export async function canTeacherAccessStudent(studentId: string): Promise<boolean> {
+  const roster = await getTeacherRoster();
+  if (!roster) return false;
+  return roster.studentIds.includes(studentId);
+}
+
+// Get teacher's classes
+export async function getTeacherClasses(): Promise<Class[]> {
+  try {
+    const roster = await getTeacherRoster();
+    if (!roster) return [];
+
+    return Array.from(roster.classesById.values()).sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  } catch (err) {
+    console.error('Failed to get teacher classes:', err);
+    return [];
+  }
+}
+
+// Get students in a class
+export async function getClassStudents(classId: string): Promise<StudentWithProgress[]> {
+  try {
+    const roster = await getTeacherRoster();
+    if (!roster || !roster.classIds.includes(classId)) return [];
+
+    const all = await getAllTeacherStudents();
+    return all.filter((student) => student.class_ids.includes(classId));
+  } catch (err) {
+    console.error('Failed to get class students:', err);
+    return [];
+  }
+}
+
+// Get all students for a teacher (only students enrolled in teacher-owned classes)
+export async function getAllTeacherStudents(): Promise<StudentWithProgress[]> {
+  try {
+    const { data, error } = await supabase.rpc('get_teacher_students_progress');
+    if (error) {
+      console.error('[Teacher] get_teacher_students_progress RPC error:', error);
+      return [];
+    }
+
+    return ((data || []) as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      email: String(row.email || ''),
+      display_name: (row.display_name as string | null) || null,
+      avatar_url: (row.avatar_url as string | null) || null,
+      created_at: String(row.created_at || new Date().toISOString()),
+      class_ids: ((row.class_ids as string[] | null) || []).filter(Boolean),
+      class_names: ((row.class_names as string[] | null) || []).filter(Boolean),
+      weeks_completed: Number(row.weeks_completed || 0),
+      total_activities: Number(row.total_activities || 0),
+      average_quiz_score: Number(row.average_quiz_score || 0),
+      last_active: (row.last_active as string | undefined) || undefined,
+    }));
+  } catch (err) {
+    console.error('Failed to get all teacher students:', err);
+    return [];
+  }
+}
+
+// Get student's activity responses
+export async function getStudentActivities(studentId: string): Promise<ActivityResponse[]> {
+  try {
+    const canAccess = await canTeacherAccessStudent(studentId);
+    if (!canAccess) return [];
+
+    const { data } = await supabase
+      .from('activity_responses')
+      .select('*')
+      .eq('user_id', studentId)
+      .order('week_number', { ascending: true })
+      .order('day_number', { ascending: true });
+
+    return data || [];
+  } catch (err) {
+    console.error('Failed to get student activities:', err);
+    return [];
+  }
+}
+
+// Get student's quiz scores
+export async function getStudentQuizScores(studentId: string): Promise<{ week_number: number; score: number; passed: boolean }[]> {
+  try {
+    const canAccess = await canTeacherAccessStudent(studentId);
+    if (!canAccess) return [];
+
+    const { data } = await supabase
+      .from('course_progress')
+      .select('week_number, best_quiz_score, quiz_completed')
+      .eq('user_id', studentId)
+      .not('best_quiz_score', 'is', null)
+      .order('week_number', { ascending: true });
+
+    return (data || []).map(d => ({
+      week_number: d.week_number,
+      score: d.best_quiz_score || 0,
+      passed: d.quiz_completed || false,
+    }));
+  } catch (err) {
+    console.error('Failed to get student quiz scores:', err);
+    return [];
+  }
+}
+
+// Grade an activity response
+export async function gradeActivity(
+  activityResponseId: string,
+  studentId: string,
+  weekNumber: number,
+  dayNumber: number,
+  grade: number,
+  maxGrade: number,
+  feedback?: string,
+  rubricId?: string,
+  rubricScores?: Record<string, number>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      console.error('[Teacher] gradeActivity: Not authenticated');
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    const canAccess = await canTeacherAccessStudent(studentId);
+    if (!canAccess) {
+      return { success: false, error: 'You do not have access to this student' };
+    }
+
+    console.log('[Teacher] Saving grade:', {
+      activityResponseId,
+      studentId,
+      teacherId: user.id,
+      teacherEmail: user.email,
+      weekNumber,
+      dayNumber,
+      grade,
+      maxGrade
+    });
+
+    // Store grade in activity_grades table
+    const gradeData = {
+      activity_response_id: activityResponseId || null,
+      student_id: studentId,
+      teacher_id: user.id,
+      week_number: weekNumber,
+      day_number: dayNumber,
+      grade: grade,
+      max_grade: maxGrade,
+      feedback: feedback || null,
+      rubric_id: rubricId || null,
+      rubric_scores: rubricScores || null,
+      graded_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    console.log('[Teacher] Grade data to insert:', JSON.stringify(gradeData, null, 2));
+
+    const { data, error } = await supabase
+      .from('activity_grades')
+      .upsert(gradeData, {
+        onConflict: 'student_id,week_number,day_number',
+        ignoreDuplicates: false
+      })
+      .select();
+
+    if (error) {
+      console.error('[Teacher] Supabase grade error:', error.message, error.details, error.hint, error.code);
+      // Store locally as backup
+      const gradeKey = `btg_grade_${user.id}_${studentId}_${weekNumber}_${dayNumber}`;
+      localStorage.setItem(gradeKey, JSON.stringify({
+        grade,
+        maxGrade,
+        feedback,
+        rubricId,
+        rubricScores,
+        gradedAt: new Date().toISOString(),
+        gradedBy: user.id,
+      }));
+      console.log('[Teacher] Saved to localStorage as backup');
+      return { success: true }; // Still return success since we saved locally
+    }
+
+    console.log('[Teacher] Grade saved successfully to database:', data);
+
+    // Also save to localStorage as cache
+    const gradeKey = `btg_grade_${user.id}_${studentId}_${weekNumber}_${dayNumber}`;
+    localStorage.setItem(gradeKey, JSON.stringify({
+      grade,
+      maxGrade,
+      feedback,
+      rubricId,
+      rubricScores,
+      gradedAt: new Date().toISOString(),
+      gradedBy: user.id,
+    }));
+
+    return { success: true };
+  } catch (err) {
+    console.error('[Teacher] Failed to grade activity:', err);
+    return { success: false, error: 'Failed to save grade' };
+  }
+}
+
+// Get grade for an activity
+export async function getActivityGrade(
+  studentId: string,
+  weekNumber: number,
+  dayNumber: number
+): Promise<AssignmentGrade | null> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const canAccess = await canTeacherAccessStudent(studentId);
+    if (!canAccess) return null;
+
+    // Query the database first
+    const { data, error } = await supabase
+      .from('activity_grades')
+      .select('*')
+      .eq('teacher_id', user.id)
+      .eq('student_id', studentId)
+      .eq('week_number', weekNumber)
+      .eq('day_number', dayNumber)
+      .single();
+
+    if (data && !error) {
+      console.log('[Teacher] Found grade in database:', data);
+      return {
+        id: data.id,
+        activity_response_id: data.activity_response_id || '',
+        teacher_id: data.teacher_id,
+        student_id: data.student_id,
+        week_number: data.week_number,
+        day_number: data.day_number,
+        grade: data.grade,
+        max_grade: data.max_grade,
+        feedback: data.feedback,
+        rubric_id: data.rubric_id,
+        rubric_scores: data.rubric_scores,
+        graded_at: data.graded_at,
+      };
+    }
+
+    // Fall back to localStorage if not in database
+    const gradeKey = `btg_grade_${user.id}_${studentId}_${weekNumber}_${dayNumber}`;
+    const legacyKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
+    const localGrade = localStorage.getItem(gradeKey) || localStorage.getItem(legacyKey);
+
+    if (localGrade) {
+      try {
+        const parsed = JSON.parse(localGrade);
+        console.log('[Teacher] Found grade in localStorage:', parsed);
+        return {
+          id: `local-${gradeKey}`,
+          activity_response_id: '',
+          teacher_id: parsed.gradedBy,
+          student_id: studentId,
+          week_number: weekNumber,
+          day_number: dayNumber,
+          grade: parsed.grade,
+          max_grade: parsed.maxGrade,
+          feedback: parsed.feedback,
+          rubric_id: parsed.rubricId,
+          rubric_scores: parsed.rubricScores,
+          graded_at: parsed.gradedAt,
+        };
+      } catch {
+        // Invalid local data
+      }
+    }
+
+    return null;
+  } catch (err) {
+    console.error('[Teacher] Error fetching grade:', err);
+
+    // Fall back to localStorage on error
+    const user = await getCurrentUser();
+    if (!user) return null;
+    const gradeKey = `btg_grade_${user.id}_${studentId}_${weekNumber}_${dayNumber}`;
+    const legacyKey = `btg_grade_${studentId}_${weekNumber}_${dayNumber}`;
+    const localGrade = localStorage.getItem(gradeKey) || localStorage.getItem(legacyKey);
+
+    if (localGrade) {
+      try {
+        const parsed = JSON.parse(localGrade);
+        return {
+          id: `local-${gradeKey}`,
+          activity_response_id: '',
+          teacher_id: parsed.gradedBy,
+          student_id: studentId,
+          week_number: weekNumber,
+          day_number: dayNumber,
+          grade: parsed.grade,
+          max_grade: parsed.maxGrade,
+          feedback: parsed.feedback,
+          rubric_id: parsed.rubricId,
+          rubric_scores: parsed.rubricScores,
+          graded_at: parsed.gradedAt,
+        };
+      } catch {
+        // Invalid local data
+      }
+    }
+
+    return null;
+  }
+}
+
+// Get all grades (for efficient batch checking)
+export async function getAllGrades(): Promise<Map<string, AssignmentGrade>> {
+  const gradesMap = new Map<string, AssignmentGrade>();
+  const user = await getCurrentUser();
+  if (!user) return gradesMap;
+
+  try {
+    const roster = await getTeacherRoster();
+    if (!roster || roster.studentIds.length === 0) return gradesMap;
+
+    // Query all grades from database
+    const { data, error } = await supabase
+      .from('activity_grades')
+      .select('*')
+      .eq('teacher_id', user.id)
+      .in('student_id', roster.studentIds);
+
+    if (data && !error) {
+      data.forEach(grade => {
+        const key = `${grade.student_id}-${grade.week_number}-${grade.day_number}`;
+        gradesMap.set(key, {
+          id: grade.id,
+          activity_response_id: grade.activity_response_id || '',
+          teacher_id: grade.teacher_id,
+          student_id: grade.student_id,
+          week_number: grade.week_number,
+          day_number: grade.day_number,
+          grade: grade.grade,
+          max_grade: grade.max_grade,
+          feedback: grade.feedback,
+          rubric_id: grade.rubric_id,
+          rubric_scores: grade.rubric_scores,
+          graded_at: grade.graded_at,
+        });
+      });
+    }
+  } catch (err) {
+    console.error('[Teacher] Error fetching all grades:', err);
+  }
+
+  // Also check localStorage for any grades not in database
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(`btg_grade_${user.id}_`)) {
+      try {
+        const localGrade = localStorage.getItem(key);
+        if (localGrade) {
+          const parsed = JSON.parse(localGrade);
+          // Extract studentId, weekNumber, dayNumber from key
+          const parts = key.replace(`btg_grade_${user.id}_`, '').split('_');
+          if (parts.length >= 3) {
+            const studentId = parts[0];
+            const weekNumber = parseInt(parts[1], 10);
+            const dayNumber = parseInt(parts[2], 10);
+            const mapKey = `${studentId}-${weekNumber}-${dayNumber}`;
+
+            // Only add if not already in map (database takes precedence)
+            if (!gradesMap.has(mapKey)) {
+              gradesMap.set(mapKey, {
+                id: `local-${key}`,
+                activity_response_id: '',
+                teacher_id: parsed.gradedBy,
+                student_id: studentId,
+                week_number: weekNumber,
+                day_number: dayNumber,
+                grade: parsed.grade,
+                max_grade: parsed.maxGrade,
+                feedback: parsed.feedback,
+                rubric_id: parsed.rubricId,
+                rubric_scores: parsed.rubricScores,
+                graded_at: parsed.gradedAt,
+              });
+            }
+          }
+        }
+      } catch {
+        // Invalid local data
+      }
+    }
+  }
+
+  return gradesMap;
+}
+
+export async function getTeacherGradingQueueActivities(): Promise<TeacherQueueActivity[]> {
+  try {
+    const { data: rpcRows, error: rpcError } = await supabase.rpc('get_teacher_queue_activities');
+
+    if (!rpcError && Array.isArray(rpcRows)) {
+      return rpcRows.map((row) => ({
+        id: String(row.id),
+        user_id: String(row.user_id),
+        week_number: Number(row.week_number || 0),
+        day_number: Number(row.day_number || 0),
+        module_number: Number(row.module_number || row.day_number || 0),
+        response_text: String(row.response_text || ''),
+        submitted_at: String(row.submitted_at || new Date().toISOString()),
+        created_at: String(row.created_at || row.submitted_at || new Date().toISOString()),
+        student_email: String(row.student_email || 'Unknown'),
+        student_name: (row.student_name as string | null) || null,
+        class_ids: ((row.class_ids as string[] | null) || []).filter(Boolean),
+        class_names: ((row.class_names as string[] | null) || []).filter(Boolean),
+        is_graded: Boolean(row.is_graded),
+      }));
+    }
+
+    if (rpcError) {
+      console.error('[Teacher] get_teacher_queue_activities RPC error:', rpcError);
+    }
+
+    // Fallback path for environments that do not yet have the queue RPC.
+    const roster = await getTeacherRoster();
+    if (!roster || roster.studentIds.length === 0) return [];
+
+    const [activitiesResult, usersResult, gradesMap] = await Promise.all([
+      supabase
+        .from('activity_responses')
+        .select('*')
+        .in('user_id', roster.studentIds)
+        .order('submitted_at', { ascending: false }),
+      supabase
+        .from('users')
+        .select('id, email, display_name')
+        .in('id', roster.studentIds),
+      getAllGrades(),
+    ]);
+
+    if (activitiesResult.error || !activitiesResult.data) {
+      console.error('[Teacher] Error loading grading queue:', activitiesResult.error);
+      return [];
+    }
+
+    const usersMap = new Map<string, { email: string; display_name: string | null }>();
+    for (const user of usersResult.data || []) {
+      usersMap.set(user.id, { email: user.email, display_name: user.display_name });
+    }
+
+    return activitiesResult.data.map((activity) => {
+      const gradeKey = `${activity.user_id}-${activity.week_number}-${activity.day_number}`;
+      const userInfo = usersMap.get(activity.user_id);
+      const classIds = roster.studentToClassIds.get(activity.user_id) || [];
+
+      return {
+        ...activity,
+        student_email: userInfo?.email || 'Unknown',
+        student_name: userInfo?.display_name || null,
+        class_ids: classIds,
+        class_names: classIds
+          .map((classId) => roster.classesById.get(classId)?.name)
+          .filter((name): name is string => Boolean(name)),
+        is_graded: gradesMap.has(gradeKey),
+      };
+    });
+  } catch (err) {
+    console.error('[Teacher] Failed to load grading queue activities:', err);
+    return [];
+  }
+}
+
+// Create a new class
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function createClass(name: string, _gradeLevel?: string): Promise<Class | null> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    // Get or create teacher record
+    let { data: teacher } = await supabase
+      .from('teachers')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!teacher) {
+      const { data: byEmail } = await supabase
+        .from('teachers')
+        .select('id')
+        .eq('email', user.email)
+        .maybeSingle();
+      teacher = byEmail;
+    }
+
+    if (!teacher) {
+      const { data: newTeacher } = await supabase
+        .from('teachers')
+        .insert({ user_id: user.id, email: user.email })
+        .select()
+        .single();
+      teacher = newTeacher;
+    }
+
+    if (!teacher) return null;
+
+    // Create class
+    const { data: newClass } = await supabase
+      .from('classes')
+      .insert({
+        teacher_id: teacher.id,
+        name,
+      })
+      .select()
+      .single();
+
+    return newClass;
+  } catch (err) {
+    console.error('Failed to create class:', err);
+    return null;
+  }
+}
+
+// Add student to class
+export async function addStudentToClass(classId: string, studentEmail: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const roster = await getTeacherRoster();
+    if (!roster || !roster.classIds.includes(classId)) {
+      return { success: false, error: 'You do not have access to this class' };
+    }
+
+    // Find student by email
+    const { data: student } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', studentEmail)
+      .single();
+
+    if (!student) {
+      return { success: false, error: 'Student not found' };
+    }
+
+    // Check if already enrolled
+    const { data: existing } = await supabase
+      .from('class_enrollments')
+      .select('id')
+      .eq('class_id', classId)
+      .eq('student_id', student.id)
+      .single();
+
+    if (existing) {
+      return { success: false, error: 'Student already in class' };
+    }
+
+    // Add enrollment
+    const { error } = await supabase
+      .from('class_enrollments')
+      .insert({
+        class_id: classId,
+        student_id: student.id,
+      });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to add student to class:', err);
+    return { success: false, error: 'Failed to add student' };
+  }
+}
+
+// Get standards for a week
+export function getWeekStandards(weekNumber: number): LessonStandard[] {
+  return CA_FINANCIAL_LITERACY_STANDARDS.filter(s => s.week_number === weekNumber);
+}
+
+// Get all unique standard categories
+export function getStandardCategories(): string[] {
+  const categories = new Set(CA_FINANCIAL_LITERACY_STANDARDS.map(s => s.category));
+  return Array.from(categories);
+}
+
+// Generate standards coverage report
+export function generateStandardsCoverageReport(completedWeeks: number[]): {
+  covered: LessonStandard[];
+  notCovered: LessonStandard[];
+  coveragePercent: number;
+} {
+  const covered = CA_FINANCIAL_LITERACY_STANDARDS.filter(s => completedWeeks.includes(s.week_number));
+  const notCovered = CA_FINANCIAL_LITERACY_STANDARDS.filter(s => !completedWeeks.includes(s.week_number));
+  const coveragePercent = Math.round((covered.length / CA_FINANCIAL_LITERACY_STANDARDS.length) * 100);
+
+  return { covered, notCovered, coveragePercent };
+}
+
+// Week titles for reference
+export const WEEK_TITLES: Record<number, string> = {
+  1: 'Income, Expenses & Savings',
+  2: 'Budgeting Basics',
+  3: 'Banking Fundamentals',
+  4: 'Credit Basics',
+  5: 'Credit Cards',
+  6: 'Loans & Debt',
+  7: 'Investing Basics',
+  8: 'Stock Market',
+  9: 'Retirement Planning',
+  10: 'Insurance',
+  11: 'Taxes',
+  12: 'Consumer Protection',
+  13: 'Housing',
+  14: 'Career & Income',
+  15: 'Entrepreneurship',
+  16: 'Financial Goals',
+  17: 'Financial Decision Making',
+  18: 'Building Wealth',
+};

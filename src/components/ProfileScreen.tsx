@@ -270,7 +270,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
               </span>
               <span className="flex items-center gap-1.5">
                 <BookOpen className="w-4 h-4" />
-                {enrollment?.program_id === 'HS' ? 'High School Program' : 'College Program'}
+                High School Program
               </span>
             </div>
 
@@ -313,7 +313,7 @@ export function ProfileScreen({ enrollment, onSignOut, onAvatarUpdate }: Profile
           <div>
             <p className="text-white/40 text-sm mb-1">Program</p>
             <p className="text-white font-medium">
-              {enrollment?.program_id === 'HS' ? 'High School (18 weeks)' : 'College (16 weeks)'}
+              High School (18 weeks)
             </p>
           </div>
           <div>
