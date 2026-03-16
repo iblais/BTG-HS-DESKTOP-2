@@ -903,7 +903,8 @@ export function CoursesScreen({ enrollment }: CoursesScreenProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
-              const week = weeks.find(w => w.number === selectedWeek)!;
+              const week = weeks.find(w => w.number === selectedWeek);
+              if (!week) return null;
               return (
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-6">

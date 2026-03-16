@@ -2823,17 +2823,26 @@ You've completed this program - now go build the life you want.`,
 
   const lessonData = programId === 'COLLEGE' ? getCollegeLessonContent(weekNumber) : getLessonContent(weekNumber);
 
-  // Show loading state if content is initializing
-  if (programId === 'HS' && !lessonData && !programContent) {
+  // Guard against missing lesson data
+  if (!lessonData || !lessonData.sections || lessonData.sections.length === 0) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#10B981] animate-spin" />
+      <div className="space-y-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-white/60 hover:text-white transition-colors">
+          <ArrowLeft size={20} />
+          <span>Back to Courses</span>
+        </button>
+        <GlassCard className="p-6 text-center">
+          <h3 className="text-white font-bold mb-2">Lesson Not Available</h3>
+          <p className="text-white/60">This lesson content is not yet available. Please try another week.</p>
+        </GlassCard>
       </div>
     );
   }
-  const currentSectionData = lessonData.sections[currentSection];
+
   const totalSections = lessonData.sections.length;
-  const progressPercentage = ((currentSection + 1) / totalSections) * 100;
+  const safeSection = Math.min(Math.max(0, currentSection), totalSections - 1);
+  const currentSectionData = lessonData.sections[safeSection];
+  const progressPercentage = ((safeSection + 1) / totalSections) * 100;
   const difficultyContent = getDifficultyContent(weekNumber, currentSection, trackLevel);
 
   const handleNext = () => {
