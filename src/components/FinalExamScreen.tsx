@@ -528,7 +528,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   };
 
   const getGradeInfo = (score: number) => {
-    const percentage = (score / totalQuestions) * 100;
+    const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
     if (percentage >= 90) return { grade: 'A', color: 'text-[#50D890]', bgColor: 'from-[#50D890] to-[#4ECDC4]', passed: true };
     if (percentage >= 80) return { grade: 'B', color: 'text-[#4A5FFF]', bgColor: 'from-[#4A5FFF] to-[#00BFFF]', passed: true };
     if (percentage >= 70) return { grade: 'C', color: 'text-[#FF6B35]', bgColor: 'from-[#FF6B35] to-[#FF8E53]', passed: true };
@@ -634,7 +634,7 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   if (showResults) {
     const score = calculateScore();
     const { grade, color, bgColor, passed } = getGradeInfo(score);
-    const percentage = Math.round((score / totalQuestions) * 100);
+    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     const categoryScores = calculateCategoryScores();
 
     return (
@@ -805,6 +805,20 @@ export function FinalExamScreen({ onBack, onComplete }: FinalExamScreenProps) {
   }
 
   // Exam screen
+  if (totalQuestions === 0) {
+    return (
+      <div className="w-full space-y-6 pb-6 md:pb-0">
+        <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+        <div className="bg-[#12162F] border border-white/10 p-6 rounded-xl text-center">
+          <h3 className="text-white font-bold mb-2">Exam Not Available</h3>
+          <p className="text-white/60">The final exam is not yet available.</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentQ = examQuestions[currentQuestion];
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
   const answeredCount = selectedAnswers.filter(a => a !== undefined).length;

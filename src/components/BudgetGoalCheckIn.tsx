@@ -20,8 +20,13 @@ interface BudgetGoalCheckInProps {
 
 export function BudgetGoalCheckIn({ onClose }: BudgetGoalCheckInProps) {
   const [goals, setGoals] = useState<BudgetGoal[]>(() => {
-    const saved = localStorage.getItem('budgetGoals');
-    return saved ? JSON.parse(saved) : [
+    try {
+      const saved = localStorage.getItem('budgetGoals');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Ignore corrupted localStorage data
+    }
+    return [
       {
         id: '1',
         name: 'Emergency Fund',
